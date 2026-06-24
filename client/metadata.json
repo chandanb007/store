@@ -1,0 +1,6 @@
+{
+  "name": "Heritage Treasures",
+  "description": "A curated premium store selling dynamic household items, modern kitchen and dining accessories, textile linens, bedroom essentials, and design masterpieces.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

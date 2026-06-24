@@ -1,0 +1,447 @@
+{
+  "info": {
+    "_postman_id": "3a6db632-7148-4d0e-ad96-95deb6a8c321",
+    "name": "AI APP",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "46744424"
+  },
+  "item": [
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "Add Category",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "sfdasdf sdf asdfs",
+                  "type": "text",
+                  "uuid": "2e6a08cf-b8b6-4de0-b337-8470aadd1b0e"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "uuid": "03f19c52-5768-4bdb-ac0f-5d214a9fc780",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot/Screenshot 2026-06-23 120837.png"
+                },
+                {
+                  "key": "description",
+                  "value": "tsatasfsadfas fsa asfs fsaf sadf ",
+                  "type": "text",
+                  "uuid": "59f6ab29-6e02-455c-ad25-97abac427c3b"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/category",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/category",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Category",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/category",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Electronics updated\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/category/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "category",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get Category",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/category/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "category",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Product",
+      "item": [
+        {
+          "name": "Add product",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "etsetasd fs fs fs sdf asdf  asdf",
+                  "type": "text"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "5",
+                  "type": "text"
+                },
+                {
+                  "key": "qty",
+                  "value": "10",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "1500",
+                  "type": "text"
+                },
+                {
+                  "key": "discountedPrice",
+                  "value": "1500",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": " testing description",
+                  "type": "text"
+                },
+                {
+                  "key": "material",
+                  "value": "material",
+                  "type": "text"
+                },
+                {
+                  "key": "style",
+                  "value": "style",
+                  "type": "text"
+                },
+                {
+                  "key": "primaryImage",
+                  "type": "file",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot 2025-10-24 174018.png"
+                },
+                {
+                  "key": "secondaryImages",
+                  "type": "file",
+                  "uuid": "9aabbb7f-e570-4f2e-916d-b10fcf264bc0",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot/Screenshot 2025-09-09 185727.png"
+                },
+                {
+                  "key": "secondaryImages",
+                  "type": "file",
+                  "uuid": "9aabbb7f-e570-4f2e-916d-b10fcf264bc0",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot/Screenshot 2025-09-09 185727.png"
+                },
+                {
+                  "key": "secondaryImages",
+                  "type": "file",
+                  "uuid": "9aabbb7f-e570-4f2e-916d-b10fcf264bc0",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot/Screenshot 2025-09-09 185727.png"
+                },
+                {
+                  "key": "secondaryImages",
+                  "type": "file",
+                  "uuid": "9d82fe71-681b-4e56-b251-04649de13422",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot/Screenshot 2025-09-09 185727.png"
+                },
+                {
+                  "key": "secondaryImages",
+                  "type": "file",
+                  "uuid": "26762f5a-9863-41af-bf80-e5376d868478",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot/Screenshot 2025-09-09 185727.png"
+                },
+                {
+                  "key": "sku",
+                  "value": "testing skujk safd",
+                  "type": "text",
+                  "uuid": "534212dd-d35e-42f6-a945-05f27dd732b4"
+                },
+                {
+                  "key": "material",
+                  "value": "34",
+                  "type": "text",
+                  "uuid": "82244091-3b26-45f2-8f51-cb43c981df25",
+                  "disabled": true
+                },
+                {
+                  "key": "style",
+                  "value": "asdfasdf",
+                  "type": "text",
+                  "uuid": "731a2674-a41e-471e-afab-fb82a50ee38d",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/product",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "product"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\" : \"testing sdsdf\",\r\n    \"catgoryId\" : 2,\r\n    \"qty\"   : 100,\r\n    \"price\"  : 1500,\r\n    \"dicountedPrice\" : 1400,\r\n    \"description\" : \"testing description\",\r\n    \"material\"   : \"material\",\r\n    \"style\"      : \"style\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/product/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "product",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/product",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "product"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/product/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "product",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/product/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "product",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

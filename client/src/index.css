@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: var(--font-serif-custom, "Playfair Display", Georgia, serif);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-gold-50: var(--gold-50, #fefcf3);
+  --color-gold-100: var(--gold-100, #fdf6e2);
+  --color-gold-200: var(--gold-200, #fbf0c4);
+  --color-gold-300: var(--gold-300, #f7df94);
+  --color-gold-400: var(--gold-400, #ecbc3f);
+  --color-gold-500: var(--gold-500, #d4af37);
+  --color-gold-600: var(--gold-600, #b5952c);
+  --color-gold-700: var(--gold-700, #937824);
+  --color-gold-800: var(--gold-800, #735d1b);
+  --color-gold-900: var(--gold-900, #544312);
+  
+  --color-maroon-50: var(--maroon-50, #fbf3f4);
+  --color-maroon-100: var(--maroon-100, #f7e6e9);
+  --color-maroon-200: var(--maroon-200, #ebc1c7);
+  --color-maroon-300: var(--maroon-300, #db9caa);
+  --color-maroon-400: var(--maroon-400, #be5971);
+  --color-maroon-500: var(--maroon-500, #800020);
+  --color-maroon-600: var(--maroon-600, #66001a);
+  --color-maroon-700: var(--maroon-700, #4d0013);
+  --color-maroon-800: var(--maroon-800, #33000d);
+  --color-maroon-900: var(--maroon-900, #1a0006);
+  
+  --color-royal-50: #f4f6fa;
+  --color-royal-100: #e9eef5;
+  --color-royal-500: #1a365d;
+  --color-royal-600: #102a43;
+  --color-royal-700: #0c1b2c;
+}
+
+@layer utilities {
+  .glass-light {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+  .glass-dark {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-light, #fcfbf7);
+  color: #1c1917;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  background-color: var(--bg-dark, #0f0f0e);
+  color: #f5f5f4;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
