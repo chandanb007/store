@@ -52,8 +52,7 @@ const createProduct = async (req, res,next) => {
         });
       }
       res.status(201).json(product);  
-       next(error);
-    }catch (error) {
+   }catch (error) {
       if (req.files && req.files.length > 0) {
         await Promise.all(
           req.files.map(file => fs.unlink(file.path))
@@ -63,24 +62,33 @@ const createProduct = async (req, res,next) => {
   }
  
 };
-const getProduct = async (req, res) => {
-    const product = await productService.getProduct(req.params.id)
+const getProductById = async (req, res) => {
+    const product = await productService.getProductById(req.params.id)
     res.json(product);
 };
 
 const deleteProduct = async(req, res) => {
   const response = await productService.deleteProduct(req.params.id);
-  res.json(response)
+  res.json({message: "Product deleted successfully"})
 };
 const updateProduct = async(req, res) => {
-  
+   let body = req.body;
+   body['categoryId'] = parseInt(body.categoryId);
+   body['qty'] = parseInt(body.qty);
+   body['price'] = parseInt(body.price);
+   body['discountedPrice'] = parseInt(body.discountedPrice);
   const response = await productService.updateProduct(req.params.id,req.body);
   res.json(response)
 };
+const inventoryHistory = async(req,res,next) => {
+  const response = await productService.inventoryHistory(req.params.id);
+  res.json(response)
+}
 module.exports = {
   createProduct,
   getProducts,
-  getProduct,
+  getProductById,
   deleteProduct,
-  updateProduct
+  updateProduct,
+  inventoryHistory
 };

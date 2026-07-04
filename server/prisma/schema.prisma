@@ -51,6 +51,9 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   productMedia ProductMedia[]
+  inventoryTransactions InventoryTransaction[]
+  orderItem   OrderItem[]
+  variants    ProductVariant[]
   @@index([categoryId])
   @@index([slug])
 }
@@ -67,4 +70,235 @@ model ProductMedia {
   @@unique([productId, mediaId])
   @@index([productId])
   @@index([mediaId])
+}
+enum UserRole {
+  ADMIN
+  CUSTOMER
+}
+model User {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName String?
+  email     String   @unique
+  mobile   String?  @unique
+  password  String
+  role      UserRole @default(CUSTOMER)
+  isEnabled Boolean  @default(true)
+  addresses  Address[]
+  orders     Order[] 
+  carts     Cart[]
+  wishList WishList?
+  couponAssignments CouponAssignment[]
+  couponUsages      CouponUsage[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+enum AddressType {
+  HOME
+  OFFICE
+  OTHER
+}
+model Address {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  type        AddressType @default(HOME)
+  label       String?
+  firstName   String
+  lastName    String?
+  mobile      String
+  address1    String
+  address2    String?
+  city        String
+  state       String
+  country     String
+  postalCode  String
+  isDefault   Boolean     @default(false)
+  user        User        @relation(fields: [userId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  totalAmount Int
+  status      OrderStatus @default(PENDING)
+  user        User        @relation(fields: [userId], references: [id])
+  items       OrderItem[]
+  inventoryTransactions InventoryTransaction[]
+  subTotal        Int
+  discountAmount  Int @default(0)
+  shippingAmount  Int @default(0)
+  couponId        Int?
+  coupon          Coupon? @relation(fields: [couponId], references: [id])
+  couponUages   CouponUsage[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+model OrderItem {
+  id          Int      @id @default(autoincrement())
+  orderId     Int
+  productId   Int
+  productTitle String
+  qty         Int
+  unitPrice   Int
+  totalPrice  Int
+  order       Order    @relation(fields: [orderId], references: [id])
+  product     Product  @relation(fields: [productId], references: [id])
+  variants    ProductVariant[]
+}
+
+enum InventoryTransactionType {
+  PURCHASE
+  SALE
+  RETURN
+  ADJUSTMENT
+}
+
+model InventoryTransaction {
+  id         Int      @id @default(autoincrement())
+  productId  Int
+  orderId    Int?
+  qty        Int
+  type       InventoryTransactionType
+  notes      String?
+  product    Product @relation(fields: [productId], references: [id])
+  order      Order?  @relation(fields: [orderId], references: [id])
+  createdAt  DateTime @default(now())
+  @@index([productId])
+  @@index([orderId])
+}
+
+model ProductVariant {
+  id                Int @id @default(autoincrement())
+  productId         Int
+  product           Product @relation(fields:[productId], references:[id])
+  sku               String @unique
+  price             Int
+  discountedPrice   Int?
+  qty               Int
+  isEnabled         Boolean @default(true)
+  variantValues     ProductVariantValue[]
+  orderItems        OrderItem[]
+  cartItems CartItem[]
+  wishListItems WishListItem[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+model VariantType {
+  id      Int @id @default(autoincrement())
+  name    String @unique
+  values  VariantValue[]
+}
+model VariantValue {
+  id            Int @id @default(autoincrement())
+  variantTypeId Int
+  variantType   VariantType @relation(fields:[variantTypeId], references:[id])
+  value         String
+  productValues ProductVariantValue[]
+}
+model ProductVariantValue {
+  id         Int @id @default(autoincrement())
+  variantId  Int
+  valueId    Int
+  variant    ProductVariant @relation(fields:[variantId], references:[id])
+  value      VariantValue @relation(fields:[valueId], references:[id])
+}
+model Cart {
+  id        Int @id @default(autoincrement())
+  userId    Int @unique
+  user      User @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  couponId   Int?
+  coupon     Coupon? @relation(fields: [couponId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+model CartItem {
+  id         Int @id @default(autoincrement())
+  cartId     Int
+  variantId  Int
+  qty        Int
+  cart        Cart @relation(fields: [cartId], references: [id])
+  variant     ProductVariant @relation(fields: [variantId], references: [id])
+  @@unique([cartId, variantId])
+}
+model WishList {
+  id        Int            @id @default(autoincrement())
+  userId    Int            @unique
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items      WishListItem[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model WishListItem {
+  id               Int             @id @default(autoincrement())
+  wishListId       Int
+  productVariantId Int
+  wishList         WishList        @relation(fields: [wishListId], references: [id], onDelete: Cascade)
+  variant          ProductVariant  @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+  createdAt        DateTime        @default(now())
+  @@unique([wishListId, productVariantId])
+  @@index([wishListId])
+  @@index([productVariantId])
+}
+enum DiscountType {
+  FIXED
+  PERCENTAGE
+  FREE_SHIPPING
+}
+model Coupon {
+  id                Int            @id @default(autoincrement())
+  code              String         @unique
+  name              String
+  description       String?
+  discountType      DiscountType
+  discountValue     Int
+  minimumAmount     Int?
+  maximumDiscount   Int?
+  usageLimit        Int?
+  usagePerUser      Int? @default(1)
+  usedCount         Int            @default(0)
+  startDate         DateTime
+  endDate           DateTime
+  isEnabled         Boolean        @default(true)
+  assignments       CouponAssignment[]
+  usages            CouponUsage[]
+  orders            Order[]
+  carts             Cart[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+model CouponAssignment {
+  id          Int      @id @default(autoincrement())
+  couponId    Int
+  userId      Int
+  coupon       Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  @@unique([couponId, userId])
+  @@index([couponId])
+  @@index([userId])
+}
+model CouponUsage {
+  id          Int      @id @default(autoincrement())
+  couponId    Int
+  userId      Int
+  orderId     Int
+  coupon       Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order        Order    @relation(fields: [orderId], references: [id])
+  usedAt      DateTime @default(now())
+  @@unique([couponId, userId])
+  @@index([couponId])
+  @@index([userId])
 }

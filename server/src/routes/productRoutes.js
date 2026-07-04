@@ -8,9 +8,12 @@ const router = express.Router();
 
 
 const productController = require("../controllers/productController");
+const { auth,allowRoles } = require("../middleware/auth.js");
 
+//public endpoint
 router.get("/", productController.getProducts);
-
+router.get("/:id", productController.getProductById); 
+//admin only endpoints
 router.post("/", 
        productUpload.fields([
     {
@@ -22,12 +25,18 @@ router.post("/",
       maxCount: 10
     }
   ]),
+  auth,
+  allowRoles('ADMIN'),
    validate(createProductSchema),
     productController.createProduct); 
 
-router.get("/:id", productController.getProduct); 
-router.post("/:id", productController.updateProduct); 
+router.post("/:id",productUpload.none(),auth,
+  allowRoles('ADMIN'), productController.updateProduct); 
 
-router.delete("/:id", productController.deleteProduct); 
+router.delete("/:id",auth,
+  allowRoles('ADMIN'), productController.deleteProduct); 
+
+router.get("/:id/inventory",productUpload.none(),auth,
+  allowRoles('ADMIN'), productController.inventoryHistory);   
 
 module.exports = router;

@@ -1,13 +1,11 @@
 const categoryService = require("../services/categoryService");
 
 const getCategories = async (req, res) => {
-  
   const categories = await categoryService.getCategories();
   res.json(categories);
 };
 
 const createCategory = async (req, res,next) => {
-  console.log(req.body)
   try{
     let body = req.body;
     let name = (req.body.name).toLowerCase();

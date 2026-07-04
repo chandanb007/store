@@ -43,27 +43,115 @@ const getProducts = async (data) => {
       where.price.lte = parseInt(data.maxPrice);
     }
   }
+    let orderBy = {id: 'desc'};
+    if(data.sort && (data.sort === 'price_asc' || data.sort === 'price_desc')){
+      let order = (data.sort).split('_')
+      orderBy = {price : order[1]}
+    }
     const page = Number(data.page || 1);
     const pageSize = Number(data.pageSize || 20);
     console.log(where)
     return prisma.product.findMany({
       where,
+      include: {
+        variants: {
+          include: {
+            variantValues: {
+              include: {
+                value: {
+                  include: {
+                    variantType: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       skip: (page - 1) * pageSize,
       take: pageSize,
-      orderBy: {
-        id: "desc"
-      }
+      orderBy
     });
 };
 const createProduct = async(data) => {
-    return prisma.product.create({
-        data
-    })
+  const { variants, ...productData } = data;
+return await prisma.$transaction(async (tx) => {
+    const product = await tx.product.create({
+        data: productData
+    });
+    const parsedVariants = JSON.parse(variants);
+    for (const variant of parsedVariants.variants) {
+        const createdVariant = await tx.productVariant.create({
+            data: {
+                productId: product.id,
+                sku: variant.sku,
+                price: variant.price,
+                discountedPrice: variant.discountedPrice,
+                qty: variant.qty,
+                isDefault: variant.isDefault
+            }
+        });
+        for (const [typeName, valueName] of Object.entries(variant.attributes)) {
+            // Find or create VariantType
+            let variantType = await tx.variantType.findUnique({
+                where: {
+                    name: typeName
+                }
+            });
+            if (!variantType) {
+                variantType = await tx.variantType.create({
+                    data: {
+                        name: typeName
+                    }
+                });
+            }
+            // Find or create VariantValue
+            let variantValue = await tx.variantValue.findFirst({
+                where: {
+                    variantTypeId: variantType.id,
+                    value: valueName
+                }
+            });
+            if (!variantValue) {
+                variantValue = await tx.variantValue.create({
+                    data: {
+                        variantTypeId: variantType.id,
+                        value: valueName
+                    }
+                });
+            }
+            // Link Variant ↔ Value
+            await tx.productVariantValue.create({
+                data: {
+                    variantId: createdVariant.id,
+                    valueId: variantValue.id
+                }
+            });
+        }
+    }
+    return product;
+});
 };
-const getProduct = async(data) => {
-    return prisma.product.findFirstOrThrow({ where : {
-        id : data['id']
-    }        
+const getProductById = async(data) => {
+    return prisma.product.findFirstOrThrow({ 
+      where : {
+        id : Number(data)
+      },
+      include: {
+        variants: {
+          include: {
+            variantValues: {
+              include: {
+                value: {
+                  include: {
+                    variantType: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     })
 };
 const deleteProduct = async (id ,data) => {
@@ -74,6 +162,7 @@ const deleteProduct = async (id ,data) => {
   )
 };
 const updateProduct = async (id ,data) => {
+  console.log(data)
   return prisma.product.update(
     {
       where: { id: parseInt(id) },
@@ -81,10 +170,21 @@ const updateProduct = async (id ,data) => {
     }
   )
 };
+const inventoryHistory = async (id) => {
+  return prisma.inventoryTransaction.findMany({
+  where: {
+    productId: Number(id)
+  },
+  orderBy: {
+    createdAt: "desc"
+  }
+});
+};
 module.exports = {
   createProduct,
   getProducts,
-  getProduct,
+  getProductById,
   deleteProduct,
-  updateProduct
+  updateProduct,
+  inventoryHistory
 };

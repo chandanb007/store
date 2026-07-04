@@ -32,6 +32,7 @@ const createProductSchema = Joi.object({
     .max(20)
     .optional(),  
    isEnabled : Joi.boolean(),   
+  variants : Joi.string().optional(), 
 });
 
 module.exports = {

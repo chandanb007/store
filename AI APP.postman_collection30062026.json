@@ -1,0 +1,1297 @@
+{
+  "info": {
+    "_postman_id": "3a6db632-7148-4d0e-ad96-95deb6a8c321",
+    "name": "AI APP",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "46744424"
+  },
+  "item": [
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "Add Category",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "sfdasdf sdf asdfs asdf",
+                  "type": "text",
+                  "uuid": "2e6a08cf-b8b6-4de0-b337-8470aadd1b0e"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "uuid": "03f19c52-5768-4bdb-ac0f-5d214a9fc780",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot/Screenshot 2026-06-23 120837.png"
+                },
+                {
+                  "key": "description",
+                  "value": "tsatasfsadfas fsa asfs fsaf sadf ",
+                  "type": "text",
+                  "uuid": "59f6ab29-6e02-455c-ad25-97abac427c3b"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/category",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/category",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Category",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/category",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Electronics updated\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/category/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "category",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get Category",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/category/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "category",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Product",
+      "item": [
+        {
+          "name": "Add product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Nike Shoe",
+                  "type": "text"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "5",
+                  "type": "text"
+                },
+                {
+                  "key": "primaryImage",
+                  "type": "file",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot 2025-10-24 174018.png"
+                },
+                {
+                  "key": "secondaryImages",
+                  "type": "file",
+                  "uuid": "9aabbb7f-e570-4f2e-916d-b10fcf264bc0",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot/Screenshot 2025-09-09 185727.png"
+                },
+                {
+                  "key": "secondaryImages",
+                  "type": "file",
+                  "uuid": "9aabbb7f-e570-4f2e-916d-b10fcf264bc0",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot/Screenshot 2025-09-09 185727.png"
+                },
+                {
+                  "key": "secondaryImages",
+                  "type": "file",
+                  "uuid": "9aabbb7f-e570-4f2e-916d-b10fcf264bc0",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot/Screenshot 2025-09-09 185727.png"
+                },
+                {
+                  "key": "secondaryImages",
+                  "type": "file",
+                  "uuid": "9d82fe71-681b-4e56-b251-04649de13422",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot/Screenshot 2025-09-09 185727.png"
+                },
+                {
+                  "key": "secondaryImages",
+                  "type": "file",
+                  "uuid": "26762f5a-9863-41af-bf80-e5376d868478",
+                  "src": "/C:/Users/chandan.bisht/OneDrive - Dedalus S.p.A/Immagini/Screenshot/Screenshot 2025-09-09 185727.png"
+                },
+                {
+                  "key": "variants",
+                  "value": "{\n  \"variants\": [\n    {\n      \"sku\": \"RED-Ss\",\n      \"price\": 999,\n      \"qty\": 20,\n      \"attributes\": {\n        \"Color\": \"Red\",\n        \"Size\": \"S\"\n      }\n    },\n    {\n      \"sku\": \"RED-Ms\",\n      \"price\": 999,\n      \"qty\": 10,\n      \"attributes\": {\n        \"Color\": \"Red\",\n        \"Size\": \"M\"\n      }\n    }\n  ]\n}",
+                  "type": "text",
+                  "uuid": "355e3cf5-65c1-4e04-9f45-e96a76555e86"
+                },
+                {
+                  "key": "material",
+                  "value": "test",
+                  "type": "text",
+                  "uuid": "ee01833c-c5ce-4478-a519-3f8df7f85a58"
+                },
+                {
+                  "key": "style",
+                  "value": "test",
+                  "type": "text",
+                  "uuid": "1757d775-1a89-4af4-8aff-be652d8b8ccb"
+                },
+                {
+                  "key": "qty",
+                  "value": "100",
+                  "type": "text",
+                  "uuid": "204fc06a-f23d-442a-a434-afa6de551dde"
+                },
+                {
+                  "key": "price",
+                  "value": "100",
+                  "type": "text",
+                  "uuid": "b7b912f5-a8bc-4951-b818-51596e4c620e"
+                },
+                {
+                  "key": "description",
+                  "value": "Best shoe",
+                  "type": "text",
+                  "uuid": "f98ded02-fd35-4c0f-b63d-4683834f926d"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/product",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "product"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": " testing sdsdf",
+                  "type": "text"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "qty",
+                  "value": "100",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "1500",
+                  "type": "text"
+                },
+                {
+                  "key": "discountedPrice",
+                  "value": "1400",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "testing description",
+                  "type": "text"
+                },
+                {
+                  "key": "material",
+                  "value": "materi",
+                  "type": "text"
+                },
+                {
+                  "key": "style",
+                  "value": "style",
+                  "type": "text"
+                },
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/product/30",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "product",
+                "30"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/product",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "product"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/product/34",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "product",
+                "34"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/product/29",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "product",
+                "29"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Product inventory",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/product/27/inventory",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "product",
+                "27",
+                "inventory"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "if (pm.response.code === 200 && jsonData.success) {\r",
+                  "    const token = jsonData.data.token;\r",
+                  "    pm.environment.set(\"TOKEN\", token);\r",
+                  "    console.log(\"TOKEN saved to environment:\", token);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"customer@test.com\",\r\n  \"password\": \"test123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"firstName\": \"customer User\",\r\n  \"lastName\": \"user\",\r\n  \"email\": \"customer@test.com\",\r\n  \"mobile\": \"9876543211\",\r\n  \"password\": \"test123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "me",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "Add Order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"items\": [\r\n    {\r\n      \"productId\": 27,\r\n      \"qty\": 2\r\n    },\r\n    {\r\n      \"productId\": 28,\r\n      \"qty\": 1\r\n    }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/order",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "order"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Address",
+      "item": [
+        {
+          "name": "Add address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"type\" : \"HOME\",\r\n    \"label\" : \"Parent home ewe\",\r\n    \"firstName\" : \"chandan\",\r\n    \"lastName\" : \"bisht\",\r\n    \"mobile\" : \"987564210\",\r\n    \"address1\" : \"address 1\",\r\n    \"address2\" : \"address2\",\r\n    \"city\" : \"Meerut\",\r\n    \"state\" : \"UP\",\r\n    \"country\" : \"India\",\r\n    \"postalCode\" : \"250001\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/addresses",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "addresses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"type\" : \"HOME\",\r\n    \"label\" : \"Parent home updated\",\r\n    \"firstName\" : \"chandan\",\r\n    \"lastName\" : \"bisht\",\r\n    \"mobile\" : \"987564210\",\r\n    \"address1\" : \"address 1\",\r\n    \"address2\" : \"address2\",\r\n    \"city\" : \"Meerut\",\r\n    \"state\" : \"UP\",\r\n    \"country\" : \"India\",\r\n    \"postalCode\" : \"250001\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/addresses/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "addresses",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Addresses",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/addresses",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "addresses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/addresses/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "addresses",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/dashboard",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "dashboard"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Create cart",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"cartItems\" :[\r\n    {\r\n        \"variantId\": 3,\r\n        \"qty\": 2\r\n    }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/cart",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "cart"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User Cart",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/cart",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "cart"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete cart",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/cart",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "cart"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update qty",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"qty\" : 6\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/cart/27",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "cart",
+                "27"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/cart/29",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "cart",
+                "29"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "WishList",
+      "item": [
+        {
+          "name": "Create or Update",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"variantId\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/wishlist",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "wishlist"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get wishlist",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/wishlist",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "wishlist"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/wishlist/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "wishlist",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Coupon",
+      "item": [
+        {
+          "name": "Add Coupon",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"code\": \"FREESHIPP\",\r\n  \"name\": \"Free Shipping\",\r\n  \"description\": \"Free shipping on all orders above ₹999\",\r\n  \"discountType\": \"FREE_SHIPPING\",\r\n  \"discountValue\": 0,\r\n  \"minimumAmount\": 999,\r\n  \"maximumDiscount\": null,\r\n  \"usageLimit\": null,\r\n  \"usagePerUser\": 5,\r\n  \"startDate\": \"2026-07-01T00:00:00.000Z\",\r\n  \"endDate\": \"2026-12-31T23:59:59.999Z\",\r\n  \"isEnabled\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/admin/coupon",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "admin",
+                "coupon"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userIds\": [1]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/admin/coupon/4/users",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "admin",
+                "coupon",
+                "4",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
