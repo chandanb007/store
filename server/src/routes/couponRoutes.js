@@ -5,7 +5,7 @@ const {auth,allowRoles} = require("../middleware/auth")
 const couponController =  require('../controllers/couponController');
 
 //admin endpoints
-router.post("/",auth,allowRoles("CUSTOMER"), couponController.addCoupon);
+router.post("/", auth, allowRoles("ADMIN"), couponController.addCoupon);
 router.post("/:id/users",auth,allowRoles("ADMIN"), couponController.assignCouponToUsers);
 
 router.get("/:id",auth,allowRoles("ADMIN"), couponController.getCouponById);

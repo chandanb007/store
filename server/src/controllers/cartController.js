@@ -96,9 +96,9 @@ const removeCoupon = async (req, res, next) => {
         const updatedCart = await cartService.removeCoupon(
           req.user.userId,
         );
-        return success(res, "Coupon applied successfully", updatedCart, 200); 
+        return success(res, "Coupon removed successfully", updatedCart, 200); 
     } catch (error){
-        
+        next(error);
     }
 }
 

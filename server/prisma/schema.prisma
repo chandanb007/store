@@ -38,15 +38,8 @@ model Product {
   id          Int      @id @default(autoincrement())
   title        String  @unique
   slug        String   @unique
-  sku         String?  @unique
   categoryId  Int
   category    Category? @relation(fields: [categoryId], references: [id])
-  qty         Int
-  price       Int
-  discountedPrice  Int?
-  description  String
-  material    String
-  style       String
   isEnabled   Boolean @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -127,33 +120,48 @@ enum OrderStatus {
 }
 
 model Order {
-  id          Int         @id @default(autoincrement())
-  userId      Int
-  totalAmount Int
-  status      OrderStatus @default(PENDING)
-  user        User        @relation(fields: [userId], references: [id])
-  items       OrderItem[]
+  id              Int          @id @default(autoincrement())
+  userId          Int
+  user            User         @relation(fields: [userId], references: [id])
+  // Address Snapshot
+  fullName        String
+  phone           String
+  addressLine1    String
+  addressLine2    String?
+  city            String
+  state           String
+  postalCode      String
+  country         String
+  // Pricing
+  subtotal        Int
+  shippingCharge  Int
+  discount        Int
+  grandTotal      Int
+  // Coupon Snapshot
+  couponCode      String?
+  couponName      String?
+  status          OrderStatus  @default(PENDING)
+  items           OrderItem[]
+  couponUsage     CouponUsage[]
   inventoryTransactions InventoryTransaction[]
-  subTotal        Int
-  discountAmount  Int @default(0)
-  shippingAmount  Int @default(0)
-  couponId        Int?
-  coupon          Coupon? @relation(fields: [couponId], references: [id])
-  couponUages   CouponUsage[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  payment         Payment?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }
 model OrderItem {
-  id          Int      @id @default(autoincrement())
-  orderId     Int
-  productId   Int
-  productTitle String
-  qty         Int
-  unitPrice   Int
-  totalPrice  Int
-  order       Order    @relation(fields: [orderId], references: [id])
-  product     Product  @relation(fields: [productId], references: [id])
-  variants    ProductVariant[]
+  id                Int @id @default(autoincrement())
+  orderId           Int
+  order             Order @relation(fields: [orderId], references: [id])
+  productId         Int?
+  product           Product? @relation(fields: [productId], references: [id])
+  variantId         Int?
+  variant           ProductVariant? @relation(fields: [variantId], references: [id])
+  // Snapshots
+  productTitle      String
+  variantSku        String
+  qty               Int
+  unitPrice         Int
+  totalPrice        Int
 }
 
 enum InventoryTransactionType {
@@ -186,6 +194,8 @@ model ProductVariant {
   discountedPrice   Int?
   qty               Int
   isEnabled         Boolean @default(true)
+  material         String?
+  style            String?
   variantValues     ProductVariantValue[]
   orderItems        OrderItem[]
   cartItems CartItem[]
@@ -273,7 +283,6 @@ model Coupon {
   isEnabled         Boolean        @default(true)
   assignments       CouponAssignment[]
   usages            CouponUsage[]
-  orders            Order[]
   carts             Cart[]
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
@@ -301,4 +310,31 @@ model CouponUsage {
   @@unique([couponId, userId])
   @@index([couponId])
   @@index([userId])
+}
+
+enum PaymentMethod {
+  COD
+  RAZORPAY
+  STRIPE
+  PAYPAL
+}
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+model Payment {
+  id                    Int            @id @default(autoincrement())
+  orderId               Int            @unique
+  order                 Order          @relation(fields: [orderId], references: [id])
+  paymentMethod         PaymentMethod
+  paymentStatus         PaymentStatus  @default(PENDING)
+  amount                Int
+  gatewayTransactionId  String?
+  gatewayOrderId        String?
+  gatewayPaymentId      String?
+  remarks               String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }

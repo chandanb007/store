@@ -67,8 +67,15 @@ const getCart = async(userId) => {
    return await prisma.$transaction(async (tx) => {
     let cart = await tx.cart.findUnique({
       where: {
-        userId
-      }
+        userId,
+      },
+      include: {
+        items: {
+          include: {
+            variant: true,
+          },
+        },
+      },
     });
     return await calculateCartSummary(tx, cart.id);
   })
@@ -175,25 +182,29 @@ const applyCouponOnCart = async(db,coupon,cart) => {
     })    
 }
 const removeCoupon = async (userId) => {
-  const userCart = await prisma.cart.findUnique({
+  const cart = await prisma.cart.findUnique({
     where: {
       userId: Number(userId),
-    }
-  })
-  if (!userCart) {
-    throw new appError("Cart does not exists", 400);
+    },
+  });
+  if (cart == null) {
+    throw new AppError("Cart not found.", 404);
   }
-  if (!userCart.couponId) {
-    throw new appError("No coupon applied to the cart", 400);
+  if (!cart.couponId) {
+    throw new AppError("No coupon is applied to the cart.", 400);
   }
+
   await prisma.cart.update({
-    where: { id: userCart.id },
+    where: {
+      id: cart.id,
+    },
     data: {
       couponId: null,
     },
   });
-  return calculateCartSummary(prisma, userCart.id);
-}
+
+  return calculateCartSummary(prisma, cart.id);
+};
 
 module.exports = {
   createCart,

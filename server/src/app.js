@@ -11,6 +11,7 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const wishListRoutes = require("./routes/wishListRoutes");
 const couponRoutes = require("./routes/couponRoutes");
+const checkoutRoutes = require("./routes/checkout");
 
 const app = express();
 
@@ -33,5 +34,6 @@ app.use("/api/wishlist", wishListRoutes);
 
 app.use("/api/admin/coupon", couponRoutes);
 
+app.use("/api/checkout", checkoutRoutes);
 module.exports = app;
 app.use(errorHandler);

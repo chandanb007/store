@@ -28,10 +28,16 @@ const deleteAddress = async(id,userId)=> {
     }
   )
 }
+const getAddress = async (id, userId) => {
+  return prisma.address.findUnique({
+    where: { id: Number(id), userId: Number(userId) },
+  });
+};
 
 module.exports = {
-    createAddress,
-    getAddresses,
-    updateAddress,
-    deleteAddress
-}
+  createAddress,
+  getAddresses,
+  updateAddress,
+  deleteAddress,
+  getAddress,
+};
