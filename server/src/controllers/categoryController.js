@@ -1,8 +1,9 @@
 const categoryService = require("../services/categoryService");
+const {success} = require("../helpers/apiResponse");
 
 const getCategories = async (req, res) => {
   const categories = await categoryService.getCategories();
-  res.json(categories);
+  return success(res, "Category list", categories, 200);
 };
 
 const createCategory = async (req, res,next) => {
@@ -11,7 +12,7 @@ const createCategory = async (req, res,next) => {
     let name = (req.body.name).toLowerCase();
     body['slug'] =  name.replaceAll(' ','-');
     const category = await categoryService.createCategory(body);
-    res.status(201).json(category);
+    return success(res, "Category created", category, 201);
     
   }catch(error){
     next(error)
@@ -20,16 +21,17 @@ const createCategory = async (req, res,next) => {
 
 const getCategory = async (req, res) => {
   const categories = await categoryService.getCategory(req.params.id);
-  res.json(categories); 
+   return success(res, "Category fetched successfully.", categories, 200);
 };
 const updateCategory = async (req, res) => {
   const category = await categoryService.updateCategory(req.params.id, req.body);
-  res.json(category); 
+  return success(res, "Category updated", category, 200);
 };
 
 const deleteCategory = async(req, res) => {
   const response = await categoryService.deleteCategory(req.params.id);
-  res.json(response)
+    return success(res, "Category deleted successfully.", response, 200);
+
 };
 
 module.exports = {
