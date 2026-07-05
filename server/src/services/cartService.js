@@ -2,6 +2,7 @@ const prisma = require("../config/prisma.js");
 const { calculateCartSummary } = require("../helpers/cartHelper");
 const { validateCoupon,validateCouponUsage,validateCouponAssignment,calculateDiscount } = require("../validators/couponValidator.js");
 const AppError = require("../utils/appError.js");
+const { validateVariantInventory } = require("../helpers/inventoryHelper.js");
 
 const createCart = async (cartData) => {
   const userId = Number(cartData.userId);
@@ -11,20 +12,19 @@ const createCart = async (cartData) => {
 
     let cart = await tx.cart.findUnique({
       where: {
-        userId
-      }
+        userId,
+      },
     });
 
     if (!cart) {
       cart = await tx.cart.create({
         data: {
-          userId
-        }
+          userId,
+        },
       });
     }
-
     for (const item of cartItems) {
-
+      await validateVariantInventory(tx, item.variantId, item.qty);
       const existingItem = await tx.cartItem.findUnique({
         where: {
           cartId_variantId: {
@@ -63,9 +63,9 @@ const createCart = async (cartData) => {
 
   });
 };
-const getCart = async(userId) => {
-   return await prisma.$transaction(async (tx) => {
-    let cart = await tx.cart.findUnique({
+const getCart = async (userId) => {
+  return await prisma.$transaction(async (tx) => {
+    let cart = await prisma.cart.findUnique({
       where: {
         userId,
       },
@@ -75,32 +75,33 @@ const getCart = async(userId) => {
             variant: true,
           },
         },
+        coupon: true,
       },
     });
-    return await calculateCartSummary(tx, cart.id);
-  })
-}
-const clearCart = async (userId) => {
-  const cart = await prisma.cart.findUnique({
-    where: { userId }
+    return await calculateCartSummary(prisma, cart.id);
   });
+};
+const clearCart = async (userId) => {
+    const cart = await prisma.cart.findUnique({
+      where: { userId },
+    });
 
   if (!cart) {
     return {
       success: true,
-      message: "Cart is already empty."
+      message: "Cart is already empty.",
     };
   }
 
   await prisma.cartItem.deleteMany({
     where: {
-      cartId: cart.id
-    }
+      cartId: cart.id,
+    },
   });
 
   return {
     success: true,
-    message: "Cart cleared successfully."
+    message: "Cart cleared successfully.",
   };
 };
 const updateItem = async (itemId, userId, data) => {
@@ -171,16 +172,16 @@ const applyCoupon = async(code,userId) => {
           await validateCouponUsage(prisma,coupon.id,coupon.usagePerUser,userId);             
         }
         await validateCouponAssignment(prisma,coupon.id,userId);
-        await applyCouponOnCart(prisma,coupon,cart);
+        await applyCouponOnCart(prisma, coupon.id, cart.id);
     }
     return await calculateCartSummary(prisma,cart.id)
 }
-const applyCouponOnCart = async(db,coupon,cart) => {
-    return await db.cart.update({
-        where : {id: cart.id},
-        data : {couponId : coupon.id}
-    })    
-}
+const applyCouponOnCart = async (db, couponId, cartId) => {
+  return await db.cart.update({
+    where: { id: Number(cartId) },
+    data: { couponId: Number(couponId) },
+  });
+};
 const removeCoupon = async (userId) => {
   const cart = await prisma.cart.findUnique({
     where: {

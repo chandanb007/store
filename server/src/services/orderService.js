@@ -105,7 +105,46 @@ const createOrder = async (data, userId) => {
 
   });
 };
+const getOrders = async (userId) => {
+  return prisma.order.findMany({
+    where: {
+      userId: Number(userId),
+    },
+    include: {
+      items: true,
+      payment: {
+        select: {
+          paymentMethod: true,
+          paymentStatus: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
+const getOrderById = async (orderId) => {
+  return prisma.order.findUnique({
+    where: {
+      id: Number(orderId),
+    },
+    include: {
+      items: true,
+      payment: {
+        select: {
+          paymentMethod: true,
+          paymentStatus: true,
+        },
+      },
+    },
+  });
+};
+
+
 
 module.exports = {
-  createOrder
+  createOrder,
+  getOrders,
+  getOrderById,
 };

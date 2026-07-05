@@ -4,8 +4,8 @@ const validate = require("../middleware/validate");
 const {auth,allowRoles} = require("../middleware/auth")
 const orderController = require("../controllers/orderController")
 
-//public endpoints
-router.post("/",auth, allowRoles('ADMIN'),orderController.createOrder);
+router.get("/", auth, allowRoles("CUSTOMER"), orderController.getOrders);
+router.get("/:id", auth, allowRoles("CUSTOMER"), orderController.getOrderById);
 
 
 module.exports = router;
