@@ -1,15 +1,24 @@
+const { success } = require("../helpers/apiResponse");
 const orderService = require("../services/orderService");
-const {success} = require("../helpers/apiResponse");
-const createOrder = async (req, res, next) => {
-    try {
-        const order = await orderService.createOrder(req.body,req.user.userId);
-        res.json(order);
-        return success(res, "Order created", order, 200);
-    }catch(error) {
-        next(error)
-    }
-}
+
+const getOrders = async (req, res, next) => {
+  try {
+    const orders = await orderService.getOrders(req.user.userId);
+    return success(res, null, orders);
+  } catch (error) {
+    next(error);
+  }
+};
+const getOrderById = async (req, res, next) => {
+  try {
+    const order = await orderService.getOrderById(req.params.id);
+    return success(res, null, order);
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
-    createOrder,
-}
+  getOrders,
+  getOrderById,
+};
