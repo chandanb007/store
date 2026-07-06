@@ -1,9 +1,9 @@
 const { success } = require("../helpers/apiResponse");
 const orderService = require("../services/orderService");
 
-const getUserOrders = async (req, res, next) => {
+const getAllOrders = async (req, res, next) => {
   try {
-    const orders = await orderService.getUserOrders(req.user.userId);
+    const orders = await orderService.getAllOrders(req.query);
     return success(res, null, orders);
   } catch (error) {
     next(error);
@@ -17,8 +17,20 @@ const getOrderById = async (req, res, next) => {
     next(error);
   }
 };
+const updateStatus = async (req, res, next) => {
+    try {
+        const order = await orderService.updateStatus(
+          req.params.id,
+          req.body.status,
+        );
+        return success(res, null, order);
+    } catch (error) {
+        next(error);
+    }
+}
 
 module.exports = {
-  getUserOrders,
+  getAllOrders,
   getOrderById,
+  updateStatus,
 };

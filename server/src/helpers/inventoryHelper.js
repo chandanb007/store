@@ -29,7 +29,6 @@ const validateVariantInventory = async (db, variantId, qty) => {
   return variant;
 };
 const decrementInventory = async (db, orderId, cartItems) => {
-  console.log(cartItems);
   for (const item of cartItems) {
     const result = await db.productVariant.updateMany({
       where: {
@@ -48,7 +47,6 @@ const decrementInventory = async (db, orderId, cartItems) => {
     if (result.count === 0) {
       throw new AppError(`Insufficient stock for SKU ${item.variant.sku}`, 400);
     }
-
     await db.inventoryTransaction.create({
       data: {
         productId: item.product.id,
@@ -59,9 +57,39 @@ const decrementInventory = async (db, orderId, cartItems) => {
     });
   }
 };
+const incrementInventory = async (db, orderId, cartItems) => {
+  for (const item of cartItems) {
+    const result = await db.productVariant.updateMany({
+      where: {
+        id: item.variantId,
+        qty: {
+          gte: item.qty,
+        },
+      },
+      data: {
+        qty: {
+          decrement: item.qty,
+        },
+      },
+    });
+
+    if (result.count === 0) {
+      throw new AppError(`Insufficient stock for SKU ${item.variant.sku}`, 400);
+    }
+    await db.inventoryTransaction.create({
+      data: {
+        productId: item.productId,
+        orderId,
+        qty: +item.qty,
+        type: "RETURN",
+      },
+    });
+  }
+};
 
 module.exports = {
   validateCartInventory,
   decrementInventory,
   validateVariantInventory,
+  incrementInventory,
 };
