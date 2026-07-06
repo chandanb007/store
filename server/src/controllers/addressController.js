@@ -6,7 +6,7 @@ const createAddress = async (req, res,next) => {
         let body =  req.body;
         body['userId'] = req.user.userId;
         const address = await addressService.createAddress(body);
-        return success(res, "address created", address, 201);
+        return success(res, "Address created", address, 201);
    }catch(error){
         next(error)
    }
@@ -17,7 +17,7 @@ const updateAddress = async (req, res,next) => {
         let body =  req.body;
         body['userId'] = req.user.userId;
         const address = await addressService.updateAddress(body, req.params.id);
-        return success(res, "address updated", address, 201);
+        return success(res, "Address updated", address, 201);
    }catch(error){
         next(error)
    }
@@ -25,7 +25,7 @@ const updateAddress = async (req, res,next) => {
 const getAddresses = async(req, res, next) => {
      try{
        const addresses =  await addressService.getAddresses(req.user.userId);
-       return success(res, "address list", addresses, 200);
+       return success(res, "Address list", addresses, 200);
      }catch(error) {
         next(error)
      }

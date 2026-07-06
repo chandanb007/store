@@ -51,7 +51,7 @@ const createProduct = async (req, res,next) => {
             sortOrder: i+2
         });
       }
-      return success(res, "product created", product, 201);
+      return success(res, "Product created", product, 201);
    }catch (error) {
       if (req.files && req.files.length > 0) {
         await Promise.all(

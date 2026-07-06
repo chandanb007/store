@@ -4,7 +4,7 @@ const {success} = require("../helpers/apiResponse");
 const register = async (req, res,next) => {
      try{
         const user = await authService.register(req.body);
-         return success(res, "user created", user, 201);
+         return success(res, "User created", user, 201);
    }catch(error){
         next(error)
    }
@@ -16,7 +16,7 @@ const login = async (req, res, next) => {
       success: true,
       data: result
     });
-     return success(res, "user login successfully", result, 200);
+     return success(res, "User login successfully", result, 200);
 
   } catch (error) {
     console.log(error)
@@ -27,7 +27,7 @@ const login = async (req, res, next) => {
 const me = async (req, res, next) => {
   try {
     const user = await authService.me(req.user);   
-     return success(res, "me", user, 200);
+     return success(res, "null", user, 200);
   } catch (error) {
     next(error);
   }

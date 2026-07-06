@@ -3,7 +3,7 @@ const {success} = require("../helpers/apiResponse");
 const dashboardStats = async(req,res,next) => {
     const stats = await dashboardSerivce.getStats();
     res.json(stats)
-      return success(res, "dashboard status", stats, 200);
+      return success(res, "null", stats, 200);
 }
 
 module.exports = {
