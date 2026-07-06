@@ -32,13 +32,8 @@ const getCart = async (req, res,next) => {
 }
 const clearCart = async (req, res,next) => {
     try {
-        await cartService.clearCart(req.user.userId);
-        return success(
-            res,
-            "All cart items has been deleted",
-            null,
-            200
-        ); 
+       const cartObj =  await cartService.clearCart(req.user.userId);
+         return success(res, "All cart items has been deleted", cartObj, 200); 
     }catch(error){
         next(error)
     }
@@ -48,9 +43,7 @@ const updateCart = async (req, res,next) => {
         let cart =  req.body;
         cart['userId'] = req.user.userId;
         const cartObj = await cartService.createCart(cart);
-         res.status(200).json({
-           message : "Cart deleted"
-        }); 
+         return success(res, "Cart updated successfully.", cartObj, 200);   
     }catch(error){
         next(error)
     }
@@ -58,10 +51,7 @@ const updateCart = async (req, res,next) => {
 const updateItem = async (req, res,next)=> {
     try{
         const updatedCart = await cartService.updateItem(req.params.id,req.user.userId,req.body);
-         res.status(200).json({
-           message : "Cart updated",
-           data : updatedCart
-        }); 
+         return success(res, "Cart updated successfully.", updatedCart, 200); 
     }catch(error){
         next(error)
     }
@@ -69,10 +59,7 @@ const updateItem = async (req, res,next)=> {
 const deleteItem = async (req,res,next) => {
     try{
         const updatedCart = await cartService.deleteItem(req.params.id,req.user.userId);
-        res.status(200).json({
-           message : "Cart updated",
-           data : updatedCart
-        }); 
+        return success(res, "Cart deleted successfully.", updatedCart, 200);
     }catch(error){
         next(error)
     }

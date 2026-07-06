@@ -2,7 +2,7 @@ const productService = require("../services/productService");
 const fs = require("fs/promises");
 const mediaService = require("../services/mediaService")
 const productMediaService = require("../services/productMediaService")
-
+const {success} = require("../helpers/apiResponse");
 
 const getProducts = async (req, res) => {
   const products = await productService.getProducts(req.query);
@@ -51,7 +51,7 @@ const createProduct = async (req, res,next) => {
             sortOrder: i+2
         });
       }
-      res.status(201).json(product);  
+      return success(res, "Product created", product, 201);
    }catch (error) {
       if (req.files && req.files.length > 0) {
         await Promise.all(
@@ -65,11 +65,12 @@ const createProduct = async (req, res,next) => {
 const getProductById = async (req, res) => {
     const product = await productService.getProductById(req.params.id)
     res.json(product);
+    return success(res, "Product fetched successfully.", product, 200);
 };
 
 const deleteProduct = async(req, res) => {
   const response = await productService.deleteProduct(req.params.id);
-  res.json({message: "Product deleted successfully"})
+  return success(res, "Product deleted successfully.", response, 200);
 };
 const updateProduct = async(req, res) => {
    let body = req.body;
@@ -78,11 +79,11 @@ const updateProduct = async(req, res) => {
    body['price'] = parseInt(body.price);
    body['discountedPrice'] = parseInt(body.discountedPrice);
   const response = await productService.updateProduct(req.params.id,req.body);
-  res.json(response)
+  return success(res, "Product updated successfully.", response, 200);
 };
 const inventoryHistory = async(req,res,next) => {
   const response = await productService.inventoryHistory(req.params.id);
-  res.json(response)
+  return success(res, "Inventory history fetched successfully.", response, 200);
 }
 module.exports = {
   createProduct,
