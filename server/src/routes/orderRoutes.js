@@ -7,5 +7,11 @@ const orderController = require("../controllers/orderController")
 router.get("/", auth, allowRoles("CUSTOMER"), orderController.getUserOrders);
 router.get("/:id", auth, allowRoles("CUSTOMER"), orderController.getOrderById);
 
+router.patch(
+  "/:id/status",
+  auth,
+  allowRoles("CUSTOMER"),
+  orderController.cancelOrder,
+);
 
 module.exports = router;

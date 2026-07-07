@@ -14,10 +14,7 @@ const createProduct = async (req, res,next) => {
       let body = req.body;
       let title = (req.body.title).toLowerCase();
       body['slug'] =  title.replaceAll(' ','-');
-      body['categoryId'] = parseInt(body.categoryId);
-      body['qty'] = parseInt(body.qty);
-      body['price'] = parseInt(body.price);
-      body['discountedPrice'] = parseInt(body.discountedPrice);
+      body["categoryId"] = parseInt(body.categoryId);
       const product = await productService.createProduct(body)
       const primaryFile = req.files.primaryImage?.[0];
       if (primaryFile) {
