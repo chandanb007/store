@@ -144,6 +144,7 @@ model Order {
   items           OrderItem[]
   couponUsage     CouponUsage[]
   inventoryTransactions InventoryTransaction[]
+  orderStatusHistory OrderStatusHistory[]
   payment         Payment?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
@@ -337,4 +338,13 @@ model Payment {
   remarks               String?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+}
+
+model OrderStatusHistory {
+    id Int @id @default(autoincrement())
+    orderId Int
+    order Order @relation(fields:[orderId], references:[id])
+    status OrderStatus
+    remarks String?
+    createdAt DateTime @default(now())
 }
