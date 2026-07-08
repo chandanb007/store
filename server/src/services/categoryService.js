@@ -39,6 +39,11 @@ const deleteCategory = async (id ,data) => {
   if (!category) {
     throw new Error("Category not found");
   }
+   await prisma.product.deleteMany({
+    where: {
+      categoryId: Number(id)
+    }
+  });
   
   return prisma.category.delete(
     {
@@ -48,11 +53,7 @@ const deleteCategory = async (id ,data) => {
 };
 
 const validateCategoryById = async (id) => {
-  await prisma.product.deleteMany({
-    where: {
-      categoryId: Number(id)
-    }
-  });
+ 
   const category = await prisma.category.findUnique({
     where: {
       id: Number(id)
