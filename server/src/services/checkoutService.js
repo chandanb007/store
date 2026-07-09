@@ -64,6 +64,13 @@ const checkout = async (data, userId) => {
       couponName: orderHasCoupon ? couponUsed.name : null,
     };
     const order = await createOrder(tx, orderData);
+    const orderNumber = `ORD${String(order.id).padStart(8, "0")}`;
+    const orderDataUpdated = await tx.order.update({
+      where: { id: order.id },
+      data: {
+        orderNumber,
+      },
+    });
     const orderItems = await createOrderItems(tx, order.id, cart.items);
     if (orderHasCoupon) {
       await updateCouponUsage(tx, {
@@ -89,7 +96,7 @@ const checkout = async (data, userId) => {
     };
     await createPayment(tx, paymentData);
     await clearCart(tx, cart.id);
-    return order;
+    return orderDataUpdated;
   });
 };
 

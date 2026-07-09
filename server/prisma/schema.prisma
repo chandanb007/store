@@ -38,6 +38,7 @@ model Product {
   id          Int      @id @default(autoincrement())
   title        String  @unique
   slug        String   @unique
+  description String
   categoryId  Int
   category    Category? @relation(fields: [categoryId], references: [id])
   isEnabled   Boolean @default(false)
@@ -121,6 +122,7 @@ enum OrderStatus {
 
 model Order {
   id              Int          @id @default(autoincrement())
+  orderNumber     String? @unique
   userId          Int
   user            User         @relation(fields: [userId], references: [id])
   // Address Snapshot
@@ -144,6 +146,7 @@ model Order {
   items           OrderItem[]
   couponUsage     CouponUsage[]
   inventoryTransactions InventoryTransaction[]
+  orderStatusHistory OrderStatusHistory[]
   payment         Payment?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
@@ -337,4 +340,13 @@ model Payment {
   remarks               String?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+}
+
+model OrderStatusHistory {
+    id Int @id @default(autoincrement())
+    orderId Int
+    order Order @relation(fields:[orderId], references:[id])
+    status OrderStatus
+    remarks String?
+    createdAt DateTime @default(now())
 }

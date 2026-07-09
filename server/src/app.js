@@ -12,6 +12,7 @@ const cartRoutes = require("./routes/cartRoutes");
 const wishListRoutes = require("./routes/wishListRoutes");
 const couponRoutes = require("./routes/couponRoutes");
 const checkoutRoutes = require("./routes/checkout");
+const adminOrderRoutes = require("./routes/adminOrderRoutes");
 
 const app = express();
 
@@ -19,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 //Common routes
-app.use("/api/auth",authRoutes);
+app.use("/api/auth", authRoutes);
 
 //Admin and public routes
 app.use("/api/category", categoryRoutes);
@@ -35,5 +36,8 @@ app.use("/api/wishlist", wishListRoutes);
 app.use("/api/admin/coupon", couponRoutes);
 
 app.use("/api/checkout", checkoutRoutes);
+
+app.use("/api/admin/orders", adminOrderRoutes);
+
 module.exports = app;
 app.use(errorHandler);
