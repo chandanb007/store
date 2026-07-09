@@ -1,5 +1,9 @@
 const prisma = require("../config/prisma.js");
 const { incrementInventory } = require("../helpers/inventoryHelper.js");
+const {
+  createOrderStatusHistory,
+} = require("../helpers/OrderStatusHistoryHelper.js");
+const AppError = require("../utils/appError.js");
 
 const createOrder = async (data, userId) => {
   const productIds = data.items.map((item) => Number(item.productId));
@@ -132,74 +136,177 @@ const getOrderById = async (orderId) => {
     },
   });
 };
-const getAllOrders = async (data) => {
-  const page = Number(data.page || 1);
-  const limit = Number(data.limit || 20);
+
+const getAllOrders = async (query) => {
+  const page = Number(query.page || 1);
+  const limit = Number(query.limit || 20);
+
   const where = {};
-  if (data.status) {
-    where.status = data.status;
+
+  // Order Status
+  if (query.status) {
+    where.status = query.status;
   }
 
-  if (data.paymentStatus) {
-    where.payment = {
-      paymentStatus: data.paymentStatus,
+  // Order Number
+  if (query.orderNumber) {
+    where.orderNumber = {
+      contains: query.orderNumber,
+      //mode: "insensitive",
     };
   }
 
-  if (data.from || data.to) {
-    where.createdAt = {};
+  // Customer Name / Email
+  if (query.customer) {
+    where.fullName = {
+      contains: query.customer,
+      //mode: "insensitive",
+    };
+  }
 
-    if (data.from) {
-      where.createdAt.gte = new Date(data.from);
+  // Payment Filters
+  if (query.paymentStatus || query.paymentMethod) {
+    where.payment = {};
+
+    if (query.paymentStatus) {
+      where.payment.paymentStatus = query.paymentStatus;
     }
 
-    if (data.to) {
-      where.createdAt.lte = new Date(data.to);
+    if (query.paymentMethod) {
+      where.payment.paymentMethod = query.paymentMethod;
     }
   }
-  return await prisma.order.findMany({
-    where,
-    skip: (page - 1) * limit,
-    take: limit,
-    include: {
-      items: true,
-      payment: {
-        select: {
-          paymentMethod: true,
-          paymentStatus: true,
+
+  // Date Filters
+  if (query.date) {
+    const start = new Date(query.date);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+
+    where.createdAt = {
+      gte: start,
+      lt: end,
+    };
+  } else if (query.from || query.to) {
+    where.createdAt = {};
+
+    if (query.from) {
+      where.createdAt.gte = new Date(query.from);
+    }
+
+    if (query.to) {
+      const to = new Date(query.to);
+      to.setDate(to.getDate() + 1);
+      where.createdAt.lte = new Date(to);
+    }
+  }
+  console.log(where);
+  const [totalRecords, orders] = await prisma.$transaction([
+    prisma.order.count({
+      where,
+    }),
+
+    prisma.order.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        items: true,
+        payment: {
+          select: {
+            paymentMethod: true,
+            paymentStatus: true,
+          },
         },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
+    }),
+  ]);
+
+  return {
+    orders,
+    pagination: {
+      page,
+      limit,
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
     },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  };
 };
 
 const updateStatus = async (orderId, status) => {
-  if (status == "CANCELLED") {
-    const order = await prisma.order.findUnique({
-      where: { id: Number(orderId) },
-      include: {
-        items: {
-          include: {
-            product: {
-              include: {
-                variants: true,
+  return await prisma.$transaction(async (tx) => {
+    if (status == "CANCELLED") {
+      const order = await tx.order.findUnique({
+        where: { id: Number(orderId) },
+        include: {
+          items: {
+            include: {
+              product: {
+                include: {
+                  variants: true,
+                },
               },
             },
           },
         },
-      },
-    });
-    if (order.items) {
-      await incrementInventory(prisma, order.id, order.items);
+      });
+      if (order.status == "SHIPPED") {
+        throw new AppError(
+          "The order has already been shipped and therefore cannot be cancelled.",
+          400,
+        );
+      }
+      if (order.items) {
+        await incrementInventory(tx, order.id, order.items);
+      }
     }
-  }
-  return await prisma.order.update({
-    where: { id: Number(orderId) },
-    data: { status: status },
+    const historyData = {
+      orderId: Number(orderId),
+      status: status,
+    };
+    await createOrderStatusHistory(tx, historyData);
+    return await tx.order.update({
+      where: { id: Number(orderId) },
+      data: { status: status },
+    });
   });
+};
+const cancelOrder = async (id, userId, remark) => {
+  const order = await prisma.order.findUnique({
+    where: { id: Number(id), userId: Number(userId) },
+  });
+  if (order) {
+    return await prisma.$transaction(async (tx) => {
+      if (order.status == "CANCELLED") {
+        throw new AppError("The order is already cancelled.", 400);
+      }
+      if (order.status == "PENDING") {
+        if (order.items) {
+          await incrementInventory(tx, order.id, order.items);
+        }
+      } else {
+        throw new AppError(
+          "The order can not be cancelled at this stage.",
+          400,
+        );
+      }
+      const historyData = {
+        orderId: Number(id),
+        status: "CANCELLED",
+        remarks: remark,
+      };
+      await createOrderStatusHistory(tx, historyData);
+      return await tx.order.update({
+        where: { id: Number(id) },
+        data: { status: "CANCELLED" },
+      });
+    });
+  } else {
+    throw new AppError("Order does not found", 404);
+  }
 };
 
 module.exports = {
@@ -208,4 +315,5 @@ module.exports = {
   getOrderById,
   getAllOrders,
   updateStatus,
+  cancelOrder,
 };

@@ -38,6 +38,7 @@ model Product {
   id          Int      @id @default(autoincrement())
   title        String  @unique
   slug        String   @unique
+  description String
   categoryId  Int
   category    Category? @relation(fields: [categoryId], references: [id])
   isEnabled   Boolean @default(false)
@@ -121,6 +122,7 @@ enum OrderStatus {
 
 model Order {
   id              Int          @id @default(autoincrement())
+  orderNumber     String? @unique
   userId          Int
   user            User         @relation(fields: [userId], references: [id])
   // Address Snapshot
