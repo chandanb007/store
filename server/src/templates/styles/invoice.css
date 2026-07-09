@@ -1,0 +1,291 @@
+ /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #1e293b;
+      background-color: #ffffff;
+      line-height: 1.5;
+      padding: 40px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Invoice Container */
+    .invoice-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #ffffff;
+    }
+
+    /* Header Section */
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+
+    .company-info {
+      max-width: 60%;
+    }
+
+    .company-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.025em;
+      margin-bottom: 8px;
+    }
+
+    .company-details {
+      font-size: 13px;
+      color: #64748b;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .invoice-meta {
+      text-align: right;
+    }
+
+    .invoice-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.025em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .meta-list {
+      display: grid;
+      grid-template-columns: auto auto;
+      column-gap: 16px;
+      row-gap: 6px;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .meta-label {
+      color: #64748b;
+    }
+
+    .meta-value {
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    /* Details Grid (Billing, Shipping, Order Details) */
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 20px;
+    }
+
+    .details-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .details-text {
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.6;
+    }
+
+    .recipient-name {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    /* Product Table Styles */
+    .table-container {
+      margin-bottom: 20px;
+    }
+
+    .product-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    .product-table th {
+      border-bottom: 2px solid #e2e8f0;
+      color: #475569;
+      font-weight: 600;
+      padding: 10px 0;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+
+    .product-table td {
+      border-bottom: 1px solid #f1f5f9;
+      padding: 12px 0;
+      color: #475569;
+    }
+
+    .product-table tbody tr:last-child td {
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .product-title {
+      font-weight: 600;
+      color: #0f172a;
+      font-size: 13px;
+    }
+
+    .product-sku {
+      font-size: 11px;
+      color: #94a3b8;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .number-cell {
+      text-align: right;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    /* Summary Section */
+    .summary-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 40px;
+      margin-bottom: 20px;
+    }
+
+    .notes-section {
+      max-width: 50%;
+    }
+
+    .notes-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .notes-text {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    .pricing-summary {
+      width: 40%;
+      margin-left: auto;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 6px 0;
+      color: #475569;
+    }
+
+    .summary-row.discount {
+      color: #16a34a;
+    }
+
+    .summary-row.total {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 12px;
+      margin-top: 6px;
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 15px;
+    }
+
+    /* Digitization Block */
+    .digitization-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+      border-bottom: 1px solid #e2e8f0;
+		}
+
+    /* Footer Styles */
+    .invoice-footer {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 24px;
+      text-align: center;
+      font-size: 11px;
+      color: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Print media support */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        color: #000000 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .invoice-container {
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-shadow: none !important;
+      }
+
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      tr {
+        page-break-inside: avoid !important;
+      }
+
+      @page {
+        size: portrait;
+        margin: 1.2cm 1.5cm;
+      }
+    }
+
+    /* Mobile Responsive Tweak for Standalone */
+    @media (max-width: 640px) {
+      .digitization-section {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+      }
+      .details-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+    }

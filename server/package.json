@@ -22,7 +22,8 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",
     "pg": "^8.22.0",
-    "prisma": "^6.19.3"
+    "prisma": "^6.19.3",
+    "puppeteer": "^25.3.0"
   },
   "devDependencies": {
     "@types/pg": "^8.20.0",
