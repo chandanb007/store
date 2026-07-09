@@ -30,6 +30,9 @@ const updateCategory = async (req, res) => {
 
 const deleteCategory = async(req, res) => {
   const response = await categoryService.deleteCategory(req.params.id);
+  if (!response) {
+    throw new Error("Category not found");
+  }
     return success(res, "Category deleted successfully.", response, 200);
 
 };
