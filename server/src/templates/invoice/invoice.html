@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Invoice - #10727P1000003189</title>
+  
+  <!-- Inter & Caveat Fonts for Professional Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  {{styles}}
+</head>
+<body>
+
+  <!-- Hidden in Print: Action Bar -->
+  <div class="action-bar">
+    <div class="action-title">Tax Invoice Document Template (#10727P1000003189)</div>
+    <div class="action-buttons">
+      <button class="btn" onclick="window.close();">Close Preview</button>
+      <button class="btn btn-primary" onclick="window.print();">Print / Save PDF</button>
+    </div>
+  </div>
+
+  <div class="invoice-container">
+    
+    <!-- Top Header section -->
+    {{header}}
+    {{customer}}
+    {{items}}
+
+    <!-- Footer Summary Section -->
+    <div class="footer-summary-container">
+      {{signatory}}
+
+      {{summary}}
+    </div>
+
+   {{footer}}
+
+  </div>
+
+</body>
+</html>

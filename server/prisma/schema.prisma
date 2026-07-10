@@ -123,6 +123,7 @@ enum OrderStatus {
 model Order {
   id              Int          @id @default(autoincrement())
   orderNumber     String? @unique
+  invoiceNumber   String? @unique
   userId          Int
   user            User         @relation(fields: [userId], references: [id])
   // Address Snapshot
@@ -148,6 +149,7 @@ model Order {
   inventoryTransactions InventoryTransaction[]
   orderStatusHistory OrderStatusHistory[]
   payment         Payment?
+  invoiceDate     DateTime?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 }

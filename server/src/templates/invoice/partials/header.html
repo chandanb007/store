@@ -1,0 +1,46 @@
+    <!-- Top Header section -->
+    <header class="invoice-header">
+      <div class="header-left">
+        <h1 class="invoice-title">Tax Invoice</h1>
+        
+        <div class="meta-item">
+          <span class="meta-label">Invoice Number:</span>
+          <span class="meta-value">{{invoiceNumber}}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Order Number:</span>
+          <span class="meta-value">{{orderNumber}}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Payment Status:</span>
+          <span class="meta-value">{{paymentStatus}}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Place of Supply:</span>
+          <span class="meta-value" style="text-transform: uppercase;">{{customerState}}</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Top Barcode (Centered & Large as requested) -->
+        <!-- <div class="barcode-container" style="margin-bottom: 15px;">
+          {{barCode}}
+        </div> -->
+        <div class="meta-item">
+          <span class="meta-label">Payment method:</span>
+          <span class="meta-value">{{paymentMethod}}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Invoice Date:</span>
+          <span class="meta-value">{{invoiceDate}}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Order Date:</span>
+          <span class="meta-value">{{orderDate}}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Nature of Supply:</span>
+          <span class="meta-value">Goods</span>
+        </div>
+      </div>
+    </header>

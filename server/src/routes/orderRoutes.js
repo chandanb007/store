@@ -13,5 +13,12 @@ router.patch(
   allowRoles("CUSTOMER"),
   orderController.cancelOrder,
 );
+router.get(
+  "/:id/invoice",
+  auth,
+  allowRoles("CUSTOMER"),
+  orderController.getOrderInvoice,
+);
+
 
 module.exports = router;

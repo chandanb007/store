@@ -1,5 +1,6 @@
 const { success } = require("../helpers/apiResponse");
 const orderService = require("../services/orderService");
+const { getInvoice } = require("../services/invoiceService");
 
 const getUserOrders = async (req, res, next) => {
   try {
@@ -29,9 +30,23 @@ const cancelOrder = async (req, res, next) => {
     next(error);
   }
 };
+const getOrderInvoice = async (req, res, next) => {
+  try {
+    const response = await getInvoice(req.params.id, req.user.userId);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=invoice-Invoice.pdf`,
+    );
+    res.send(response);
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
   getUserOrders,
   getOrderById,
   cancelOrder,
+  getOrderInvoice,
 };
