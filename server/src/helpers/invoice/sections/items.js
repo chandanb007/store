@@ -1,19 +1,24 @@
 const fs = require("fs");
 const path = require("path");
+const {
+  formatVariantAttributes,
+} = require("../../../helpers/productVariantHelper");
 const buildItems = (context) => {
   const itemsHtml = fs.readFileSync(
     path.join(__dirname, "../../../templates/invoice/partials/items.html"),
     "utf8",
   );
   let items = context.order.items
-    .map(
-      (item) => `
+    .map((item) => {
+      console.log(item.variant);
+      const attributes = formatVariantAttributes(item.variant.variantValues);
+      return `
         <tr class="item-row">
             <td class="left-align text-sm">
                 <strong>${item.productTitle}</strong>
 
                 <div>
-                    SKU: ${item.variantSku}
+                    SKU: ${item.variantSku} | ${attributes}
                 </div>
             </td>
             <td class="center-align">${item.qty}</td>
@@ -21,8 +26,8 @@ const buildItems = (context) => {
             <td class="right-align">
                 Rs ${item.totalPrice}
             </td>
-        </tr>`,
-    )
+        </tr>`;
+    })
     .join("");
   items += `
     <tr class="total-row">

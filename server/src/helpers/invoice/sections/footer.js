@@ -18,6 +18,7 @@ const buildFooter = () => {
         process.env.POSTAL_CODE,
     )
     .replaceAll("{{companyName}}", process.env.COMPANY_NAME)
+    .replaceAll("{{companyNameFirstChar}}", process.env.COMPANY_NAME[0])
     .replace("{{companyContactLink}}", process.env.COMPANY_CONTACT_LINK);
 };
 

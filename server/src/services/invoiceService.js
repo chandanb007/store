@@ -9,7 +9,23 @@ const getInvoice = async (orderId, userId) => {
     where: { id: Number(order.id) },
     data: { invoiceNumber: invoiceNumber, invoiceDate: new Date() },
     include: {
-      items: true,
+      items: {
+        include: {
+          variant: {
+            include: {
+              variantValues: {
+                include: {
+                  value: {
+                    include: {
+                      variantType: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       payment: true,
       user: {
         select: {
