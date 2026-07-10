@@ -32,7 +32,7 @@ const cancelOrder = async (req, res, next) => {
 };
 const getOrderInvoice = async (req, res, next) => {
   try {
-    const response = await getInvoice(req.params.id);
+    const response = await getInvoice(req.params.id, req.user.userId);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",

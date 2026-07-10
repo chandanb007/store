@@ -12,11 +12,7 @@ const register = async (req, res,next) => {
 const login = async (req, res, next) => {
   try {
     const result = await authService.login(req.body);
-    res.json({
-      success: true,
-      data: result
-    });
-     return success(res, "User login successfully", result, 200);
+    return success(res, "User login successfully", result, 200);
 
   } catch (error) {
     console.log(error)

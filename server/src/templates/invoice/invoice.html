@@ -3,141 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Invoice - #INV-2026-001</title>
+  <title>Tax Invoice - #10727P1000003189</title>
   
-  <!-- Inter Font for professional typography -->
+  <!-- Inter & Caveat Fonts for Professional Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-   {{styles}}
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  {{styles}}
 </head>
 <body>
-  <div class="invoice-container">    
-    {{header}}
-    <div class="details-grid">
-      {{customer}}
 
-      <div>
-        <div class="details-section-title">Order Details</div>
-        <div class="details-text">
-          <div><strong>Order ID:</strong> {{orderNumber}}</div>
-          <div><strong>Order Date:</strong> Jul 9, 2026</div>
-          <div><strong>Payment Method:</strong> Credit Card</div>
-          <div><strong>Shipping Method:</strong> Standard Ground Delivery</div>
-          <div><strong>Tracking Number:</strong> TRK-992184-US</div>
-        </div>
-      </div>
+  <!-- Hidden in Print: Action Bar -->
+  <div class="action-bar">
+    <div class="action-title">Tax Invoice Document Template (#10727P1000003189)</div>
+    <div class="action-buttons">
+      <button class="btn" onclick="window.close();">Close Preview</button>
+      <button class="btn btn-primary" onclick="window.print();">Print / Save PDF</button>
     </div>
+  </div>
 
-    <div class="table-container">
-      <table class="product-table">
-        <thead>
-          <tr>
-            <th style="width: 45%;">Item Description</th>
-            <th class="text-center" style="width: 10%;">Qty</th>
-            <th class="number-cell" style="width: 15%;">Unit Price</th>
-            <th class="number-cell" style="width: 15%;">Tax Rate</th>
-            <th class="number-cell" style="width: 15%;">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <span class="product-title">Premium Wireless Headphones</span>
-              <span class="product-sku">SKU: HD-WH-500</span>
-            </td>
-            <td class="text-center">1</td>
-            <td class="number-cell">$299.00</td>
-            <td class="number-cell">8%</td>
-            <td class="number-cell">$299.00</td>
-          </tr>
-          <tr>
-            <td>
-              <span class="product-title">Universal USB-C Fast Charger (65W)</span>
-              <span class="product-sku">SKU: CH-GAN-65</span>
-            </td>
-            <td class="text-center">2</td>
-            <td class="number-cell">$49.00</td>
-            <td class="number-cell">8%</td>
-            <td class="number-cell">$98.00</td>
-          </tr>
-          <tr>
-            <td>
-              <span class="product-title">Braided USB-C to USB-C Cable (2m)</span>
-              <span class="product-sku">SKU: CB-CC-2M</span>
-            </td>
-            <td class="text-center">3</td>
-            <td class="number-cell">$15.00</td>
-            <td class="number-cell">8%</td>
-            <td class="number-cell">$45.00</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="summary-section">
-      <div class="notes-section">
-        <div class="notes-title">Notes & Terms</div>
-        <div class="notes-text">
-          Thank you for your business. Payment was successfully processed via Stripe. Refunds are accepted within 30 days of shipment on unopened items in their original packaging.
-        </div>
-      </div>
-
-      <div class="pricing-summary">
-        <div class="summary-row">
-          <span>Subtotal</span>
-          <span>$442.00</span>
-        </div>
-        <div class="summary-row discount">
-          <span>Discount</span>
-          <span>-$44.20</span>
-        </div>
-        <div class="summary-row">
-          <span>Tax</span>
-          <span>$35.36</span>
-        </div>
-        <div class="summary-row">
-          <span>Shipping & Handling</span>
-          <span>$10.00</span>
-        </div>
-        <div class="summary-row total">
-          <span>Grand Total</span>
-          <span>$443.16</span>
-        </div>
-      </div>
-    </div>
-       <!-- Digitization & Verification (QR Code & Tracking Barcode) -->
+  <div class="invoice-container">
     
-    <footer class="invoice-footer">
-        <div class="digitization-section">
-      <!-- Secure Digital Invoice QR Code -->
-      <div style="display: flex; gap: 12px; align-items: center; border: 1px solid #e2e8f0; padding: 12px; border-radius: 4px; background-color: #f8fafc;">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=64x64&data=https%3A%2F%2Facme.com%2Fpay%2FINV-2026-001" alt="QR Code" style="width: 60px; height: 60px; display: block;" />
-        <div>
-          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 2px;">Verification</div>
-          <div style="font-size: 11px; color: #0f172a; font-weight: 600;">Secure Digital Invoice</div>
-          <div style="font-size: 10px; color: #64748b; line-height: 1.3;">Scan to verify receipt authenticity and process payments.</div>
-        </div>
-      </div>
+    <!-- Top Header section -->
+    {{header}}
+    {{customer}}
+    {{items}}
 
-      <!-- Order Tracking Barcode -->
-      
-      <div style="display: flex; gap: 12px; align-items: center; border: 1px solid #e2e8f0; padding: 12px; border-radius: 4px; background-color: #f8fafc;">
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; background-color: #ffffff; padding: 4px; border: 1px solid #e2e8f0; border-radius: 4px; min-width: 120px;">
-          <img src="https://quickchart.io/barcode?type=code128&value=TRK-992184-US&width=120&height=32&includeText=false" alt="Tracking Barcode" style="width: 120px; height: 32px; display: block;" />
-          <span style="font-family: monospace; font-size: 8px; color: #334155; font-weight: 600; letter-spacing: 0.05em;">TRK-992184-US</span>
-        </div>
-        <div>
-          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 2px;">Order Tracking</div>
-          <div style="font-size: 11px; color: #0f172a; font-weight: 600;">Shipment Transit Barcode</div>
-          <div style="font-size: 10px; color: #64748b; line-height: 1.3;">Scan to track package status and real-time delivery info.</div>
-        </div>
-      </div>
-      <span>Acme Corporation • www.acme.com • billing@acme.com</span>
-      <span>This is an electronically generated receipt. No physical signature is required.</span>
+    <!-- Footer Summary Section -->
+    <div class="footer-summary-container">
+      {{signatory}}
+
+      {{summary}}
     </div>
-      
-    </footer>
+
+   {{footer}}
 
   </div>
 

@@ -1,33 +1,46 @@
-<header class="invoice-header">
-      <div class="company-info">
-        <!-- Company Logo -->
-        <div class="company-logo" style="margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
-          <svg width="34" height="34" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="8" fill="#0f172a"/><path d="M16 8L23 16L16 24L9 16L16 8Z" fill="white"/><circle cx="16" cy="16" r="3" fill="#0f172a"/></svg><span style="font-size: 18px; font-weight: 800; letter-spacing: -0.03em; color: #0f172a;">ACME Corp</span>
-        </div>
-        <div class="company-name" style="display: none;">{{companyName}}</div>
-        <div class="company-details">
-          <span>{{companyAddress1}}, {{companyAddress2}}, {{companyCity}}, {{companyPostalCode}}</span>
-          <span>GST Number: {{companyGstNumber}}</span>
-          <span>Email: {{companyEmail}}</span>
-          <span>Phone: {{companyPhone}}</span>
-        </div>
-      </div>
-
-      <div class="invoice-meta">
-        <div class="invoice-title">Tax Invoice</div>
-        <div class="meta-list">
+    <!-- Top Header section -->
+    <header class="invoice-header">
+      <div class="header-left">
+        <h1 class="invoice-title">Tax Invoice</h1>
+        
+        <div class="meta-item">
           <span class="meta-label">Invoice Number:</span>
           <span class="meta-value">{{invoiceNumber}}</span>
-          
-          <span class="meta-label">Date:</span>
-          <span class="meta-value">{{date}}</span>
-        
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Order Number:</span>
+          <span class="meta-value">{{orderNumber}}</span>
+        </div>
+        <div class="meta-item">
           <span class="meta-label">Payment Status:</span>
           <span class="meta-value">{{paymentStatus}}</span>
         </div>
-        <!-- Barcode of Invoice ID -->
-        <!-- <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-          <img src="https://quickchart.io/barcode?type=code128&value=INV-2026-001&width=150&height=40&includeText=true" alt="Barcode INV-2026-001" style="display: block; width: 150px; height: 40px;" />
+        <div class="meta-item">
+          <span class="meta-label">Place of Supply:</span>
+          <span class="meta-value" style="text-transform: uppercase;">{{customerState}}</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Top Barcode (Centered & Large as requested) -->
+        <!-- <div class="barcode-container" style="margin-bottom: 15px;">
+          {{barCode}}
         </div> -->
+        <div class="meta-item">
+          <span class="meta-label">Payment method:</span>
+          <span class="meta-value">{{paymentMethod}}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Invoice Date:</span>
+          <span class="meta-value">{{invoiceDate}}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Order Date:</span>
+          <span class="meta-value">{{orderDate}}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Nature of Supply:</span>
+          <span class="meta-value">Goods</span>
+        </div>
       </div>
     </header>

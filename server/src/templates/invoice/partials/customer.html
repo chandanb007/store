@@ -1,9 +1,48 @@
-<div>
-        <div class="details-section-title">Bill To</div>
-        <div class="details-text">
-          <div class="recipient-name">{{customerName}}</div>
-          <div>{{customerAddress1}}, {{customerAddress2}}, {{customerCity}}, {{customerState}},{{customerPostalCode}},{{customerCountry}}</div>
-          <div>Email: {{customerEmail}}</div>
-          <div>Phone: {{customerPhone}}</div>
+      <!-- Verification Section (QR and Barcode info side-by-side) -->
+    <div class="digitization-block">
+      <div class="digitization-cell" style="padding-right: 15px; border-right: 1px solid #dddddd;">
+        <div style="display: table; width: 100%;">
+          <div style="display: table-cell; width: 64px; vertical-align: top;">
+            {{qrCode}}
+          </div>
+          <div style="display: table-cell; padding-left: 10px; vertical-align: top; font-size: 11px;">
+            <div style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #555555; margin-bottom: 2px;">Track your order</div>
+            <strong style="color: #000000; font-size: 12px; display: block;">Shipment Transit QR Code</strong>
+            <span style="color: #666666; font-size: 10px; line-height: 1.2; display: block; margin-top: 2px;">Scan QR to Track your Shipment in real-time dispatch progress.</span>
+          </div>
         </div>
       </div>
+      
+      <!-- <div class="digitization-cell" style="padding-left: 15px;">
+        <div style="display: table; width: 100%;">
+          <div style="display: table-cell; vertical-align: top; font-size: 11px;">
+            <div style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #555555; margin-bottom: 2px;">Logistics Tracking</div>
+            <strong style="color: #000000; font-size: 12px; display: block;">Shipment Transit Barcode</strong>
+            <span style="color: #666666; font-size: 10px; line-height: 1.2; display: block; margin-top: 2px;">Use the top-right barcode scanner or enter the Shipment ID to track real-time dispatch progress.</span>
+          </div>
+        </div>
+      </div> -->
+    </div>
+
+    <!-- Billing and Sender Information Section -->
+    <div class="address-section">
+      <div class="address-cell">
+        <div class="section-title">Bill To / Ship To</div>
+        <div class="address-text">
+          <strong style="font-size: 13px; color: #000000; display: block; margin-bottom: 4px;text-transform: uppercase">{{customerName}}</strong>
+          <div>{{customerAddress1}}, {{customerAddress2}}, {{customerCity}}- {{customerPostalCode}}, {{customerCountry}}</div>
+          <div style="margin-top: 4px;">Phone: {{customerPhone}} | Email: {{customerEmail}}</div>
+        </div>
+      </div>
+      
+      <div class="address-cell">
+        <div class="section-title">Bill From / Ship From</div>
+        <div class="address-text">
+          <strong style="font-size: 13px; color: #000000; display: block; margin-bottom: 4px;">{{companyName}}</strong>
+          <div>{{companyAddressLine1}}, {{companyAddressLine2}}, {{companyCity}}, {{companyPostalCode}}</div>
+          <div style="margin-top: 4px; font-weight: bold; color: #000000;">GSTIN Number: {{companyGST}}</div>
+          <div style="margin-top: 4px; font-weight: bold; color: #000000;">Email: {{companyEmail}}</div>
+          <div style="margin-top: 4px; font-weight: bold; color: #000000;">Phone: {{companyPhone}}</div>
+        </div>
+      </div>
+    </div>

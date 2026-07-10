@@ -135,7 +135,6 @@ model Order {
   state           String
   postalCode      String
   country         String
-  mobile          String
   // Pricing
   subtotal        Int
   shippingCharge  Int

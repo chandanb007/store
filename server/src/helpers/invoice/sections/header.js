@@ -1,25 +1,21 @@
-require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
-const { formatDate} = require("../../../helpers/dateHelper");
-const buildHeader = (order) => {
-    console.log(order);
+const { formatDate } = require("../../../helpers/dateHelper");
+const buildHeader = (context) => {
+  console.log(context.order);
   const headerHtml = fs.readFileSync(
     path.join(__dirname, "../../../templates/invoice/partials/header.html"),
     "utf8",
   );
   return headerHtml
-    .replace("{{companyName}}", process.env.COMPANY_NAME)
-    .replace("{{companyAddress1}}", process.env.COMPANY_ADD_LINE1)
-    .replace("{{companyAddress2}}", process.env.COMPANY_ADD_LINE2)
-    .replace("{{companyCity}}", process.env.COMPANY_CITY)
-    .replace("{{companyPostalCode}}", process.env.POSTAL_CODE)
-    .replace("{{companyGstNumber}}", process.env.COMPANY_GST)
-    .replace("{{companyEmail}}", process.env.COMPANY_EMAIL)
-    .replace("{{companyPhone}}", process.env.COMPANY_PHONE)
-    .replace("{{invoiceNumber}}", order.invoiceNumber)
-    .replace("{{date}}", formatDate(order.invoiceDate))
-    .replace("{{paymentStatus}}", order.payment.paymentStatus);
+    .replace("{{invoiceNumber}}", context.order.invoiceNumber)
+    .replace("{{barCode}}", `<img src="${context.barcode}"/>`)
+    .replace("{{invoiceDate}}", formatDate(context.order.invoiceDate))
+    .replace("{{orderDate}}", formatDate(context.order.createdAt))
+    .replace("{{orderNumber}}", context.order.orderNumber)
+    .replace("{{customerState}}", context.order.state)
+    .replace("{{paymentMethod}}", context.order.payment.paymentMethod)
+    .replace("{{paymentStatus}}", context.order.payment.paymentStatus);
 };
 
 module.exports = { buildHeader };
