@@ -22,6 +22,10 @@ const getAddresses = async(userId)=> {
     })
 }
 const deleteAddress = async(id,userId)=> {
+   const address = await validateAddressById(id, userId);
+  if (!address) {
+    throw new Error("Address not found");
+  }
     return prisma.address.delete(
     {
       where: { id: parseInt(id),userId : userId },
@@ -29,9 +33,21 @@ const deleteAddress = async(id,userId)=> {
   )
 }
 const getAddress = async (id, userId) => {
+  const address = await validateAddressById(id, userId);
+  if (!address) {
+    throw new Error("Address not found");
+  }
   return prisma.address.findUnique({
     where: { id: Number(id), userId: Number(userId) },
   });
+};
+
+const validateAddressById = async (id,userId) => {
+ 
+  const address = prisma.address.findUnique({
+    where: { id: Number(id), userId: Number(userId) },
+  });
+  return address;
 };
 
 module.exports = {
