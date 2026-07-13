@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext.jsx';
-import { User, Mail, BookOpen, Heart, History, UserCheck, Plus, Check, X, FileText } from 'lucide-react';
-import { login, register } from "../services/authService.js";
-
+import {
+  User,
+  Mail,
+  BookOpen,
+  Heart,
+  History,
+  UserCheck,
+  Plus,
+  Check,
+  X,
+  FileText,
+} from "lucide-react";
 
 export const UserAccount = () => {
   const {
     currentUser,
-    // login,
-    //register,
+    login,
+    register,
     forgotPassword,
     logout,
     updateProfile,
@@ -25,18 +34,17 @@ export const UserAccount = () => {
 
   // Active Tab state for Authenticated User
   const [activeTab, setActiveTab] = useState(
-    searchParams.get('tab') || 'profile'
+    searchParams.get("tab") || "profile",
   );
 
   // Authentication mode ('login' | 'register' | 'forgot')
-  const [authMode, setAuthMode] = useState('login');
+  const [authMode, setAuthMode] = useState("login");
 
   // Input states
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [authRole, setAuthRole] = useState("CUSTOMER");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [authRole, setAuthRole] = useState("Customer");
 
   // Profile Edit fields
   const [profileName, setProfileName] = useState(currentUser?.firstName || "");
@@ -44,13 +52,13 @@ export const UserAccount = () => {
   // Address adding states
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [newAddress, setNewAddress] = useState({
-    fullName: '',
-    street: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    country: 'India',
-    phone: ''
+    fullName: "",
+    street: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "India",
+    phone: "",
   });
 
   // Selected Order for Invoice view
@@ -59,43 +67,46 @@ export const UserAccount = () => {
   // Handle Logins
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
+    debugger;
     const res = await login(email, password);
-    if (res.status == 200) {
-      addNotification("success", res.data.message);
-      setProfileName(res.data.data.user.firstName);
-      localStorage.setItem("token", res.data.data.token);
+    if (res.success) {
+      setProfileName(currentUser?.firstName || "");
     } else {
       addNotification("error", res.error || "Authentication error.");
     }
   };
-  // Handle Registrations
-  const handleRegisterSubmit = async (e) => {
-    e.preventDefault();
-    if (!firstName.trim()) return;
-    const userData = {
-      firstName,
-      lastName,
-      email,
-      password,
-      role: authRole,
-    };
-    const response = await register(userData);
-    console.log(response);
-    if (response.status == 201) {
-      addNotification("info", response.data.message);
-      setAuthMode("login");
-    } else {
-      addNotification(
-        "error",
-        response.error || "Failed to complete registration.",
-      );
+
+  // Handle Quick login demo buttons
+  const handleQuickLogin = (quickEmail) => {
+    setEmail(quickEmail);
+    setPassword("secret123");
+    const res = login(quickEmail, "secret123");
+    if (res.success) {
+      // Sync names
+      const match = quickEmail.includes("admin")
+        ? "Vikramaditya Dev (Admin)"
+        : "Aditi Rao";
+      setProfileName(match);
     }
   };
+
+  // Handle Registrations
+  const handleRegisterSubmit = (e) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    const res = register(email, name, password, authRole);
+    if (res.success) {
+      setProfileName(name);
+    } else {
+      addNotification("error", res.error || "Failed to complete registration.");
+    }
+  };
+
   // Handle Forgot Passwords
   const handleForgotSubmit = (e) => {
     e.preventDefault();
     const res = forgotPassword(email);
-    addNotification('info', res.message);
+    addNotification("info", res.message);
   };
 
   // Profile Edit submits
@@ -109,22 +120,22 @@ export const UserAccount = () => {
     e.preventDefault();
     const list = currentUser?.addresses ? [...currentUser.addresses] : [];
     list.push(newAddress);
-    updateProfile(currentUser?.name || '', list);
+    updateProfile(currentUser?.name || "", list);
     setIsAddingAddress(false);
     setNewAddress({
-      fullName: '',
-      street: '',
-      city: '',
-      state: '',
-      zipCode: '',
-      country: 'India',
-      phone: ''
+      fullName: "",
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "India",
+      phone: "",
     });
   };
 
   // Filter orders matching current authenticated email
   const userOrdersList = orders.filter(
-    (o) => o.userEmail.toLowerCase() === currentUser?.email.toLowerCase()
+    (o) => o.userEmail.toLowerCase() === currentUser?.email.toLowerCase(),
   );
 
   // Retrieve products in wishlist
@@ -144,7 +155,7 @@ export const UserAccount = () => {
                 : "text-stone-505 dark:text-stone-400"
             }`}
           >
-            Login
+            Authenticate
           </button>
           <button
             onClick={() => setAuthMode("register")}
@@ -163,7 +174,7 @@ export const UserAccount = () => {
           <div className="bg-white dark:bg-stone-900 border border-stone-150/45 dark:border-stone-850 p-6 sm:p-8 rounded-2xl shadow-xl space-y-6">
             <div className="text-center space-y-1.5">
               <span className="font-serif text-2xl font-bold dark:text-white">
-                Log In
+                Sign In Patrons
               </span>
               <p className="text-stone-400 text-[11px] leading-relaxed">
                 Enter your credentials to manage custom collections and order
@@ -215,9 +226,30 @@ export const UserAccount = () => {
                 type="submit"
                 className="w-full py-3.5 bg-gold-555 bg-gold-500 hover:bg-gold-600 text-stone-950 font-bold uppercase rounded-xl tracking-wider cursor-pointer shadow-md transition-shadow"
               >
-                Login
+                Assemble Vault Account
               </button>
             </form>
+
+            <div className="pt-4 border-t border-stone-100 dark:border-stone-880 space-y-3">
+              <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider block text-center">
+                Patrons quick authentics
+              </span>
+
+              <div className="grid grid-cols-2 gap-2 text-[10px] font-bold text-center">
+                <button
+                  onClick={() => handleQuickLogin("customer@heritage.com")}
+                  className="p-2 border border-gold-300 bg-gold-50 dark:bg-gold-950/20 text-gold-700 dark:text-gold-200 rounded-lg cursor-pointer hover:bg-gold-100"
+                >
+                  Aditi Rao (Customer)
+                </button>
+                <button
+                  onClick={() => handleQuickLogin("admin@heritage.com")}
+                  className="p-2 border border-maroon-300 bg-maroon-50 dark:bg-stone-800 text-maroon-700 dark:text-stone-100 rounded-lg cursor-pointer hover:bg-maroon-100"
+                >
+                  Vikram Dev (Admin)
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -226,7 +258,7 @@ export const UserAccount = () => {
           <div className="bg-white dark:bg-stone-900 border border-stone-150/45 dark:border-stone-850 p-6 sm:p-8 rounded-2xl shadow-xl space-y-6">
             <div className="text-center space-y-1.5">
               <span className="font-serif text-2xl font-bold dark:text-white">
-                Register
+                Register Patrons
               </span>
               <p className="text-stone-400 text-[11px] leading-relaxed">
                 Join the Heritage Treasures Guild to preserve and accumulate
@@ -239,24 +271,13 @@ export const UserAccount = () => {
               className="space-y-4 text-xs font-semibold text-stone-400"
             >
               <div className="space-y-1.5">
-                <label>Recipients Legal First Name *</label>
+                <label>Recipients Legal Name *</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Ajay"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:outline-none"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label>Recipients Legal last Name </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Kumar"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="e.g. Kumar Varman"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:outline-none"
                 />
               </div>
@@ -272,8 +293,37 @@ export const UserAccount = () => {
                   className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:outline-none"
                 />
               </div>
+
               <div className="space-y-1.5">
-                <label>Password *</label>
+                <label>Select Account Role</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAuthRole("Customer")}
+                    className={`py-2 border rounded-lg font-bold cursor-pointer transition-all ${
+                      authRole === "Customer"
+                        ? "border-gold-500 bg-gold-50 dark:bg-gold-950/20 text-gold-700 dark:text-gold-200"
+                        : "border-stone-200 text-stone-500"
+                    }`}
+                  >
+                    Customer Patron
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAuthRole("Admin")}
+                    className={`py-2 border rounded-lg font-bold cursor-pointer transition-all ${
+                      authRole === "Admin"
+                        ? "border-maroon-500 bg-maroon-50 dark:bg-maroon-950/20 text-maroon-700 dark:text-maroon-200"
+                        : "border-stone-200 text-stone-500"
+                    }`}
+                  >
+                    Admin Registrar
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label>Voucher Password *</label>
                 <input
                   type="password"
                   required
@@ -283,6 +333,7 @@ export const UserAccount = () => {
                   className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-medium focus:outline-none"
                 />
               </div>
+
               <button
                 type="submit"
                 className="w-full py-3.5 bg-gold-450 hover:bg-gold-500 bg-gold-500 text-stone-950 font-bold uppercase rounded-xl tracking-wider cursor-pointer shadow-md transition-shadow"
@@ -354,12 +405,12 @@ export const UserAccount = () => {
             Venerated Patron Portal
           </span>
           <h1 className="font-serif text-3xl font-bold text-stone-900 dark:text-white mt-1">
-            Namaste, {currentUser.name}
+            Welcome, {currentUser.firstName}
           </h1>
         </div>
 
         <div className="flex gap-2 w-full sm:w-auto">
-          {currentUser.role === "Admin" && (
+          {currentUser.role === "ADMIN" && (
             <Link
               to="/admin/dashboard"
               className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-stone-950 text-xs font-bold uppercase rounded-lg shadow-sm"
@@ -493,7 +544,7 @@ export const UserAccount = () => {
                   className="bg-white dark:bg-stone-900 p-6 border border-stone-200 dark:border-stone-800 rounded-2xl space-y-4 text-xs font-semibold text-stone-400"
                 >
                   <h4 className="font-serif font-bold text-sm text-stone-800 dark:text-stone-200">
-                    Legal Recipient{" "}
+                    Legal Recipient location
                   </h4>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -1005,4 +1056,4 @@ export const UserAccount = () => {
       )}
     </div>
   );
-};
+};;;;;;;;;;;;;;;;;;;;;;

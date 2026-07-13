@@ -32,7 +32,7 @@ const allowRoles = (...roles) => {
 
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
-        message: "Forbidden"
+        message: "This routes is forbidden for this role",
       });
     }
 

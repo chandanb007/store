@@ -1,7 +1,7 @@
 import api from "./api";
 
 export const login = (email,password) => {
-    return api.post("/auth", { email, password });
+    return api.post("/auth", { email: email, password: password });
 };
 
 export const register = (user) => {

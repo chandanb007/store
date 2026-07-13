@@ -1,72 +1,79 @@
 const prisma = require("../config/prisma.js");
 
 const getCategories = async () => {
-    return prisma.category.findMany();
+  return prisma.category.findMany();
 };
 
 const createCategory = async (data) => {
   return prisma.category.create({
-    data
+    data,
   });
 };
 const getCategory = async (id) => {
-  const category =await validateCategoryById(id);
+  const category = await validateCategoryById(id);
   if (!category) {
     throw new Error("Category not found");
   }
   return prisma.category.findFirstOrThrow({
-    where : {
-        'id' : parseInt(id)
-    }
-  });
-};
-
-const updateCategory = async (id ,data) => {
-  const category =await validateCategoryById(id);
-  if (!category) {
-    throw new Error("Category not found");
-  }
-  return prisma.category.update(
-    {
-      where: { id: parseInt(id) },
-      data: data,
-    }
-  )
-};
-
-const deleteCategory = async (id ,data) => {
- const category =await validateCategoryById(id);
-  if (!category) {
-    throw new Error("Category not found");
-  }
-   await prisma.product.deleteMany({
     where: {
-      categoryId: Number(id)
-    }
+      id: parseInt(id),
+    },
   });
-  
-  return prisma.category.delete(
-    {
-      where: { id: parseInt(id) },
-    }
-  )
+};
+
+const updateCategory = async (id, data) => {
+  const category = await validateCategoryById(id);
+  if (!category) {
+    throw new Error("Category not found");
+  }
+  return prisma.category.update({
+    where: { id: parseInt(id) },
+    data: data,
+  });
+};
+
+const deleteCategory = async (id, data) => {
+  const category = await validateCategoryById(id);
+  if (!category) {
+    throw new Error("Category not found");
+  }
+  await prisma.product.deleteMany({
+    where: {
+      categoryId: Number(id),
+    },
+  });
+
+  return prisma.category.delete({
+    where: { id: parseInt(id) },
+  });
 };
 
 const validateCategoryById = async (id) => {
- 
   const category = await prisma.category.findUnique({
     where: {
-      id: Number(id)
-    }
+      id: Number(id),
+    },
   });
   return category;
 };
-
-
+const getProductByCategory = async (id) => {
+  return await prisma.category.findUnique({
+    where: { id: Number(id) },
+    include: {
+      products: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+    },
+  });
+};
 module.exports = {
   getCategories,
   createCategory,
   getCategory,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  getProductByCategory,
 };

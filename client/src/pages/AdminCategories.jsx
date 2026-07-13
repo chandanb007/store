@@ -3,24 +3,36 @@ import { useApp } from '../contexts/AppContext.jsx';
 import { Tag, Plus, Edit2, Trash2, X, AlertTriangle, Layers, FolderHeart, Check, Eye, EyeOff } from 'lucide-react';
 
 export const AdminCategories = () => {
-  const { categories, disabledCategories, addCategory, updateCategory, deleteCategory, toggleCategoryDisabled, products } = useApp();
+  const {
+    categories,
+    disabledCategories,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    toggleCategoryDisabled,
+    products,
+  } = useApp();
 
   // Local component states
-  const [newCatName, setNewCatName] = useState('');
+  const [newCatName, setNewCatName] = useState("");
+  const [newCatDes, setNewCatDes] = useState("");
   const [editingCatName, setEditingCatName] = useState(null); // name of category being renamed
-  const [updatedCatName, setUpdatedCatName] = useState('');
+  const [updatedCatName, setUpdatedCatName] = useState("");
   const [deleteCandidate, setDeleteCandidate] = useState(null);
 
   // Calculate product distribution per category
-  const getProductCount = (cat) => {
-    return products.filter((p) => p.category.toLowerCase() === cat.toLowerCase()).length;
+  const   = (cat) => {
+    return products.filter(
+      (p) => p.category.toLowerCase() === cat.name.toLowerCase(),
+    ).length;
   };
 
   const handleCreate = (e) => {
     e.preventDefault();
     if (!newCatName.trim()) return;
-    addCategory(newCatName.trim());
-    setNewCatName('');
+    addCategory(newCatName.trim(), newCatDes.trim());
+    setNewCatName("");
+    setNewCatDes("");
   };
 
   const handleStartRename = (cat) => {
@@ -36,7 +48,7 @@ export const AdminCategories = () => {
   };
 
   const handleConfirmDelete = (cat) => {
-    const count = getProductCount(cat);
+    const count = getProductCount(cat.id);
     if (count > 0) {
       setDeleteCandidate({ name: cat, count });
     } else {
@@ -53,7 +65,6 @@ export const AdminCategories = () => {
 
   return (
     <div className="space-y-8 max-w-5xl">
-      
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-stone-200/50 dark:border-stone-850 pb-5">
         <div>
@@ -61,13 +72,13 @@ export const AdminCategories = () => {
             Category Management
           </h1>
           <p className="text-xs text-stone-400">
-            Organize household and lifestyle listings by dynamic sections. Modifying re-associates matching items instantly.
+            Organize household and lifestyle listings by dynamic sections.
+            Modifying re-associates matching items instantly.
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
         {/* Creator Control Form */}
         <div className="lg:col-span-4 bg-white dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-800/30 p-6 rounded-2xl shadow-xs hover:shadow-md transition-all duration-300 space-y-4">
           <div className="flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-3">
@@ -76,10 +87,15 @@ export const AdminCategories = () => {
               Create Category
             </h3>
           </div>
-          
-          <form onSubmit={handleCreate} className="space-y-4 text-xs font-semibold">
+
+          <form
+            onSubmit={handleCreate}
+            className="space-y-4 text-xs font-semibold"
+          >
             <div className="space-y-1.5">
-              <label className="text-stone-500 dark:text-stone-400">Category Section Name</label>
+              <label className="text-stone-500 dark:text-stone-400">
+                Category Section Name
+              </label>
               <input
                 type="text"
                 required
@@ -89,7 +105,20 @@ export const AdminCategories = () => {
                 className="w-full text-xs px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder-stone-405 focus:outline-none focus:ring-1 focus:ring-gold-500"
               />
             </div>
-            
+            <div className="space-y-1.5">
+              <label className="text-stone-500 dark:text-stone-400">
+                Category Description
+              </label>
+              <input
+                type="text"
+                required
+                value={newCatDes}
+                onChange={(e) => setNewCatDes(e.target.value)}
+                placeholder="e.g. Modern Ceramics"
+                className="w-full text-xs px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder-stone-405 focus:outline-none focus:ring-1 focus:ring-gold-500"
+              />
+            </div>
+
             <button
               type="submit"
               className="w-full bg-gold-500 hover:bg-gold-600 text-stone-950 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-200 hover:shadow-xs active:scale-97"
@@ -99,8 +128,11 @@ export const AdminCategories = () => {
           </form>
 
           <div className="text-[10px] text-stone-400 leading-relaxed bg-stone-50 dark:bg-stone-950 p-3.5 rounded-xl border border-stone-200/40 dark:border-stone-850/40">
-            <span className="font-bold text-stone-500 dark:text-stone-300 block mb-1">💡 Administration Note:</span>
-            New categories will immediately populate the customer e-commerce filters, storefront menus, and inventory logs seamlessly.
+            <span className="font-bold text-stone-500 dark:text-stone-300 block mb-1">
+              💡 Administration Note:
+            </span>
+            New categories will immediately populate the customer e-commerce
+            filters, storefront menus, and inventory logs seamlessly.
           </div>
         </div>
 
@@ -115,13 +147,19 @@ export const AdminCategories = () => {
 
           <div className="divide-y divide-stone-100 dark:divide-stone-850">
             {categories.map((cat) => {
-              const count = getProductCount(cat);
-              const isEditing = editingCatName === cat;
+              const count = 0; //getProductCount(cat.id);
+              const isEditing = editingCatName === cat.id;
 
               return (
-                <div key={cat} className="py-4 flex items-center justify-between gap-4">
+                <div
+                  key={cat.id}
+                  className="py-4 flex items-center justify-between gap-4"
+                >
                   {isEditing ? (
-                    <form onSubmit={handleSaveRename} className="flex-grow flex items-center gap-2">
+                    <form
+                      onSubmit={handleSaveRename}
+                      className="flex-grow flex items-center gap-2"
+                    >
                       <input
                         type="text"
                         required
@@ -154,9 +192,9 @@ export const AdminCategories = () => {
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-bold text-stone-900 dark:text-stone-100 block capitalize">
-                              {cat}
+                              {cat.name}
                             </span>
-                            {disabledCategories.includes(cat) ? (
+                            {disabledCategories.includes(cat.id) ? (
                               <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200/40 dark:border-amber-800/30">
                                 Disabled / Hidden
                               </span>
@@ -167,7 +205,8 @@ export const AdminCategories = () => {
                             )}
                           </div>
                           <span className="text-[10px] text-stone-400">
-                            {count} associated {count === 1 ? 'household item' : 'household items'}
+                            {count} associated{" "}
+                            {count === 1 ? "household item" : "household items"}
                           </span>
                         </div>
                       </div>
@@ -175,15 +214,19 @@ export const AdminCategories = () => {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => toggleCategoryDisabled(cat)}
+                          onClick={() => toggleCategoryDisabled(cat.id)}
                           className={`p-2 rounded-lg transition-colors cursor-pointer ${
-                            disabledCategories.includes(cat)
-                              ? 'hover:bg-emerald-50 dark:hover:bg-emerald-950/20 text-stone-400 hover:text-emerald-500'
-                              : 'hover:bg-amber-50 dark:hover:bg-amber-950/20 text-stone-400 hover:text-amber-500'
+                            disabledCategories.includes(cat.id)
+                              ? "hover:bg-emerald-50 dark:hover:bg-emerald-950/20 text-stone-400 hover:text-emerald-500"
+                              : "hover:bg-amber-50 dark:hover:bg-amber-950/20 text-stone-400 hover:text-amber-500"
                           }`}
-                          title={disabledCategories.includes(cat) ? 'Enable Category' : 'Disable Category'}
+                          title={
+                            disabledCategories.includes(cat.id)
+                              ? "Enable Category"
+                              : "Disable Category"
+                          }
                         >
-                          {disabledCategories.includes(cat) ? (
+                          {disabledCategories.includes(cat.id) ? (
                             <Eye className="w-3.5 h-3.5 animate-pulse" />
                           ) : (
                             <EyeOff className="w-3.5 h-3.5" />
@@ -191,7 +234,7 @@ export const AdminCategories = () => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleStartRename(cat)}
+                          onClick={() => handleStartRename(cat.id)}
                           className="p-2 hover:bg-stone-50 dark:hover:bg-stone-950 text-stone-460 hover:text-gold-550 rounded-lg transition-colors"
                           title="Rename Section"
                         >
@@ -199,7 +242,7 @@ export const AdminCategories = () => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleConfirmDelete(cat)}
+                          onClick={() => handleConfirmDelete(cat.id)}
                           className="p-2 hover:bg-red-50 dark:hover:bg-red-950/20 text-stone-460 hover:text-red-500 rounded-lg transition-colors"
                           title="Delete Category"
                         >
@@ -214,12 +257,12 @@ export const AdminCategories = () => {
 
             {categories.length === 0 && (
               <div className="py-8 text-center text-xs text-stone-400">
-                No active categories in state. Click 'Create Category' to begin structuring listings.
+                No active categories in state. Click 'Create Category' to begin
+                structuring listings.
               </div>
             )}
           </div>
         </div>
-
       </div>
 
       {/* Delete Confirmation Alert Modal */}
@@ -232,10 +275,18 @@ export const AdminCategories = () => {
                 Cascading Category Deletion?
               </h4>
             </div>
-            
+
             <p className="text-xs text-stone-500 leading-relaxed">
-              The category <strong className="text-stone-900 dark:text-white">"{deleteCandidate.name}"</strong> has <strong className="text-red-500 font-extrabold">{deleteCandidate.count} products</strong> attached to it.
-              Deleting the section will orphan these products. Do you want to proceed?
+              The category{" "}
+              <strong className="text-stone-900 dark:text-white">
+                "{deleteCandidate.name}"
+              </strong>{" "}
+              has{" "}
+              <strong className="text-red-500 font-extrabold">
+                {deleteCandidate.count} products
+              </strong>{" "}
+              attached to it. Deleting the section will orphan these products.
+              Do you want to proceed?
             </p>
 
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -257,7 +308,6 @@ export const AdminCategories = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

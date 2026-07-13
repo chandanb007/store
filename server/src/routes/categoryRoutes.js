@@ -19,4 +19,10 @@ router.post("/:id",auth,
 router.delete("/:id",auth,allowRoles("ADMIN"), validate(deleteCategorySchema),
 categoryController.deleteCategory);  
 
+router.get(
+  "/:id/products",
+  auth,
+  allowRoles("CUSTOMER", "ADMIN"),
+  categoryController.getProductByCategory,
+);
 module.exports = router;
