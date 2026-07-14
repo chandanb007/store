@@ -77,21 +77,6 @@ const createProduct = async (data) => {
   return await prisma.$transaction(async (tx) => {
     const product = await tx.product.create({
       data: productData,
-      include: {
-        variants: {
-          include: {
-            variantValues: {
-              include: {
-                value: {
-                  include: {
-                    variantType: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
     });
     const parsedVariants = JSON.parse(variants);
     for (const variant of parsedVariants.variants) {
@@ -145,7 +130,24 @@ const createProduct = async (data) => {
         });
       }
     }
-    return product;
+    return await tx.product.findUnique({
+      where: { id: product.id },
+      include: {
+        variants: {
+          include: {
+            variantValues: {
+              include: {
+                value: {
+                  include: {
+                    variantType: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
   });
 };
 const getProductById = async(data) => {

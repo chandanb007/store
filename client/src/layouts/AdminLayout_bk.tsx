@@ -22,7 +22,7 @@ export const AdminLayout = () => {
 
   // Auto-route locks
   React.useEffect(() => {
-    if (!currentUser || currentUser.role !== 'Admin') {
+    if (!currentUser || currentUser.role !== 'ADMIN') {
       addNotification('error', 'Authentication Restricted. Customer accounts cannot enter Administrative Registries.');
       navigate('/account');
     }

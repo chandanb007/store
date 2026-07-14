@@ -10,7 +10,14 @@ const buildSummary = (context) => {
     .replace("{{subTotal}}", context.order.subtotal)
     .replace("{{grandTotal}}", context.order.grandTotal)
     .replace("{{discount}}", context.order.discount)
-    .replace("{{couponApplied}}", context.order.coupon ?? "")
+    .replace(
+      "{{couponApplied}}",
+      context.order.couponCode ? "(" + context.order.couponCode + ")" : "",
+    )
+    .replace(
+      "{{couponDescription}}",
+      context.order.couponName ? "[" + context.order.couponName + "]" : "",
+    )
     .replace("{{shippingCharges}}", context.order.shippingCharge);
 };
 

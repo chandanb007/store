@@ -60,8 +60,9 @@ export interface Order {
 export interface User {
   id: string;
   email: string;
-  name: string;
-  role: 'Customer' | 'Admin';
+  firstName: string;
+  lastName: string;
+  role: "Customer" | "Admin";
   addresses?: Address[];
   wishlist?: string[]; // IDs of products
 }
