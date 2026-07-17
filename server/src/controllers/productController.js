@@ -6,7 +6,7 @@ const {success} = require("../helpers/apiResponse");
 
 const getProducts = async (req, res) => {
   const products = await productService.getProducts(req.query);
-  res.json(products);
+  return success(res, "Product list", products);
 };
 
 const createProduct = async (req, res,next) => {

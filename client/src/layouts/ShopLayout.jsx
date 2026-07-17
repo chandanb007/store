@@ -141,11 +141,11 @@ export const ShopLayout = () => {
             </Link>
             {activeCategories.slice(0, 4).map((cat) => (
               <Link
-                key={cat}
-                to={`/shop?category=${encodeURIComponent(cat)}`}
+                key={cat.id}
+                to={`/shop?category=${encodeURIComponent(cat.id)}`}
                 className="text-stone-605 dark:text-stone-400 hover:text-gold-600 transition-colors capitalize animate-fade-in"
               >
-                {cat}
+                {cat.name}
               </Link>
             ))}
           </nav>
@@ -223,7 +223,7 @@ export const ShopLayout = () => {
                   className="hidden md:flex items-center gap-2 group cursor-pointer"
                 >
                   <div className="w-7 h-7 rounded-full bg-gold-100 dark:bg-gold-900/45 text-gold-700 dark:text-gold-200 uppercase font-bold text-xs flex items-center justify-center border border-gold-250">
-                    {currentUser.firstName.charAt(0)}
+                    {/* {currentUser.firstName.charAt(0)} */}
                   </div>
                   <div className="text-left leading-none max-w-24">
                     <span className="block text-xs font-semibold text-stone-800 dark:text-stone-250 group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors line-clamp-1">
@@ -420,12 +420,12 @@ export const ShopLayout = () => {
             </h4>
             <ul className="space-y-2.5 text-xs text-stone-400 font-medium">
               {activeCategories.slice(0, 5).map((cat) => (
-                <li key={cat}>
+                <li key={cat.id}>
                   <Link
-                    to={`/shop?category=${encodeURIComponent(cat)}`}
+                    to={`/shop?category=${encodeURIComponent(cat.id)}`}
                     className="hover:text-gold-200 transition-colors capitalize"
                   >
-                    {cat}
+                    {cat.name}
                   </Link>
                 </li>
               ))}

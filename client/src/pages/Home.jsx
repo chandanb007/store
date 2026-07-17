@@ -239,7 +239,7 @@ export const Home = () => {
             const preset = CATEGORY_IMAGE_PRESETS[cat] || DEFAULT_CATEGORY_PRESET;
             return (
               <Link
-                to={`/shop?category=${encodeURIComponent(cat)}`}
+                to={`/shop?category=${encodeURIComponent(cat.id)}`}
                 key={index}
                 className="group relative h-80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-shadow bg-stone-100 flex flex-col justify-end p-5"
               >
@@ -251,8 +251,12 @@ export const Home = () => {
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="relative z-20 space-y-1">
-                  <h3 className="font-sans text-base font-bold text-white tracking-wide capitalize">{cat}</h3>
-                  <p className="text-[10px] text-amber-200 font-semibold leading-tight">{preset.desc}</p>
+                  <h3 className="font-sans text-base font-bold text-white tracking-wide capitalize">
+                    {cat.name}
+                  </h3>
+                  <p className="text-[10px] text-amber-200 font-semibold leading-tight">
+                    {preset.desc}
+                  </p>
                 </div>
               </Link>
             );

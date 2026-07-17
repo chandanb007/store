@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext.jsx';
 import { Tag, Plus, Edit2, Trash2, X, AlertTriangle, Layers, FolderHeart, Check, Eye, EyeOff } from 'lucide-react';
+import { getCategoryById } from "../services/categoryService.js";
 
 export const AdminCategories = () => {
   const {
@@ -17,16 +18,12 @@ export const AdminCategories = () => {
   const [newCatName, setNewCatName] = useState("");
   const [newCatDes, setNewCatDes] = useState("");
   const [editingCatName, setEditingCatName] = useState(null); // name of category being renamed
+  const [editingCatId, setEditingCatId] = useState(null);
   const [updatedCatName, setUpdatedCatName] = useState("");
+  const [updatedCatDes, setUpdatedCatDes] = useState("");
   const [deleteCandidate, setDeleteCandidate] = useState(null);
 
   // Calculate product distribution per category
-  const   = (cat) => {
-    return products.filter(
-      (p) => p.category.toLowerCase() === cat.name.toLowerCase(),
-    ).length;
-  };
-
   const handleCreate = (e) => {
     e.preventDefault();
     if (!newCatName.trim()) return;
@@ -35,24 +32,32 @@ export const AdminCategories = () => {
     setNewCatDes("");
   };
 
-  const handleStartRename = (cat) => {
-    setEditingCatName(cat);
-    setUpdatedCatName(cat);
+  const handleStartRename = (catId,name,description) => {
+    setEditingCatId(catId);
+    setUpdatedCatDes(description);
+    setUpdatedCatName(name);
   };
 
   const handleSaveRename = (e) => {
+    debugger
     e.preventDefault();
-    if (!updatedCatName.trim() || !editingCatName) return;
-    updateCategory(editingCatName, updatedCatName.trim());
-    setEditingCatName(null);
+    if (!updatedCatName.trim() || !updatedCatDes.trim()  || !editingCatId) return;
+    updateCategory(editingCatId, updatedCatName.trim(), updatedCatDes.trim());
+    setEditingCatId(null);
   };
+  const getProductCount = async (catId) => {
+    const response = await getCategoryById(catId);
+    if (response.status == 'success') {
+      return response.data.data.products.length;
+    }
+  }
 
-  const handleConfirmDelete = (cat) => {
-    const count = getProductCount(cat.id);
+  const handleConfirmDelete = async (catId) => {
+    const count = await getProductCount(catId);
     if (count > 0) {
       setDeleteCandidate({ name: cat, count });
     } else {
-      deleteCategory(cat);
+      deleteCategory(catId);
     }
   };
 
@@ -147,8 +152,8 @@ export const AdminCategories = () => {
 
           <div className="divide-y divide-stone-100 dark:divide-stone-850">
             {categories.map((cat) => {
-              const count = 0; //getProductCount(cat.id);
-              const isEditing = editingCatName === cat.id;
+              const count = cat.productCount;
+              const isEditing = editingCatId === cat.id;
 
               return (
                 <div
@@ -165,6 +170,13 @@ export const AdminCategories = () => {
                         required
                         value={updatedCatName}
                         onChange={(e) => setUpdatedCatName(e.target.value)}
+                        className="flex-grow text-xs px-3 py-1.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-stone-50 dark:bg-stone-950 text-stone-950 dark:text-stone-100 focus:outline-none"
+                      />
+                      <input
+                        type="text"
+                        required
+                        value={updatedCatDes}
+                        onChange={(e) => setUpdatedCatDes(e.target.value)}
                         className="flex-grow text-xs px-3 py-1.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-stone-50 dark:bg-stone-950 text-stone-950 dark:text-stone-100 focus:outline-none"
                       />
                       <button
@@ -194,7 +206,7 @@ export const AdminCategories = () => {
                             <span className="text-xs font-bold text-stone-900 dark:text-stone-100 block capitalize">
                               {cat.name}
                             </span>
-                            {disabledCategories.includes(cat.id) ? (
+                            {cat.status == false ? (
                               <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200/40 dark:border-amber-800/30">
                                 Disabled / Hidden
                               </span>
@@ -204,9 +216,11 @@ export const AdminCategories = () => {
                               </span>
                             )}
                           </div>
+                          {/* <span className="text-[12px] text-stone-400">
+                            {cat.description}<br/>
+                          </span> */}
                           <span className="text-[10px] text-stone-400">
-                            {count} associated{" "}
-                            {count === 1 ? "household item" : "household items"}
+                            {count} associated {count === 1 ? "item" : "items"}
                           </span>
                         </div>
                       </div>
@@ -214,19 +228,21 @@ export const AdminCategories = () => {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => toggleCategoryDisabled(cat.id)}
+                          onClick={() =>
+                            toggleCategoryDisabled(cat.id, !cat.status)
+                          }
                           className={`p-2 rounded-lg transition-colors cursor-pointer ${
-                            disabledCategories.includes(cat.id)
+                            cat.status == false
                               ? "hover:bg-emerald-50 dark:hover:bg-emerald-950/20 text-stone-400 hover:text-emerald-500"
                               : "hover:bg-amber-50 dark:hover:bg-amber-950/20 text-stone-400 hover:text-amber-500"
                           }`}
                           title={
-                            disabledCategories.includes(cat.id)
+                            cat.status == false
                               ? "Enable Category"
                               : "Disable Category"
                           }
                         >
-                          {disabledCategories.includes(cat.id) ? (
+                          {cat.status == false ? (
                             <Eye className="w-3.5 h-3.5 animate-pulse" />
                           ) : (
                             <EyeOff className="w-3.5 h-3.5" />
@@ -234,7 +250,9 @@ export const AdminCategories = () => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleStartRename(cat.id)}
+                          onClick={() =>
+                            handleStartRename(cat.id, cat.name, cat.description)
+                          }
                           className="p-2 hover:bg-stone-50 dark:hover:bg-stone-950 text-stone-460 hover:text-gold-550 rounded-lg transition-colors"
                           title="Rename Section"
                         >
@@ -242,7 +260,9 @@ export const AdminCategories = () => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleConfirmDelete(cat.id)}
+                          onClick={async () =>
+                            await handleConfirmDelete(cat.id)
+                          }
                           className="p-2 hover:bg-red-50 dark:hover:bg-red-950/20 text-stone-460 hover:text-red-500 rounded-lg transition-colors"
                           title="Delete Category"
                         >
@@ -310,4 +330,4 @@ export const AdminCategories = () => {
       )}
     </div>
   );
-};
+};;
