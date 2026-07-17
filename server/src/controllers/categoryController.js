@@ -44,6 +44,12 @@ const getProductByCategory = async (req, res) => {
   }
   return success(res, "Category deleted successfully.", response, 200);
 };
+const updateCategoryStatus = async (req, res) => {
+  const response = await categoryService.updateCategory(req.params.id, {
+    isEnabled: req.body.isEnabled,
+  });
+  return success(res, "Category updated successfully.", response);
+};
 
 module.exports = {
   getCategories,
@@ -52,4 +58,5 @@ module.exports = {
   updateCategory,
   deleteCategory,
   getProductByCategory,
+  updateCategoryStatus,
 };

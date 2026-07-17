@@ -13,11 +13,20 @@ router.get("/:id", validate(getCategorySchema), categoryController.getCategory);
 //Admin only endpoints
 router.post("/",auth, allowRoles("ADMIN"), upload.single("image"),validate(createCategorySchema),
     categoryController.createCategory); 
-router.post("/:id",auth,
-  allowRoles("ADMIN"),validate(updateCategorySchema),
-  categoryController.updateCategory); 
-router.delete("/:id",auth,allowRoles("ADMIN"), validate(deleteCategorySchema),
-categoryController.deleteCategory);  
+router.put(
+  "/:id",
+  auth,
+  allowRoles("ADMIN"),
+  validate(updateCategorySchema),
+  categoryController.updateCategory,
+);
+router.delete(
+  "/:id",
+  auth,
+  allowRoles("ADMIN"),
+  validate(deleteCategorySchema),
+  categoryController.deleteCategory,
+);
 
 router.get(
   "/:id/products",
@@ -25,4 +34,12 @@ router.get(
   allowRoles("CUSTOMER", "ADMIN"),
   categoryController.getProductByCategory,
 );
+router.post(
+  "/:id/status",
+  auth,
+  allowRoles("ADMIN", "CUSTOMER"),
+  categoryController.updateCategoryStatus,
+);
+
+
 module.exports = router;

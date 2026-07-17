@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { INITIAL_PRODUCTS, INITIAL_COUPONS } from '../data.js';
 import { login as authLogin } from "../services/authService";
-import { createCategory, getCategories } from "../services/categoryService.js";
+import {
+  createCategory,
+  getCategories,
+  updateCategoryStatus,
+  updateCategoryData,
+} from "../services/categoryService.js";
 
 const AppContext = createContext(undefined);
 
@@ -779,26 +784,23 @@ export const AppProvider = ({ children }) => {
     // setCategories((prev) => [...prev, sanitized]);
   };
 
-  const updateCategory = (oldName, newName) => {
-    if (!newName || newName.trim() === "") {
-      addNotification("error", "New category name cannot be empty");
+  const updateCategory = async (catId, newName, newDescription) => {
+    if (!catId || newName.trim() === "" || newDescription.trim() === "") {
+      addNotification(
+        "error",
+        "New category name or description cannot be empty",
+      );
       return;
     }
-    const sanitized = newName.trim();
-    if (oldName.toLowerCase() === sanitized.toLowerCase()) return;
-    if (categories.some((c) => c.toLowerCase() === sanitized.toLowerCase())) {
-      addNotification("error", `Category "${sanitized}" already exists`);
-      return;
+    const sanitizedData = {
+      name: newName.trim(),
+      description: newDescription.trim(),
+    };
+    const response = await updateCategoryData(catId, sanitizedData);
+    if (response.status == 200) {
+      addNotification("success", response.data.message);
+      loadCategories();
     }
-    setCategories((prev) => prev.map((c) => (c === oldName ? sanitized : c)));
-
-    // update affected products
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.category === oldName ? { ...p, category: sanitized } : p,
-      ),
-    );
-    addNotification("success", `Renamed "${oldName}" to "${sanitized}".`);
   };
 
   const deleteCategory = (categoryName) => {
@@ -806,23 +808,12 @@ export const AppProvider = ({ children }) => {
     addNotification("warning", `Category "${categoryName}" deleted.`);
   };
 
-  const toggleCategoryDisabled = (categoryName) => {
-    setDisabledCategories((prev) => {
-      const exists = prev.includes(categoryName);
-      if (exists) {
-        addNotification(
-          "success",
-          `Category "${categoryName}" has been enabled.`,
-        );
-        return prev.filter((c) => c !== categoryName);
-      } else {
-        addNotification(
-          "warning",
-          `Category "${categoryName}" has been disabled.`,
-        );
-        return [...prev, categoryName];
-      }
-    });
+  const toggleCategoryDisabled = async (catId, status) => {
+    const response = await updateCategoryStatus(catId, status);
+    if (response.status == 200) {
+      addNotification("success", response.data.message);
+    }
+    loadCategories();
   };
 
   return (
