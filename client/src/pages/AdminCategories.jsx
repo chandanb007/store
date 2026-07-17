@@ -1,70 +1,82 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext.jsx';
-import { Tag, Plus, Edit2, Trash2, X, AlertTriangle, Layers, FolderHeart, Check, Eye, EyeOff } from 'lucide-react';
+import {
+  Tag,
+  Plus,
+  Edit2,
+  Trash2,
+  X,
+  AlertTriangle,
+  Layers,
+  Check,
+  Eye,
+  EyeOff,
+  ArchiveRestore,
+} from "lucide-react";
 import { getCategoryById } from "../services/categoryService.js";
 
 export const AdminCategories = () => {
   const {
     categories,
-    disabledCategories,
-    addCategory,
+    createCategory,
     updateCategory,
     deleteCategory,
+    restoreCategory,
     toggleCategoryDisabled,
-    products,
   } = useApp();
 
   // Local component states
   const [newCatName, setNewCatName] = useState("");
   const [newCatDes, setNewCatDes] = useState("");
-  const [editingCatName, setEditingCatName] = useState(null); // name of category being renamed
   const [editingCatId, setEditingCatId] = useState(null);
   const [updatedCatName, setUpdatedCatName] = useState("");
   const [updatedCatDes, setUpdatedCatDes] = useState("");
   const [deleteCandidate, setDeleteCandidate] = useState(null);
 
-  // Calculate product distribution per category
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
     if (!newCatName.trim()) return;
-    addCategory(newCatName.trim(), newCatDes.trim());
-    setNewCatName("");
-    setNewCatDes("");
+    const res = await createCategory(newCatName.trim(), newCatDes.trim());
+    if (res) {
+      setNewCatName("");
+      setNewCatDes("");
+    }
   };
 
-  const handleStartRename = (catId,name,description) => {
+  const handleStartRename = (catId, name, description) => {
     setEditingCatId(catId);
     setUpdatedCatDes(description);
     setUpdatedCatName(name);
   };
 
   const handleSaveRename = (e) => {
-    debugger
     e.preventDefault();
-    if (!updatedCatName.trim() || !updatedCatDes.trim()  || !editingCatId) return;
+    if (!updatedCatName.trim() || !updatedCatDes.trim() || !editingCatId)
+      return;
     updateCategory(editingCatId, updatedCatName.trim(), updatedCatDes.trim());
     setEditingCatId(null);
   };
-  const getProductCount = async (catId) => {
-    const response = await getCategoryById(catId);
-    if (response.status == 'success') {
-      return response.data.data.products.length;
-    }
-  }
-
   const handleConfirmDelete = async (catId) => {
-    const count = await getProductCount(catId);
-    if (count > 0) {
-      setDeleteCandidate({ name: cat, count });
-    } else {
-      deleteCategory(catId);
+    const response = await getCategoryById(catId);
+    if (response.status == 200) {
+      const count = response.data.data.productCount;
+      const name = response.data.data.name;
+      if (count > 0) {
+        setDeleteCandidate({ name: name, count, catId });
+      } else {
+        deleteCategory(catId);
+      }
     }
   };
-
   const handleExecuteDelete = () => {
     if (deleteCandidate) {
-      deleteCategory(deleteCandidate.name);
+      deleteCategory(deleteCandidate.catId);
       setDeleteCandidate(null);
+    }
+  };
+  const handleRestoreCategory = (catId) => {
+    if (catId > 0) {
+      restoreCategory(catId);
     }
   };
 
@@ -98,9 +110,7 @@ export const AdminCategories = () => {
             className="space-y-4 text-xs font-semibold"
           >
             <div className="space-y-1.5">
-              <label className="text-stone-500 dark:text-stone-400">
-                Category Section Name
-              </label>
+              <label className="text-stone-500 dark:text-stone-400">Name</label>
               <input
                 type="text"
                 required
@@ -112,23 +122,24 @@ export const AdminCategories = () => {
             </div>
             <div className="space-y-1.5">
               <label className="text-stone-500 dark:text-stone-400">
-                Category Description
+                Description
               </label>
-              <input
+              <textarea
+                row="5"
                 type="text"
-                required
                 value={newCatDes}
+                required
                 onChange={(e) => setNewCatDes(e.target.value)}
-                placeholder="e.g. Modern Ceramics"
+                placeholder="Category description"
                 className="w-full text-xs px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder-stone-405 focus:outline-none focus:ring-1 focus:ring-gold-500"
-              />
+              ></textarea>
             </div>
 
             <button
               type="submit"
               className="w-full bg-gold-500 hover:bg-gold-600 text-stone-950 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-200 hover:shadow-xs active:scale-97"
             >
-              Add Section
+              Add Category
             </button>
           </form>
 
@@ -136,7 +147,7 @@ export const AdminCategories = () => {
             <span className="font-bold text-stone-500 dark:text-stone-300 block mb-1">
               💡 Administration Note:
             </span>
-            New categories will immediately populate the customer e-commerce
+            New categories will not immediately populate the customer e-commerce
             filters, storefront menus, and inventory logs seamlessly.
           </div>
         </div>
@@ -172,13 +183,14 @@ export const AdminCategories = () => {
                         onChange={(e) => setUpdatedCatName(e.target.value)}
                         className="flex-grow text-xs px-3 py-1.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-stone-50 dark:bg-stone-950 text-stone-950 dark:text-stone-100 focus:outline-none"
                       />
-                      <input
+                      <textarea
+                        row="5"
                         type="text"
+                        defaultValue={updatedCatDes}
                         required
-                        value={updatedCatDes}
                         onChange={(e) => setUpdatedCatDes(e.target.value)}
                         className="flex-grow text-xs px-3 py-1.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-stone-50 dark:bg-stone-950 text-stone-950 dark:text-stone-100 focus:outline-none"
-                      />
+                      ></textarea>
                       <button
                         type="submit"
                         className="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-650"
@@ -188,7 +200,7 @@ export const AdminCategories = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setEditingCatName(null)}
+                        onClick={() => setEditingCatId(null)}
                         className="p-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-500 rounded-lg"
                         title="Cancel"
                       >
@@ -216,9 +228,12 @@ export const AdminCategories = () => {
                               </span>
                             )}
                           </div>
-                          {/* <span className="text-[12px] text-stone-400">
-                            {cat.description}<br/>
-                          </span> */}
+                          <div>
+                            <span className="text-[12px] text-stone-400 capitalize">
+                              {cat.description}
+                              <br />
+                            </span>
+                          </div>
                           <span className="text-[10px] text-stone-400">
                             {count} associated {count === 1 ? "item" : "items"}
                           </span>
@@ -258,16 +273,29 @@ export const AdminCategories = () => {
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
-                        <button
-                          type="button"
-                          onClick={async () =>
-                            await handleConfirmDelete(cat.id)
-                          }
-                          className="p-2 hover:bg-red-50 dark:hover:bg-red-950/20 text-stone-460 hover:text-red-500 rounded-lg transition-colors"
-                          title="Delete Category"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        {cat.deletedAt == null ? (
+                          <button
+                            type="button"
+                            onClick={async () =>
+                              await handleConfirmDelete(cat.id)
+                            }
+                            className="p-2 hover:bg-red-50 dark:hover:bg-red-950/20 text-stone-460 hover:text-red-500 rounded-lg transition-colors"
+                            title="Delete Category"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={async () =>
+                              await handleRestoreCategory(cat.id)
+                            }
+                            className="p-2 hover:bg-red-50 dark:hover:bg-red-950/20 text-stone-460 hover:text-red-500 rounded-lg transition-colors"
+                            title="Undo Delete"
+                          >
+                            <ArchiveRestore className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
                     </>
                   )}

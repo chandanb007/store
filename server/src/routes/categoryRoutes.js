@@ -41,5 +41,13 @@ router.post(
   categoryController.updateCategoryStatus,
 );
 
+router.put(
+  "/:id/restore",
+  auth,
+  allowRoles("ADMIN", "CUSTOMER"),
+  categoryController.restoreCategory,
+);
+
+
 
 module.exports = router;

@@ -2,7 +2,12 @@ const { equal } = require("joi");
 const prisma = require("../config/prisma.js");
 
 const getProducts = async (data) => {
-  const where = { isEnabled: true };
+  const where = {
+    isEnabled: true,
+    category: {
+      deletedAt: null,
+    },
+  };
   if (data.search) {
     where.OR = [
       {
