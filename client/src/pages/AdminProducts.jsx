@@ -1,9 +1,27 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext.jsx';
-import { Plus, Edit2, Trash2, X, AlertTriangle, Sparkles, Tag, Check } from 'lucide-react';
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  X,
+  AlertTriangle,
+  Sparkles,
+  Tag,
+  Check,
+  CirclePlus,
+} from "lucide-react";
 
 export const AdminProducts = () => {
-  const { products, addProduct, updateProduct, deleteProduct, addNotification, categories } = useApp();
+  const {
+    products,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    addNotification,
+    categories,
+    loadCategories,
+  } = useApp();
 
   // Dialog states
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -11,42 +29,44 @@ export const AdminProducts = () => {
 
   // Form input model
   const [formState, setFormState] = useState({
-    name: '',
-    description: '',
-    category: categories[0] || 'Kitchen & Dining',
+    name: "",
+    description: "",
+    category: "",
     price: 0,
     discountPrice: 0,
-    image1: '',
-    image2: '',
+    image1: "",
+    image2: "",
     inventory: 10,
-    material: '',
-    style: '',
+    material: "",
+    style: "",
     isFeatured: false,
     isTrending: false,
-    isBestSeller: false
+    isBestSeller: false,
   });
 
   const resetForm = () => {
     setFormState({
-      name: '',
-      description: '',
-      category: categories[0] || 'Kitchen & Dining',
+      name: "",
+      description: "",
+      category: "",
       price: 1000,
       discountPrice: 0,
-      image1: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=400',
-      image2: '',
+      image1:
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=400",
+      image2: "",
       inventory: 15,
-      material: 'Genuine Brass alloy',
-      style: 'Royal Heritage',
+      material: "Genuine Brass alloy",
+      style: "Royal Heritage",
       isFeatured: false,
       isTrending: false,
-      isBestSeller: false
+      isBestSeller: false,
     });
   };
 
   const handleOpenAdd = () => {
     resetForm();
     setIsAddOpen(true);
+    loadCategories();
   };
 
   const handleOpenEdit = (p) => {
@@ -122,15 +142,15 @@ export const AdminProducts = () => {
 
   return (
     <div className="space-y-6">
-      
       {/* Title Header bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-stone-150/45 dark:border-stone-850 pb-5 h-fit">
         <div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#4B0011] dark:text-stone-105">
-            Antiquity Inventory Catalog
+            Inventory Catalog
           </h1>
           <p className="text-xs text-stone-500">
-            Regulate active product entries, Sku stock limits, and promo ratings weights.
+            Regulate active product entries, Sku stock limits, and promo ratings
+            weights.
           </p>
         </div>
 
@@ -139,7 +159,7 @@ export const AdminProducts = () => {
           className="px-5 py-3 rounded-xl bg-stone-950 dark:bg-gold-505 dark:bg-gold-500 dark:text-stone-950 hover:bg-stone-850 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-md transition-all active:scale-95"
         >
           <Plus className="w-5 h-5 hover:scale-110 transition-transform" />
-          Acquire New Antiquity
+          Acquire New Product
         </button>
       </div>
 
@@ -159,16 +179,27 @@ export const AdminProducts = () => {
             </thead>
             <tbody className="divide-y divide-stone-105 dark:divide-stone-850/40 text-stone-700 dark:text-stone-300 font-medium whitespace-nowrap">
               {products.map((p) => (
-                <tr key={p.id} className="hover:bg-[#FDFCF8] dark:hover:bg-stone-950/10 transition-colors">
-                  
+                <tr
+                  key={p.id}
+                  className="hover:bg-[#FDFCF8] dark:hover:bg-stone-950/10 transition-colors"
+                >
                   {/* Title and image block */}
                   <td className="py-3 px-4 flex items-center gap-3">
                     <div className="w-11 h-11 rounded-lg overflow-hidden bg-white border border-stone-150 dark:border-[#D4AF37]/15 flex-shrink-0 animate-fade-in animate-dur-300">
-                      <img src={p.images[0]} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                      <img
+                        src={p.images[0]}
+                        alt=""
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="max-w-64 truncate">
-                      <p className="font-serif font-bold text-[#2D2926] dark:text-stone-100 truncate">{p.name}</p>
-                      <p className="text-[10px] text-stone-400 truncate mt-0.5">{p.material}</p>
+                      <p className="font-serif font-bold text-[#2D2926] dark:text-stone-100 truncate">
+                        {p.name}
+                      </p>
+                      <p className="text-[10px] text-stone-400 truncate mt-0.5">
+                        {p.material}
+                      </p>
                     </div>
                   </td>
 
@@ -182,20 +213,26 @@ export const AdminProducts = () => {
 
                   {/* Price */}
                   <td className="py-3 px-4 font-bold text-[#2D2926] dark:text-gold-200 font-sans">
-                    ₹{(p.discountPrice || p.price).toLocaleString('en-IN')}
+                    ₹{(p.discountPrice || p.price).toLocaleString("en-IN")}
                     {p.discountPrice && (
                       <span className="text-[10px] text-stone-400 line-through block font-medium font-sans">
-                        ₹{p.price.toLocaleString('en-IN')}
+                        ₹{p.price.toLocaleString("en-IN")}
                       </span>
                     )}
                   </td>
 
                   {/* Inventory stock */}
                   <td className="py-3 px-4">
-                    <span className={`font-bold font-mono text-xs flex items-center gap-1.5 ${
-                      p.inventory <= 5 ? 'text-amber-600 animate-pulse font-sans' : 'text-stone-850 dark:text-white font-sans'
-                    }`}>
-                      {p.inventory <= 5 && <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />}
+                    <span
+                      className={`font-bold font-mono text-xs flex items-center gap-1.5 ${
+                        p.inventory <= 5
+                          ? "text-amber-600 animate-pulse font-sans"
+                          : "text-stone-850 dark:text-white font-sans"
+                      }`}
+                    >
+                      {p.inventory <= 5 && (
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                      )}
                       {p.inventory} Sku
                     </span>
                   </td>
@@ -203,9 +240,21 @@ export const AdminProducts = () => {
                   {/* Tags */}
                   <td className="py-3 px-4">
                     <div className="flex gap-1">
-                      {p.isFeatured && <span className="px-1.5 py-0.5 rounded bg-[#D4AF37]/10 border border-[#D4AF37]/35 text-[9px] text-gold-700 dark:text-gold-300 font-bold">Featured</span>}
-                      {p.isTrending && <span className="px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-955/30 text-[9px] text-sky-700 dark:text-sky-305 font-bold">Trending</span>}
-                      {p.isBestSeller && <span className="px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-955/35 text-[9px] text-amber-705 dark:text-amber-305 font-bold">BestSell</span>}
+                      {p.isFeatured && (
+                        <span className="px-1.5 py-0.5 rounded bg-[#D4AF37]/10 border border-[#D4AF37]/35 text-[9px] text-gold-700 dark:text-gold-300 font-bold">
+                          Featured
+                        </span>
+                      )}
+                      {p.isTrending && (
+                        <span className="px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-955/30 text-[9px] text-sky-700 dark:text-sky-305 font-bold">
+                          Trending
+                        </span>
+                      )}
+                      {p.isBestSeller && (
+                        <span className="px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-955/35 text-[9px] text-amber-705 dark:text-amber-305 font-bold">
+                          BestSell
+                        </span>
+                      )}
                     </div>
                   </td>
 
@@ -228,7 +277,6 @@ export const AdminProducts = () => {
                       </button>
                     </div>
                   </td>
-
                 </tr>
               ))}
             </tbody>
@@ -239,11 +287,20 @@ export const AdminProducts = () => {
       {/* dialog forms drawer (Add / Edit item) */}
       {(isAddOpen || editingProduct) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-xs select-none" onClick={() => { setIsAddOpen(false); setEditingProduct(null); }} />
-          
-          <div className="relative w-full max-w-2xl bg-white dark:bg-stone-900 rounded-2xl overflow-hidden shadow-2xl z-10 max-h-[90vh] overflow-y-auto select-text font-sans border border-stone-200/40 dark:border-stone-800/30">
+          <div
+            className="absolute inset-0 bg-stone-900/60 backdrop-blur-xs select-none"
+            onClick={() => {
+              setIsAddOpen(false);
+              setEditingProduct(null);
+            }}
+          />
+
+          <div className="relative w-[90%] max-w-6xl bg-white dark:bg-stone-900 rounded-2xl overflow-hidden shadow-2xl z-10 max-h-[90vh] overflow-y-auto select-text font-sans border border-stone-200/40 dark:border-stone-800/30">
             <button
-               onClick={() => { setIsAddOpen(false); setEditingProduct(null); }}
+              onClick={() => {
+                setIsAddOpen(false);
+                setEditingProduct(null);
+              }}
               className="absolute top-4 right-4 p-2 rounded-full hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500 cursor-pointer z-20"
             >
               <X className="w-5 h-5 text-stone-600" />
@@ -253,43 +310,150 @@ export const AdminProducts = () => {
             <div className="p-6 border-b border-stone-150 dark:border-stone-850 bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-101">
               <h2 className="font-serif text-lg font-bold flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-gold-600" />
-                {editingProduct ? 'Update Antiquity Ledger' : 'Acquire New Antiquity'}
+                {editingProduct
+                  ? "Update Antiquity Ledger"
+                  : "Acquire New Antiquity"}
               </h2>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleFormSubmit} className="p-6 sm:p-8 space-y-5 text-xs font-semibold text-stone-505 dark:text-stone-400">
+            <form
+              onSubmit={handleFormSubmit}
+              className="p-6 sm:p-8 space-y-5 text-xs font-semibold text-stone-505 dark:text-stone-400"
+            >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
                 {/* Title */}
-                <div className="sm:col-span-2 space-y-1">
-                  <label>Antiquity Legal Title *</label>
+                <div className="space-y-1">
+                  <label>Title *</label>
                   <input
                     type="text"
                     required
                     value={formState.name}
-                    onChange={(e) => setFormState({ ...formState, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormState({ ...formState, name: e.target.value })
+                    }
                     placeholder="e.g. Royal Kundan Pearl Jhumkas Set"
                     className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100"
                   />
                 </div>
-
                 {/* Categories */}
                 <div className="space-y-1">
-                  <label>Department Category</label>
+                  <label>Category</label>
                   <select
                     value={formState.category}
-                    onChange={(e) => setFormState({ ...formState, category: e.target.value })}
+                    onChange={(e) =>
+                      setFormState({ ...formState, category: e.target.value })
+                    }
                     className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100 focus:outline-none"
                   >
                     {categories.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
+                      <option key={c.id} value={c.name}>
+                        {c.name}
                       </option>
                     ))}
                   </select>
                 </div>
+                <div className="rounded-xl border border-stone-200 dark:border-stone-800 p-5 bg-white dark:bg-stone-950 space-y-5">
+                  {/* Header */}
 
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold">Variant #1</h4>
+
+                    <button
+                      type="button"
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* SKU / Price / Qty */}
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm mb-2">SKU</label>
+
+                      <input
+                        type="text"
+                        placeholder="rebook-00s1"
+                        className="w-full rounded-lg border border-stone-300 px-3 py-2"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm mb-2">Price</label>
+
+                      <input
+                        type="number"
+                        placeholder="2999"
+                        className="w-full rounded-lg border border-stone-300 px-3 py-2"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm mb-2">Quantity</label>
+
+                      <input
+                        type="number"
+                        placeholder="20"
+                        className="w-full rounded-lg border border-stone-300 px-3 py-2"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Material / Style */}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm mb-2">Material</label>
+
+                      <input
+                        type="text"
+                        placeholder="Foam"
+                        className="w-full rounded-lg border border-stone-300 px-3 py-2"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm mb-2">Style</label>
+
+                      <input
+                        type="text"
+                        placeholder="Sports"
+                        className="w-full rounded-lg border border-stone-300 px-3 py-2"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Attributes */}
+
+                  <div>
+                    <h5 className="font-medium mb-3">Attributes</h5>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm mb-2">Color</label>
+
+                        <select className="w-full rounded-lg border border-stone-300 px-3 py-2">
+                          <option>Blue</option>
+                          <option>Black</option>
+                          <option>Red</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm mb-2">Size</label>
+
+                        <select className="w-full rounded-lg border border-stone-300 px-3 py-2">
+                          <option>7</option>
+                          <option>8</option>
+                          <option>9</option>
+                          <option>10</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 {/* Sku Stock quantity */}
                 <div className="space-y-1">
                   <label>Inventory Units (SKUs) *</label>
@@ -297,47 +461,63 @@ export const AdminProducts = () => {
                     type="number"
                     required
                     value={formState.inventory}
-                    onChange={(e) => setFormState({ ...formState, inventory: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setFormState({
+                        ...formState,
+                        inventory: Number(e.target.value),
+                      })
+                    }
                     className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100"
                   />
                 </div>
-
                 {/* Original prices */}
                 <div className="space-y-1">
-                  <label>Registry Cost (INR) *</label>
+                  <label>Cost (INR) *</label>
                   <input
                     type="number"
                     required
                     value={formState.price}
-                    onChange={(e) => setFormState({ ...formState, price: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setFormState({
+                        ...formState,
+                        price: Number(e.target.value),
+                      })
+                    }
                     className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100"
                   />
                 </div>
-
                 {/* promo discount prices */}
                 <div className="space-y-1">
-                  <label>Loyalty Ticket Promotional Cost (INR, Optional)</label>
+                  <label>Promotional/discounted Cost</label>
                   <input
                     type="number"
                     value={formState.discountPrice}
-                    onChange={(e) => setFormState({ ...formState, discountPrice: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setFormState({
+                        ...formState,
+                        discountPrice: Number(e.target.value),
+                      })
+                    }
                     className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100"
                   />
                 </div>
-
                 {/* Description lines */}
                 <div className="sm:col-span-2 space-y-1">
-                  <label>Ledger Chronicle Description *</label>
+                  <label>Description *</label>
                   <textarea
                     rows={4}
                     required
                     value={formState.description}
-                    onChange={(e) => setFormState({ ...formState, description: e.target.value })}
+                    onChange={(e) =>
+                      setFormState({
+                        ...formState,
+                        description: e.target.value,
+                      })
+                    }
                     placeholder="Details about provender weaves, enameled linings, certified copper patents..."
                     className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100"
                   />
                 </div>
-
                 {/* Composition materials and styling aesthetics */}
                 <div className="space-y-1">
                   <label>Proportions Composition Material *</label>
@@ -345,24 +525,26 @@ export const AdminProducts = () => {
                     type="text"
                     required
                     value={formState.material}
-                    onChange={(e) => setFormState({ ...formState, material: e.target.value })}
+                    onChange={(e) =>
+                      setFormState({ ...formState, material: e.target.value })
+                    }
                     placeholder="e.g. 22K Gold plating brass, emeralds"
                     className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100"
                   />
                 </div>
-
                 <div className="space-y-1">
                   <label>Aesthetical Line Style *</label>
                   <input
                     type="text"
                     required
                     value={formState.style}
-                    onChange={(e) => setFormState({ ...formState, style: e.target.value })}
+                    onChange={(e) =>
+                      setFormState({ ...formState, style: e.target.value })
+                    }
                     placeholder="e.g. Bridal Heritage Classical"
                     className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100"
                   />
                 </div>
-
                 {/* Primary Image link */}
                 <div className="space-y-1 sm:col-span-2">
                   <label>Primary Showcase Image link *</label>
@@ -370,78 +552,103 @@ export const AdminProducts = () => {
                     type="text"
                     required
                     value={formState.image1}
-                    onChange={(e) => setFormState({ ...formState, image1: e.target.value })}
+                    onChange={(e) =>
+                      setFormState({ ...formState, image1: e.target.value })
+                    }
                     placeholder="Unsplash URL, absolute secure image path..."
                     className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100"
                   />
                 </div>
-
                 {/* Secondary Image link */}
                 <div className="space-y-1 sm:col-span-2">
                   <label>Secondary Detail Image link (Optional)</label>
                   <input
                     type="text"
                     value={formState.image2}
-                    onChange={(e) => setFormState({ ...formState, image2: e.target.value })}
+                    onChange={(e) =>
+                      setFormState({ ...formState, image2: e.target.value })
+                    }
                     placeholder="Alternate side view image link..."
                     className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100"
                   />
                 </div>
-
                 {/* checkbox triggers */}
                 <div className="sm:col-span-2 mt-2 border-t border-stone-100 dark:border-stone-800 pt-3">
-                  <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider mb-2.5">Portal Highlights Triggers</span>
+                  <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider mb-2.5">
+                    Portal Highlights Triggers
+                  </span>
                   <div className="grid grid-cols-3 gap-3">
-                    
                     <button
                       type="button"
-                      onClick={() => setFormState({ ...formState, isFeatured: !formState.isFeatured })}
+                      onClick={() =>
+                        setFormState({
+                          ...formState,
+                          isFeatured: !formState.isFeatured,
+                        })
+                      }
                       className={`py-2 px-3.5 rounded-xl border font-bold flex items-center justify-center gap-1 cursor-pointer transition-all ${
                         formState.isFeatured
-                          ? 'bg-emerald-50 border-emerald-500 text-emerald-805 dark:bg-emerald-955/20 border-emerald-505 dark:text-emerald-250'
-                          : 'border-stone-200 text-stone-400'
+                          ? "bg-emerald-50 border-emerald-500 text-emerald-805 dark:bg-emerald-955/20 border-emerald-505 dark:text-emerald-250"
+                          : "border-stone-200 text-stone-400"
                       }`}
                     >
-                      <Check className={`w-4 h-4 mr-0.5 ${formState.isFeatured ? 'opacity-100' : 'opacity-0'}`} />
+                      <Check
+                        className={`w-4 h-4 mr-0.5 ${formState.isFeatured ? "opacity-100" : "opacity-0"}`}
+                      />
                       Featured Sinks
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => setFormState({ ...formState, isTrending: !formState.isTrending })}
+                      onClick={() =>
+                        setFormState({
+                          ...formState,
+                          isTrending: !formState.isTrending,
+                        })
+                      }
                       className={`py-2 px-3.5 rounded-xl border font-bold flex items-center justify-center gap-1 cursor-pointer transition-all ${
                         formState.isTrending
-                          ? 'bg-sky-50 border-sky-500 text-sky-805 dark:bg-sky-955/20 border-sky-505 dark:text-sky-250'
-                          : 'border-stone-200 text-stone-400'
+                          ? "bg-sky-50 border-sky-500 text-sky-805 dark:bg-sky-955/20 border-sky-505 dark:text-sky-250"
+                          : "border-stone-200 text-stone-400"
                       }`}
                     >
-                      <Check className={`w-4 h-4 mr-0.5 ${formState.isTrending ? 'opacity-100' : 'opacity-0'}`} />
+                      <Check
+                        className={`w-4 h-4 mr-0.5 ${formState.isTrending ? "opacity-100" : "opacity-0"}`}
+                      />
                       Trending Sinks
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => setFormState({ ...formState, isBestSeller: !formState.isBestSeller })}
+                      onClick={() =>
+                        setFormState({
+                          ...formState,
+                          isBestSeller: !formState.isBestSeller,
+                        })
+                      }
                       className={`py-2 px-3.5 rounded-xl border font-bold flex items-center justify-center gap-1 cursor-pointer transition-all ${
                         formState.isBestSeller
-                          ? 'bg-amber-50 border-amber-555 text-amber-805 dark:bg-amber-955/20 border-amber-505 dark:text-amber-250'
-                          : 'border-stone-200 text-stone-400'
+                          ? "bg-amber-50 border-amber-555 text-amber-805 dark:bg-amber-955/20 border-amber-505 dark:text-amber-250"
+                          : "border-stone-200 text-stone-400"
                       }`}
                     >
-                      <Check className={`w-4 h-4 mr-0.5 ${formState.isBestSeller ? 'opacity-100' : 'opacity-0'}`} />
+                      <Check
+                        className={`w-4 h-4 mr-0.5 ${formState.isBestSeller ? "opacity-100" : "opacity-0"}`}
+                      />
                       Best Seller
                     </button>
-
                   </div>
                 </div>
-
               </div>
 
               {/* submitting */}
               <div className="pt-4 border-t border-stone-100 dark:border-stone-800 flex justify-end gap-3 font-bold text-xs uppercase tracking-wider">
                 <button
                   type="button"
-                  onClick={() => { setIsAddOpen(false); setEditingProduct(null); }}
+                  onClick={() => {
+                    setIsAddOpen(false);
+                    setEditingProduct(null);
+                  }}
                   className="px-4 py-2.5 border border-stone-200 dark:border-stone-804 rounded-lg hover:bg-stone-50 text-stone-701 cursor-pointer"
                 >
                   Cancel
@@ -457,7 +664,6 @@ export const AdminProducts = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

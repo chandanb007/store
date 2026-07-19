@@ -1,136 +1,138 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { INITIAL_PRODUCTS, INITIAL_COUPONS } from '../data.js';
 import { login as authLogin } from "../services/authService";
-import {
-  createCategory,
-  getCategories,
-  updateCategoryStatus,
-  updateCategoryData,
-} from "../services/categoryService.js";
+import * as categoryService from "../services/categoryService.js";
 
 const AppContext = createContext(undefined);
 
 const SEED_USERS = [
   {
-    id: 'user-admin',
-    email: 'admin@heritage.com',
-    name: 'Vikramaditya Dev (Admin)',
-    role: 'Admin',
+    id: "user-admin",
+    email: "admin@heritage.com",
+    name: "Vikramaditya Dev (Admin)",
+    role: "Admin",
     addresses: [
       {
-        fullName: 'Vikramaditya Dev',
-        street: '12, Royal Palace Road',
-        city: 'Jaipur',
-        state: 'Rajasthan',
-        zipCode: '302001',
-        country: 'India',
-        phone: '9876543210'
-      }
-    ]
+        fullName: "Vikramaditya Dev",
+        street: "12, Royal Palace Road",
+        city: "Jaipur",
+        state: "Rajasthan",
+        zipCode: "302001",
+        country: "India",
+        phone: "9876543210",
+      },
+    ],
   },
   {
-    id: 'user-customer',
-    email: 'customer@heritage.com',
-    name: 'Aditi Rao',
-    role: 'Customer',
+    id: "user-customer",
+    email: "customer@heritage.com",
+    name: "Aditi Rao",
+    role: "Customer",
     addresses: [
       {
-        fullName: 'Aditi Rao',
-        street: 'Apt 4B, Coral Breeze Apartments',
-        city: 'Bengaluru',
-        state: 'Karnataka',
-        zipCode: '560001',
-        country: 'India',
-        phone: '9812345678'
-      }
+        fullName: "Aditi Rao",
+        street: "Apt 4B, Coral Breeze Apartments",
+        city: "Bengaluru",
+        state: "Karnataka",
+        zipCode: "560001",
+        country: "India",
+        phone: "9812345678",
+      },
     ],
-    wishlist: ['prod-1', 'prod-2']
-  }
+    wishlist: ["prod-1", "prod-2"],
+  },
 ];
 
 const SEED_ORDERS = [
   {
-    id: 'ord-1001',
-    orderNumber: 'HT-2026-1001',
-    userEmail: 'customer@heritage.com',
-    userName: 'Aditi Rao',
+    id: "ord-1001",
+    orderNumber: "HT-2026-1001",
+    userEmail: "customer@heritage.com",
+    userName: "Aditi Rao",
     items: [
       {
         product: INITIAL_PRODUCTS[1], // Handcrafted Pastel Meenakari Jhumkas
         quantity: 1,
-        selectedVariant: 'Standard'
+        selectedVariant: "Standard",
       },
       {
         product: INITIAL_PRODUCTS[5], // Royale Brass Floating Urli Bowl
         quantity: 1,
-        selectedVariant: 'Brass'
-      }
+        selectedVariant: "Brass",
+      },
     ],
     subtotal: 7090,
     shipping: 150,
     discount: 500,
     total: 6740,
     billingAddress: {
-      fullName: 'Aditi Rao',
-      street: 'Apt 4B, Coral Breeze Apartments',
-      city: 'Bengaluru',
-      state: 'Karnataka',
-      zipCode: '560001',
-      country: 'India',
-      phone: '9812345678'
+      fullName: "Aditi Rao",
+      street: "Apt 4B, Coral Breeze Apartments",
+      city: "Bengaluru",
+      state: "Karnataka",
+      zipCode: "560001",
+      country: "India",
+      phone: "9812345678",
     },
-    paymentMethod: 'UPI',
-    status: 'Completed',
-    trackingNumber: 'TRACK-8899120',
-    date: '2026-06-10T14:32:00-07:00'
+    paymentMethod: "UPI",
+    status: "Completed",
+    trackingNumber: "TRACK-8899120",
+    date: "2026-06-10T14:32:00-07:00",
   },
   {
-    id: 'ord-1002',
-    orderNumber: 'HT-2026-1002',
-    userEmail: 'customer@heritage.com',
-    userName: 'Aditi Rao',
+    id: "ord-1002",
+    orderNumber: "HT-2026-1002",
+    userEmail: "customer@heritage.com",
+    userName: "Aditi Rao",
     items: [
       {
         product: INITIAL_PRODUCTS[2], // Kashi Crimson Banarasi Silk Saree
-        quantity: 1
-      }
+        quantity: 1,
+      },
     ],
     subtotal: 24500,
     shipping: 0,
     discount: 3675, // FESTIVE15 used
     total: 20825,
     billingAddress: {
-      fullName: 'Aditi Rao',
-      street: 'Apt 4B, Coral Breeze Apartments',
-      city: 'Bengaluru',
-      state: 'Karnataka',
-      zipCode: '560001',
-      country: 'India',
-      phone: '9812345678'
+      fullName: "Aditi Rao",
+      street: "Apt 4B, Coral Breeze Apartments",
+      city: "Bengaluru",
+      state: "Karnataka",
+      zipCode: "560001",
+      country: "India",
+      phone: "9812345678",
     },
-    paymentMethod: 'Credit Card',
-    status: 'Shipped',
-    trackingNumber: 'TRACK-9912384',
-    date: '2026-06-15T09:12:00-07:00'
-  }
+    paymentMethod: "Credit Card",
+    status: "Shipped",
+    trackingNumber: "TRACK-9912384",
+    date: "2026-06-15T09:12:00-07:00",
+  },
 ];
 
 // Helper functions for dynamic hex shading
 const hexToRgb = (hex) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : { r: 212, g: 175, b: 55 }; // default gold r,g,b
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : { r: 212, g: 175, b: 55 }; // default gold r,g,b
 };
 
 const rgbToHex = (r, g, b) => {
   const clamp = (val) => Math.round(Math.max(0, Math.min(255, val)));
-  return "#" + [clamp(r), clamp(g), clamp(b)].map(x => {
-    const hex = x.toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
-  }).join("");
+  return (
+    "#" +
+    [clamp(r), clamp(g), clamp(b)]
+      .map((x) => {
+        const hex = x.toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      })
+      .join("")
+  );
 };
 
 const adjustShade = (hex, percent) => {
@@ -141,15 +143,11 @@ const adjustShade = (hex, percent) => {
       return rgbToHex(
         r + (255 - r) * factor,
         g + (255 - g) * factor,
-        b + (255 - b) * factor
+        b + (255 - b) * factor,
       );
     } else {
       const factor = Math.abs(percent) / 100;
-      return rgbToHex(
-        r * (1 - factor),
-        g * (1 - factor),
-        b * (1 - factor)
-      );
+      return rgbToHex(r * (1 - factor), g * (1 - factor), b * (1 - factor));
     }
   } catch (e) {
     return hex;
@@ -213,26 +211,13 @@ export const AppProvider = ({ children }) => {
           logoText: "CASA'LUX",
         };
   });
-
-  const [categories, setCategories] = useState(() => {
-    const stored = localStorage.getItem("ht_categories");
-    return stored
-      ? JSON.parse(stored)
-      : [
-          "Kitchen & Dining",
-          "Textiles & Rugs",
-          "Artisanal Decor",
-          "Fine Lighting",
-          "Premium Bedding",
-          "Luxe Accessories",
-        ];
-  });
+  const [categories, setCategories] = useState([]);
   useEffect(() => {
     loadCategories();
   }, []);
   const loadCategories = async () => {
     try {
-      const response = await getCategories();
+      const response = await categoryService.getCategories();
       setCategories(response.data.data);
     } catch (error) {
       console.error(error);
@@ -761,27 +746,31 @@ export const AppProvider = ({ children }) => {
     );
   };
 
-  const addCategory = async (name, description) => {
-    if (!name || name.trim() === "") {
-      addNotification("error", "Category name cannot be empty");
-      return;
-    }
-    let formData = new FormData();
-    formData.append("name", name.trim());
-    formData.append("description", description.trim());
-    const category = await createCategory(formData);
-    console.log(category);
-    if (category.status == 201) {
+  const createCategory = async (name, description) => {
+    try {
+      if (!name || name.trim() === "") {
+        addNotification("error", "Category name cannot be empty");
+        return;
+      }
+      let formData = new FormData();
+      formData.append("name", name.trim());
+      formData.append("description", description.trim());
+      const response = await categoryService.createCategory(formData);
+      if (response.status == 201) {
+        addNotification(
+          "success",
+          `Category "${name.trim()}" added successfully.`,
+        );
+        loadCategories();
+        return true;
+      }
+    } catch (error) {
       addNotification(
-        "success",
-        `Category "${name.trim()}" added successfully.`,
+        "error",
+        error.response?.data?.message || "Something went wrong.",
       );
+      return false;
     }
-    // if (categories.some((c) => c.toLowerCase() === sanitized.toLowerCase())) {
-    //   addNotification("error", `Category "${sanitized}" already exists`);
-    //   return;
-    // }
-    // setCategories((prev) => [...prev, sanitized]);
   };
 
   const updateCategory = async (catId, newName, newDescription) => {
@@ -803,13 +792,22 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const deleteCategory = (categoryName) => {
-    setCategories((prev) => prev.filter((c) => c !== categoryName));
-    addNotification("warning", `Category "${categoryName}" deleted.`);
+  const deleteCategory = async (catId) => {
+    const response = await categoryService.deleteTheCategory(catId);
+    if (response.status == 200) {
+      addNotification("success", response.data.message);
+      loadCategories();
+    }
   };
-
+  const restoreCategory = async (catId) => {
+    const response = await categoryService.restoreCategory(catId);
+    if (response.status == 200) {
+      addNotification("success", response.data.message);
+      loadCategories();
+    }
+  };
   const toggleCategoryDisabled = async (catId, status) => {
-    const response = await updateCategoryStatus(catId, status);
+    const response = await categoryService.updateCategoryStatus(catId, status);
     if (response.status == 200) {
       addNotification("success", response.data.message);
     }
@@ -831,10 +829,12 @@ export const AppProvider = ({ children }) => {
         themeConfig,
         updateThemeConfig,
         categories,
+        loadCategories,
         disabledCategories,
-        addCategory,
+        createCategory,
         updateCategory,
         deleteCategory,
+        restoreCategory,
         toggleCategoryDisabled,
         addProduct,
         updateProduct,
