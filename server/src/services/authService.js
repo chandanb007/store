@@ -2,6 +2,8 @@ const prisma = require("../config/prisma.js");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken')
 const AppError = require("../utils/AppError");
+const { UserRole } = require("@prisma/client");
+
 
 const register = async(data) => {
     const hashedPassword = await bcrypt.hash(
@@ -75,8 +77,19 @@ const me = async (data) => {
     });
     
 }
+
+
+const userByRole = async () => {
+  return await prisma.user.findMany({
+    where: {
+      role: UserRole.CUSTOMER,
+    },
+  });
+};
+
 module.exports = {
     register,
     login,
-    me
+    me,
+    userByRole
 }

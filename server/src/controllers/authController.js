@@ -32,8 +32,18 @@ const me = async (req, res, next) => {
     next(error);
   }
 };
+const userByRole = async (req, res, next) => {
+  try {
+    const users = await authService.userByRole();
+    return success(res, "Users fetched successfully", users, 200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
     login,
     register,
-    me
+    me,
+    userByRole
 }
