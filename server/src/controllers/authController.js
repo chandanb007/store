@@ -32,8 +32,19 @@ const me = async (req, res, next) => {
     next(error);
   }
 };
+
+const getAllCustomers = async (req, res, next) => {
+  try {
+    const customers = await authService.getAllCustomers();
+    return success(res, "Customers fetched successfully.", customers, 200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
     login,
     register,
-    me
+    me,
+    getAllCustomers
 }

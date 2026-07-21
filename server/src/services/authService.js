@@ -75,8 +75,25 @@ const me = async (data) => {
     });
     
 }
+const getAllCustomers = async () => {
+  return await prisma.user.findMany({
+    where: {
+      role: "CUSTOMER"
+    },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      mobile: true,
+      role: true
+    }
+  });
+};
+
 module.exports = {
-    register,
-    login,
-    me
-}
+  register,
+  login,
+  me,
+  getAllCustomers
+};
