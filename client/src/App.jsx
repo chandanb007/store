@@ -15,6 +15,7 @@ import { AdminTheme } from './pages/AdminTheme.jsx';
 import { AdminCategories } from './pages/AdminCategories.jsx';
 import { NotificationToast } from './components/NotificationToast.jsx';
 import { CustomerLogs } from './pages/CustomerLogs';
+import { AdminPatronTestimonials } from './pages/AdminPatronTestimonials.jsx';
 
 export default function App() {
   return (
@@ -51,6 +52,7 @@ export default function App() {
                 <p className="text-xs text-stone-400 font-sans font-semibold">Quarterly audit documentation and growth parameters are synchronized with local administrative records.</p>
               </div>
             } />
+                <Route path="patron-testimonials" element={< AdminPatronTestimonials /> } />
           </Route>
 
           {/* Catch-all Fallback */}

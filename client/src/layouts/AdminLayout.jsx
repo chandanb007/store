@@ -38,7 +38,9 @@ export const AdminLayout = () => {
     { to: '/admin/orders', label: 'Order Processing', icon: ShoppingBag },
     { to: '/admin/customers', label: 'Customer Logs', icon: Users },
     { to: '/admin/reports', label: 'Reports Hub', icon: BarChart3 },
-    { to: '/admin/theme', label: 'Theme & Styling', icon: Palette }
+    { to: '/admin/theme', label: 'Theme & Styling', icon: Palette },
+    { to: '/admin/patron-testimonials', label: 'Patron Testimonials', icon: Palette }
+    
   ];
 
   return (
