@@ -1,5 +1,6 @@
 const prisma = require("../config/prisma.js");
 const { formatCategoryResponse } = require("../helpers/categoryHelper.js");
+const AppError = require("../utils/appError");
 
 const getCategories = async () => {
   const categories = await prisma.category.findMany({
@@ -9,20 +10,29 @@ const getCategories = async () => {
       description: true,
       slug: true,
       isEnabled: true,
+      deletedAt: true,
       _count: {
         select: {
           products: true,
         },
       },
     },
+    orderBy: { id: "desc" },
   });
   return formatCategoryResponse(categories);
 };
 
 const createCategory = async (data) => {
-  return prisma.category.create({
-    data,
-  });
+  try {
+    await prisma.category.create({
+      data,
+    });
+  } catch (error) {
+    if (error.code === "P2002") {
+      throw new AppError("Category name or slug already exists.", 400);
+    }
+    throw error;
+  }
 };
 const getCategory = async (id) => {
   const category = await validateCategoryById(id);
@@ -39,6 +49,7 @@ const getCategory = async (id) => {
       description: true,
       slug: true,
       isEnabled: true,
+      deletedAt: true,
       _count: {
         select: {
           products: true,
@@ -65,14 +76,6 @@ const deleteCategory = async (id, data) => {
   if (!category) {
     throw new Error("Category not found");
   }
-  await prisma.product.updateMany({
-    where: {
-      categoryId: Number(id),
-    },
-    data: {
-      isEnabled: false,
-    },
-  });
   return prisma.category.update({
     where: { id: parseInt(id) },
     data: {
@@ -102,6 +105,20 @@ const getProductByCategory = async (id) => {
     },
   });
 };
+const restoreCategory = async (id) => {
+  const category = await prisma.category.findUnique({
+    where: { id: Number(id) },
+  });
+  if (!category) {
+    throw new AppError("Category does not exists", 400);
+  }
+  return await prisma.$transaction(async (tx) => {
+    await tx.category.update({
+      where: { id: Number(id) },
+      data: { deletedAt: null },
+    });
+  });
+};
 module.exports = {
   getCategories,
   createCategory,
@@ -109,4 +126,5 @@ module.exports = {
   updateCategory,
   deleteCategory,
   getProductByCategory,
+  restoreCategory,
 };

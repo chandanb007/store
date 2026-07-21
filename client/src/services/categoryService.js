@@ -19,3 +19,10 @@ export const updateCategoryStatus = (id, status) => {
 export const updateCategoryData = (id, data) => {
   return api.put(`/category/${id}`, data);
 };
+export const deleteTheCategory = (id) => {
+  return api.delete(`/category/${id}`);
+};
+
+export const restoreCategory = (id) => {
+  return api.put(`/category/${id}/restore`);
+};

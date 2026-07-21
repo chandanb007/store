@@ -73,7 +73,7 @@ model Product {
   inventoryTransactions InventoryTransaction[]
   orderItem             OrderItem[]
   variants              ProductVariant[]
-
+  deletedAt             DateTime?
   @@index([categoryId])
   @@index([slug])
 }
