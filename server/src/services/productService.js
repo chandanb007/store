@@ -58,6 +58,11 @@ const getProducts = async (data) => {
   return prisma.product.findMany({
     where,
     include: {
+      category: {
+        select: {
+          name: true,
+        },
+      },
       variants: {
         include: {
           variantValues: {
@@ -79,35 +84,35 @@ const getProducts = async (data) => {
 };
 const createProduct = async (data) => {
   const { variants, ...productData } = data;
+
   return await prisma.$transaction(async (tx) => {
     const product = await tx.product.create({
       data: productData,
     });
-    const parsedVariants = JSON.parse(variants);
-    for (const variant of parsedVariants.variants) {
+    for (const variant of variants) {
       const createdVariant = await tx.productVariant.create({
         data: {
           productId: product.id,
           sku: variant.sku,
-          price: variant.price,
-          discountedPrice: variant.discountedPrice,
-          qty: variant.qty,
+          price: Number(variant.price),
+          discountedPrice: Number(variant.discountedPrice),
+          qty: Number(variant.qty),
           material: variant.material,
           style: variant.style,
           isDefault: variant.isDefault,
         },
       });
-      for (const [typeName, valueName] of Object.entries(variant.attributes)) {
+      for (const attribute of variant.attributes) {
         // Find or create VariantType
         let variantType = await tx.variantType.findUnique({
           where: {
-            name: typeName,
+            name: attribute.variantType,
           },
         });
         if (!variantType) {
           variantType = await tx.variantType.create({
             data: {
-              name: typeName,
+              name: attribute.variantType,
             },
           });
         }
@@ -115,14 +120,14 @@ const createProduct = async (data) => {
         let variantValue = await tx.variantValue.findFirst({
           where: {
             variantTypeId: variantType.id,
-            value: valueName,
+            value: attribute.variantValue,
           },
         });
         if (!variantValue) {
           variantValue = await tx.variantValue.create({
             data: {
               variantTypeId: variantType.id,
-              value: valueName,
+              value: attribute.variantValue,
             },
           });
         }

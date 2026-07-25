@@ -6,7 +6,7 @@ const createProductSchema = Joi.object({
   categoryId: Joi.number().integer().required(),
   description: Joi.string().min(3).max(500).required(),
   isEnabled: Joi.boolean(),
-  variants: Joi.string().optional(),
+  variants: Joi.optional(),
 });
 
 module.exports = {

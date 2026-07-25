@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { INITIAL_PRODUCTS, INITIAL_COUPONS } from '../data.js';
 import { login as authLogin } from "../services/authService";
 import * as categoryService from "../services/categoryService.js";
+import * as productService from "../services/productService.js";
 
 const AppContext = createContext(undefined);
 
@@ -156,10 +157,7 @@ const adjustShade = (hex, percent) => {
 
 export const AppProvider = ({ children }) => {
   // Load initial states from localStorage or defaults
-  const [products, setProducts] = useState(() => {
-    const stored = localStorage.getItem("ht_products");
-    return stored ? JSON.parse(stored) : INITIAL_PRODUCTS;
-  });
+  const [products, setProducts] = useState([]);
 
   const [cart, setCart] = useState(() => {
     const stored = localStorage.getItem("ht_cart");
@@ -214,7 +212,17 @@ export const AppProvider = ({ children }) => {
   const [categories, setCategories] = useState([]);
   useEffect(() => {
     loadCategories();
+    loadProducts();
   }, []);
+
+  const loadProducts = async () => {
+    try {
+      const response = await productService.getProducts();
+      setProducts(response.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const loadCategories = async () => {
     try {
       const response = await categoryService.getCategories();
@@ -366,15 +374,20 @@ export const AppProvider = ({ children }) => {
   };
 
   // Products Management
-  const addProduct = (product) => {
-    const newProduct = {
-      ...product,
-      id: `prod-${Date.now()}`,
-      rating: 5.0,
-      reviews: [],
-    };
-    setProducts((prev) => [newProduct, ...prev]);
-    addNotification("success", `Product "${product.name}" added successfully.`);
+  const addProduct = async (product) => {
+    try {
+      const response = await productService.addProduct(product);
+      if (response.status == 201) {
+        addNotification("success", response.data.data.message);
+        return true;
+      }
+    } catch (error) {
+      addNotification(
+        "error",
+        error.response?.data?.message || "Something went wrong.",
+      );
+      return false;
+    }
   };
 
   const updateProduct = (updated) => {

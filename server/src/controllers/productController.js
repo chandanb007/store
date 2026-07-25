@@ -16,23 +16,22 @@ const createProduct = async (req, res,next) => {
       body['slug'] =  title.replaceAll(' ','-');
       body["categoryId"] = parseInt(body.categoryId);
       const product = await productService.createProduct(body)
-      const primaryFile = req.files.primaryImage?.[0];
+      const primaryFile = req.files?.primaryImage?.[0];
       if (primaryFile) {
         const media = await mediaService.saveMedia({
           fileName: primaryFile.filename,
           filePath: primaryFile.path,
           mimeType: primaryFile.mimetype,
-          fileSize: primaryFile.size
-        })
-       await productMediaService.saveProductMedia({
-            productId: product.id,
-            mediaId: media.id,
-            isPrimary: true,
-            sortOrder: 1
+          fileSize: primaryFile.size,
+        });
+        await productMediaService.saveProductMedia({
+          productId: product.id,
+          mediaId: media.id,
+          isPrimary: true,
+          sortOrder: 1,
         });
       }
-      const secondaryFiles =
-        req.files.secondaryImages || [];
+      const secondaryFiles = req.files?.secondaryImages || [];
       for (let i = 0; i < secondaryFiles.length; i++) {
         const secondaryFile = secondaryFiles[i];
         const secondaryMedia = await mediaService.saveMedia({
