@@ -374,14 +374,40 @@ export const AppProvider = ({ children }) => {
   };
 
   // Products Management
-  const addProduct = async (product) => {
+  const addProduct = async (formState) => {
     try {
-      const response = await productService.addProduct(product);
+      debugger;
+      const formData = new FormData();
+      formData.append("title", formState.title);
+      formData.append("description", formState.description);
+      formData.append("categoryId", formState.categoryId);
+
+      //formData.append("variants", JSON.stringify(formState.variants));
+
+      formState.images.forEach((file) => {
+        formData.append("primaryImages", file);
+      });
+      formState.variants.forEach((variant, index) => {
+        variant.images.forEach((file) => {
+          formData.append(`variantImages_${index}`, file);
+        });
+      });
+      formData.append(
+        "variants",
+        JSON.stringify(
+          formState.variants.map((v) => ({
+            ...v,
+            images: undefined, // remove File objects
+          })),
+        ),
+      );
+      const response = await productService.addProduct(formData);
       if (response.status == 201) {
         addNotification("success", response.data.data.message);
         return true;
       }
     } catch (error) {
+      console.log(error);
       addNotification(
         "error",
         error.response?.data?.message || "Something went wrong.",

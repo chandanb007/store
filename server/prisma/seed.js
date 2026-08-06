@@ -4,7 +4,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 async function main() {
   console.log("Seeding database...");
-  //await seedAdminUser(prisma);
+  await seedAdminUser(prisma);
   await seedCategories(prisma);
   console.log("Database seeded.");
 }

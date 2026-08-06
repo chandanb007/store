@@ -1,5 +1,10 @@
 const { equal } = require("joi");
 const prisma = require("../config/prisma.js");
+const mediaService = require("../services/mediaService")
+const {
+  productStockSummary,
+  productPriceSummary,
+} = require("../helpers/productVariantHelper.js");
 
 const getProducts = async (data) => {
   const where = {
@@ -55,7 +60,7 @@ const getProducts = async (data) => {
   }
   const page = Number(data.page || 1);
   const pageSize = Number(data.pageSize || 20);
-  return prisma.product.findMany({
+  const products = await prisma.product.findMany({
     where,
     include: {
       category: {
@@ -81,15 +86,91 @@ const getProducts = async (data) => {
     take: pageSize,
     orderBy,
   });
-};
-const createProduct = async (data) => {
-  const { variants, ...productData } = data;
+  const stockSummary = await productStockSummary(prisma);
+  const priceSummary = await productPriceSummary(prisma);
 
+  const stockMap = Object.fromEntries(
+    stockSummary.map((item) => [item.productId, item._sum.qty ?? 0]),
+  );
+  const priceMap = Object.fromEntries(
+    priceSummary.map((item) => [
+      item.productId,
+      {
+        minPrice: Number(item._min.price).toFixed(2),
+        maxPrice: Number(item._max.price).toFixed(2),
+        minDiscountPrice: Number(item._min.discountedPrice).toFixed(2),
+        maxDiscountPrice: Number(item._max.discountedPrice).toFixed(2),
+      },
+    ]),
+  );
+  return products.map((product) => ({
+    ...product,
+    ...priceMap[product.id],
+    totalStock: stockMap[product.id] || 0,
+  }));
+};
+
+const createProduct = async (data, files) => {
+  const { variants, ...productData } = data;
+  let parsedVariants = JSON.parse(variants);
   return await prisma.$transaction(async (tx) => {
     const product = await tx.product.create({
       data: productData,
     });
-    for (const variant of variants) {
+    const primaryImages =
+      files?.filter((file) => file.fieldname === "primaryImages") || [];
+    const variantImages = {};
+    files?.forEach((file) => {
+      if (file.fieldname.startsWith("variantImages_")) {
+        const index = Number(file.fieldname.replace("variantImages_", ""));
+
+        if (!variantImages[index]) {
+          variantImages[index] = [];
+        }
+
+        variantImages[index].push(file);
+      }
+    }) || [];
+    if (files.length > 0) {
+      files.forEach((file) => {
+        const secondaryMedia = await mediaService.saveMedia({
+          type: "IMAGE", //TODO : make it dynamic if image was uploaded then type will be IMAGE, if video then VIDEO
+          fileName: file.filename,
+          storageKey: file.path,
+          url: file.path,
+          mimeType: file.mimetype,
+          fileSize: file.size,
+          altText: "primaryImages"
+        });
+      })
+    }
+    if (primaryImages.length > 0) {
+      files.forEach((file) => {
+        await productMediaService.saveProductMedia({
+          productId: product.id,
+          mediaId: secondaryMedia.id,
+          isPrimary: false,
+          sortOrder: i + 2,
+        });
+      })
+    }
+    // const secondaryFiles = req.files?.secondaryImages || [];
+    // for (let i = 0; i < secondaryFiles.length; i++) {
+    //   const secondaryFile = secondaryFiles[i];
+    //   const secondaryMedia = await mediaService.saveMedia({
+    //     fileName: secondaryFile.filename,
+    //     filePath: secondaryFile.path,
+    //     mimeType: secondaryFile.mimetype,
+    //     fileSize: secondaryFile.size,
+    //   });
+    //   await productMediaService.saveProductMedia({
+    //     productId: product.id,
+    //     mediaId: secondaryMedia.id,
+    //     isPrimary: false,
+    //     sortOrder: i + 2,
+    //   });
+    // }
+    for (const variant of parsedVariants) {
       const createdVariant = await tx.productVariant.create({
         data: {
           productId: product.id,

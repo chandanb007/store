@@ -1,4 +1,4 @@
-
+import React, { useState, useEffect } from "react";
 import {
   Plus,
   Edit2,
@@ -10,6 +10,8 @@ import {
   Check,
   CirclePlus,
 } from "lucide-react";
+
+import ImageUploader from "../product/imageUploader";
 const AddProductTemp = ({
   editingProduct,
   handleFormSubmit,
@@ -17,11 +19,14 @@ const AddProductTemp = ({
   categories,
   addVariantRow,
   setFormState,
+  primaryImage,
+  setPrimaryImage,
+  variantImages,
+  setVariantImages,
 }) => {
   const updateVariant = (variantIndex, field, value) => {
     setFormState((prev) => {
       const variants = [...prev.variants];
-
       variants[variantIndex] = {
         ...variants[variantIndex],
         [field]: value,
@@ -33,66 +38,81 @@ const AddProductTemp = ({
       };
     });
   };
-const updateVariantAttribute = (variantIndex, attributeIndex, field, value) => {
-  setFormState((prev) => {
-    const variants = [...prev.variants];
-    variants[variantIndex].attributes[attributeIndex] = {
-      ...variants[variantIndex].attributes[attributeIndex],
-      [field]: value,
-    };
-    return {
-      ...prev,
-      variants,
-    };
-  });
+  const updateVariantAttribute = (
+    variantIndex,
+    attributeIndex,
+    field,
+    value,
+  ) => {
+    setFormState((prev) => {
+      const variants = [...prev.variants];
+      variants[variantIndex].attributes[attributeIndex] = {
+        ...variants[variantIndex].attributes[attributeIndex],
+        [field]: value,
+      };
+      return {
+        ...prev,
+        variants,
+      };
+    });
   };
   const addAttributeToVariant = (variantIndex) => {
     setFormState((prev) => ({
-    ...prev, // 1. Copy top-level form state
-    variants: prev.variants.map((variant, index) => {
-      if (index === variantIndex) {
-        return {
-          ...variant, // 3. Copy target variant properties
-          attributes: [
-            ...variant.attributes, // 4. Copy existing attributes
-            {
-              variantType: "",
-              variantValue:"",
-            }, // 5. Append new attribute object
-          ],
-        };
-      }
-      return variant; // Leave other variants untouched
-    }),
-  }));
+      ...prev, // 1. Copy top-level form state
+      variants: prev.variants.map((variant, index) => {
+        if (index === variantIndex) {
+          return {
+            ...variant, // 3. Copy target variant properties
+            attributes: [
+              ...variant.attributes, // 4. Copy existing attributes
+              {
+                variantType: "",
+                variantValue: "",
+              }, // 5. Append new attribute object
+            ],
+          };
+        }
+        return variant; // Leave other variants untouched
+      }),
+    }));
   };
-  const removeAttribute = (variantIndex,attributeIndex) => {
-       setFormState((prev) => {
-         const variants = [...prev.variants];
-         variants[variantIndex] = {
-           ...variants[variantIndex],
-           attributes: variants[variantIndex].attributes.filter(
-             (_, index) => index !== attributeIndex,
-           ),
-         };
+  const removeAttribute = (variantIndex, attributeIndex) => {
+    setFormState((prev) => {
+      const variants = [...prev.variants];
+      variants[variantIndex] = {
+        ...variants[variantIndex],
+        attributes: variants[variantIndex].attributes.filter(
+          (_, index) => index !== attributeIndex,
+        ),
+      };
 
-         return {
-           ...prev,
-           variants,
-         };
-       });
-  };     
-const removeVariant = (variantIndex) => {
-  setFormState((prev) => {
-    if (prev.variants.length === 1) {
-      return prev;
-    }
-    return {
+      return {
+        ...prev,
+        variants,
+      };
+    });
+  };
+  const removeVariant = (variantIndex) => {
+    setFormState((prev) => {
+      if (prev.variants.length === 1) {
+        return prev;
+      }
+      return {
+        ...prev,
+        variants: prev.variants.filter((_, index) => index !== variantIndex),
+      };
+    });
+  };
+  const handlePrimaryImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    setFormState((prev) => ({
       ...prev,
-      variants: prev.variants.filter((_, index) => index !== variantIndex),
-    };
-  });
-};
+      image: file,
+    }));
+  };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -135,8 +155,7 @@ const removeVariant = (variantIndex) => {
               <label>Title *</label>
               <input
                 type="text"
-                required
-                value={formState.name}
+                value={formState.title}
                 onChange={(e) =>
                   setFormState({ ...formState, title: e.target.value })
                 }
@@ -173,6 +192,19 @@ const removeVariant = (variantIndex) => {
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="space-y-2">
+              <label>Primary Image</label>
+              <ImageUploader
+                images={formState.images}
+                multiple={false}
+                onChange={(images) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    images,
+                  }))
+                }
+              />
             </div>
             <div className="sm:col-span-2 p-5">
               <div className="flex items-center justify-between mb-4">
@@ -304,14 +336,19 @@ const removeVariant = (variantIndex) => {
                     {variant.attributes.map((attribute, attributeIndex) => {
                       return (
                         <div className="space-y-2">
-                          <div className="grid grid-cols-12 gap-3 items-end  dark:border-stone-800 rounded-xl p-4">
+                          <div
+                            className={`grid grid-cols-12 gap-3 items-end  dark:border-stone-800 rounded-xl ${attributeIndex > 0 ? "pt-0" : ""} p-4`}
+                          >
                             {/* Variant Type */}
 
                             <div className="col-span-3">
-                              <label className="block mb-1 text-xs">
-                                Variant Type
-                              </label>
-
+                              {attributeIndex == 0 ? (
+                                <label className="block mb-1 text-xs">
+                                  Variant Type
+                                </label>
+                              ) : (
+                                ""
+                              )}
                               <input
                                 value={attribute.variantType}
                                 type="text"
@@ -329,9 +366,13 @@ const removeVariant = (variantIndex) => {
                               />
                             </div>
                             <div className="col-span-3">
-                              <label className="block mb-1 text-xs">
-                                Values
-                              </label>
+                              {attributeIndex == 0 ? (
+                                <label className="block mb-1 text-xs">
+                                  Variant Value
+                                </label>
+                              ) : (
+                                ""
+                              )}
 
                               <div className="flex flex-wrap gap-2">
                                 <input
@@ -381,6 +422,32 @@ const removeVariant = (variantIndex) => {
                         </div>
                       );
                     })}
+                    <hr />
+                    <div className="col-span-6 pt-2">
+                      <label className="block mb-1 text-xs">
+                        Variant Images
+                      </label>
+                      <div className="col-span-12">
+                        <ImageUploader
+                          images={variant.images}
+                          onChange={(images) => {
+                            setFormState((prev) => {
+                              const variants = [...prev.variants];
+
+                              variants[index] = {
+                                ...variants[index],
+                                images,
+                              };
+
+                              return {
+                                ...prev,
+                                variants,
+                              };
+                            });
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 );
               })}

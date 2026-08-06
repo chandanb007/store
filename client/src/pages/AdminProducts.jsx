@@ -29,6 +29,7 @@ export const AdminProducts = () => {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const emptyVariant = {
+    images: [],
     sku: "",
     price: "",
     discountedPrice: "",
@@ -47,6 +48,7 @@ export const AdminProducts = () => {
     title: "",
     categoryId: "",
     description: "",
+    images: "",
     variants: [emptyVariant],
   });
   const addVariantRow = () => {
@@ -55,6 +57,7 @@ export const AdminProducts = () => {
       variants: [
         ...prev.variants,
         {
+          images: [],
           sku: "",
           price: "",
           discountedPrice: "",
@@ -73,20 +76,19 @@ export const AdminProducts = () => {
   };
   const resetForm = () => {
     setFormState({
-      name: "",
-      description: "",
-      category: "",
-      price: 1000,
-      discountPrice: 0,
-      image1:
-        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=400",
-      image2: "",
-      inventory: 15,
-      material: "Genuine Brass alloy",
-      style: "Royal Heritage",
-      isFeatured: false,
-      isTrending: false,
-      isBestSeller: false,
+      images: [],
+      sku: "",
+      price: "",
+      discountedPrice: "",
+      qty: "",
+      material: "",
+      style: "",
+      attributes: [
+        {
+          variantType: "",
+          variantValue: "",
+        },
+      ],
     });
   };
 
@@ -119,7 +121,7 @@ export const AdminProducts = () => {
     e.preventDefault();
       // Add
       addProduct(formState);
-      setIsAddOpen(false);
+      setIsAddOpen(true);
   };
 
   return (

@@ -8,6 +8,9 @@ import {
   Tag,
   Check,
   CirclePlus,
+  CircleDollarSign,
+  ShoppingBasket,
+  BookmarkCheck,
 } from "lucide-react";
 const ProductListing = ({ products }) => {
   return (
@@ -18,9 +21,9 @@ const ProductListing = ({ products }) => {
             <tr className="border-b border-stone-150 dark:border-stone-850 text-stone-400 uppercase tracking-widest text-[9px] font-bold bg-[#FDFCF8] dark:bg-stone-955/20">
               <th className="py-3 px-4">Item Detail</th>
               <th className="py-3 px-4">Category</th>
-              <th className="py-3 px-4">Sovereign Price</th>
+              <th className="py-3 px-4">Price Range</th>
+              <th className="py-3 px-4">Variants Count</th>
               <th className="py-3 px-4">Stock level</th>
-              <th className="py-3 px-4">Properties</th>
               <th className="py-3 px-4 text-center">Admin Controls</th>
             </tr>
           </thead>
@@ -40,7 +43,7 @@ const ProductListing = ({ products }) => {
                     />
                   </div>
                   <div className="max-w-64 truncate">
-                    <p className="font-serif font-bold text-[#2D2926] dark:text-stone-100 truncate">
+                    <p className="font-serif font-bold text-[#2D2926] dark:text-stone-100 truncate capitalize">
                       {p.title}
                     </p>
                     <p className="text-[10px] text-stone-400 truncate mt-0.5">
@@ -56,52 +59,33 @@ const ProductListing = ({ products }) => {
                     {p.category.name}
                   </span>
                 </td>
-
-                {/* Price */}
-                <td className="py-3 px-4 font-bold text-[#2D2926] dark:text-gold-200 font-sans">
-                  {/* ₹{(p.discountPrice || p.price).toLocaleString("en-IN")}
-                  {p.discountPrice && (
-                    <span className="text-[10px] text-stone-400 line-through block font-medium font-sans">
-                      ₹{p.price.toLocaleString("en-IN")}
-                    </span>
-                  )} */}
+                <td className="py-3 px-4">
+                  <span className="font-bold font-mono text-xs flex items-center gap-1.5">
+                    <CircleDollarSign className="w-3 h-3 text-gold-600" />₹
+                    {p.minPrice}- ₹{p.maxPrice}
+                  </span>
                 </td>
-
+                <td className="py-3 px-4">
+                  <span className="font-bold font-mono text-xs flex items-center gap-1.5">
+                    <ShoppingBasket className="w-3 h-3 text-gold-600" />
+                    {p.variants.length}
+                  </span>
+                </td>
                 {/* Inventory stock */}
                 <td className="py-3 px-4">
                   <span
                     className={`font-bold font-mono text-xs flex items-center gap-1.5 ${
-                      p.inventory <= 5
+                      p.totalStock <= 5
                         ? "text-amber-600 animate-pulse font-sans"
                         : "text-stone-850 dark:text-white font-sans"
                     }`}
                   >
-                    {p.inventory <= 5 && (
+                    {p.totalStock <= 5 && (
                       <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
                     )}
-                    {p.inventory} Sku
+                    <BookmarkCheck className="w-3 h-3 text-gold-600" />
+                    {p.totalStock} Sku
                   </span>
-                </td>
-
-                {/* Tags */}
-                <td className="py-3 px-4">
-                  <div className="flex gap-1">
-                    {p.isFeatured && (
-                      <span className="px-1.5 py-0.5 rounded bg-[#D4AF37]/10 border border-[#D4AF37]/35 text-[9px] text-gold-700 dark:text-gold-300 font-bold">
-                        Featured
-                      </span>
-                    )}
-                    {p.isTrending && (
-                      <span className="px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-955/30 text-[9px] text-sky-700 dark:text-sky-305 font-bold">
-                        Trending
-                      </span>
-                    )}
-                    {p.isBestSeller && (
-                      <span className="px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-955/35 text-[9px] text-amber-705 dark:text-amber-305 font-bold">
-                        BestSell
-                      </span>
-                    )}
-                  </div>
                 </td>
 
                 {/* edit or delete click actions */}
