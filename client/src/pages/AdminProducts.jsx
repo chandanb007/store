@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext.jsx';
 import AddProductTemp from "../pages/admin/product/addProduct.jsx";
+const apiUrl = import.meta.env.VITE_API_URL;
 import {
   Plus,
   Edit2,
@@ -13,6 +14,7 @@ import {
   CirclePlus,
 } from "lucide-react";
 import ProductListing from "./admin/product/productListing.jsx";
+import { object } from "motion/react-client";
 
 export const AdminProducts = () => {
   const {
@@ -43,14 +45,16 @@ export const AdminProducts = () => {
       },
     ],
   };
-
   const [formState, setFormState] = useState({
     title: "",
     categoryId: "",
     description: "",
-    images: "",
+    images: [],
     variants: [emptyVariant],
   });
+  const [newPrimaryImages, setNewPrimaryImages] = useState([]);
+  const [deletedMediaIds, setDeletedMediaIds] = useState([]);
+  const [deletedVariantIds, setDeletedVariantIds] = useState([]);
   const addVariantRow = () => {
     setFormState((prev) => ({
       ...prev,
@@ -98,30 +102,64 @@ export const AdminProducts = () => {
     loadCategories();
   };
 
-  const handleOpenEdit = (p) => {
-    setEditingProduct(p);
+  const handleOpenEdit = (product) => {
+    setEditingProduct(product);
+    const variants = product.variants.map((variant) => {
+      const attributes = variant.variantValues.map((attribute) => {
+        return {
+          variantValue: attribute.value.value,
+          variantType: attribute.value.variantType.name,
+        };
+      });
+      const variantImages = variant.productMedia.map((media) => ({
+        productMediaId: media.id,
+        mediaId: media.mediaId,
+        isPrimary: media.isPrimary,
+        isExisting: true,
+        url: apiUrl + media.media.url,
+      }));
+      return {
+        id: variant.id,
+        sku: variant.sku,
+        price: variant.price,
+        discountedPrice: variant.discountedPrice,
+        qty: variant.qty,
+        material: variant.material,
+        style: variant.style,
+        attributes: attributes,
+        images: variantImages,
+      };
+    });
+    const primaryImages = product.productMedia.map((media) => ({
+      productMediaId: media.id,
+      mediaId: media.mediaId,
+      isPrimary: media.isPrimary,
+      isExisting: true,
+      url: apiUrl + media.media.url,
+    }));
     setFormState({
-      name: p.name,
-      description: p.description,
-      category: p.category,
-      price: p.price,
-      discountPrice: p.discountPrice || 0,
-      image1: p.images[0] || "",
-      image2: p.images[1] || "",
-      inventory: p.inventory,
-      material: p.material || "",
-      style: p.style || "",
-      isFeatured: !!p.isFeatured,
-      isTrending: !!p.isTrending,
-      isBestSeller: !!p.isBestSeller,
+      images: primaryImages,
+      title: product.title,
+      description: product.description,
+      categoryId: product.categoryId,
+      variants: variants,
     });
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-      // Add
+    if (editingProduct == null) {
       addProduct(formState);
-      setIsAddOpen(true);
+    } else {
+      console.log(editingProduct.id);
+      updateProduct(
+        editingProduct.id,
+        formState,
+        deletedMediaIds,
+        deletedVariantIds,
+      );
+    }
+    setIsAddOpen(true);
   };
 
   return (
@@ -148,11 +186,20 @@ export const AdminProducts = () => {
       </div>
 
       {/* Main product listings table */}
-      <ProductListing products={products}></ProductListing>
+      <ProductListing
+        handleOpenEdit={handleOpenEdit}
+        products={products}
+        setIsAddOpen={setIsAddOpen}
+      ></ProductListing>
 
       {/* dialog forms drawer (Add / Edit item) */}
       {(isAddOpen || editingProduct) && (
         <AddProductTemp
+          setDeletedVariantIds={setDeletedVariantIds}
+          setNewPrimaryImages={setNewPrimaryImages}
+          setDeletedMediaIds={setDeletedMediaIds}
+          setEditingProduct={setEditingProduct}
+          setIsAddOpen={setIsAddOpen}
           editingProduct={editingProduct}
           handleFormSubmit={handleFormSubmit}
           formState={formState}

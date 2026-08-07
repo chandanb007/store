@@ -112,8 +112,6 @@ model ProductMedia {
   updatedAt  DateTime @updatedAt
 }
 
-
-
 enum AddressType {
   HOME
   OFFICE

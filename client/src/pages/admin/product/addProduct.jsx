@@ -23,6 +23,11 @@ const AddProductTemp = ({
   setPrimaryImage,
   variantImages,
   setVariantImages,
+  setIsAddOpen,
+  setEditingProduct,
+  setDeletedMediaIds,
+  setNewPrimaryImages,
+  setDeletedVariantIds,
 }) => {
   const updateVariant = (variantIndex, field, value) => {
     setFormState((prev) => {
@@ -92,7 +97,11 @@ const AddProductTemp = ({
       };
     });
   };
-  const removeVariant = (variantIndex) => {
+  const removeVariant = (variantIndex, variant) => {
+    debugger;
+    if (variant?.id) {
+      setDeletedVariantIds((ids) => [...ids, variant.id]);
+    }
     setFormState((prev) => {
       if (prev.variants.length === 1) {
         return prev;
@@ -154,6 +163,7 @@ const AddProductTemp = ({
             <div className="space-y-1">
               <label>Title *</label>
               <input
+                required
                 type="text"
                 value={formState.title}
                 onChange={(e) =>
@@ -180,12 +190,14 @@ const AddProductTemp = ({
             <div className="space-y-1">
               <label>Category</label>
               <select
+                required
                 value={formState.categoryId}
                 onChange={(e) =>
                   setFormState({ ...formState, categoryId: e.target.value })
                 }
                 className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100 focus:outline-none"
               >
+                <option value="">Select Category</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -196,6 +208,8 @@ const AddProductTemp = ({
             <div className="space-y-2">
               <label>Primary Image</label>
               <ImageUploader
+                setNewPrimaryImages={setNewPrimaryImages}
+                setDeletedMediaIds={setDeletedMediaIds}
                 images={formState.images}
                 multiple={false}
                 onChange={(images) =>
@@ -237,7 +251,7 @@ const AddProductTemp = ({
                       {index !== 0 ? (
                         <button
                           onClick={(e) => {
-                            removeVariant(index);
+                            removeVariant(index, variant);
                           }}
                           type="button"
                           className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-950 text-red-500"
@@ -265,7 +279,7 @@ const AddProductTemp = ({
                       <div className="space-y-2">
                         <label>Price's *</label>
                         <input
-                          type="text"
+                          type="number"
                           required
                           value={variant.price}
                           onChange={(e) =>
@@ -278,7 +292,7 @@ const AddProductTemp = ({
                       <div className="space-y-2">
                         <label>Discounted Price *</label>
                         <input
-                          type="text"
+                          type="number"
                           required
                           value={variant.discountedPrice}
                           onChange={(e) =>
@@ -295,7 +309,7 @@ const AddProductTemp = ({
                       <div className="space-y-2">
                         <label>Inventory quantity *</label>
                         <input
-                          type="text"
+                          type="number"
                           required
                           value={variant.qty}
                           onChange={(e) =>
@@ -310,7 +324,7 @@ const AddProductTemp = ({
                         <input
                           type="text"
                           required
-                          value={formState.matrial}
+                          value={variant.material}
                           onChange={(e) =>
                             updateVariant(index, "material", e.target.value)
                           }
@@ -323,7 +337,7 @@ const AddProductTemp = ({
                         <input
                           type="text"
                           required
-                          value={formState.style}
+                          value={variant.style}
                           onChange={(e) =>
                             updateVariant(index, "style", e.target.value)
                           }
@@ -429,6 +443,8 @@ const AddProductTemp = ({
                       </label>
                       <div className="col-span-12">
                         <ImageUploader
+                          isEditing={editingProduct?.id ? true : false}
+                          setDeletedMediaIds={setDeletedMediaIds}
                           images={variant.images}
                           onChange={(images) => {
                             setFormState((prev) => {
@@ -452,7 +468,7 @@ const AddProductTemp = ({
                 );
               })}
             </div>
-            <div className="sm:col-span-2 mt-2 border-t border-stone-100 dark:border-stone-800 pt-3">
+            {/* <div className="sm:col-span-2 mt-2 border-t border-stone-100 dark:border-stone-800 pt-3">
               <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider mb-2.5">
                 Portal Highlights Triggers
               </span>
@@ -517,7 +533,7 @@ const AddProductTemp = ({
                   Best Seller
                 </button>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* submitting */}

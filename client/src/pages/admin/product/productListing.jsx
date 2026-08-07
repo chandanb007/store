@@ -12,7 +12,7 @@ import {
   ShoppingBasket,
   BookmarkCheck,
 } from "lucide-react";
-const ProductListing = ({ products }) => {
+const ProductListing = ({ handleOpenEdit, products }) => {
   return (
     <div className="bg-white dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-800/30 rounded-2xl shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden text-xs">
       <div className="overflow-x-auto text-gold-600">
@@ -37,7 +37,8 @@ const ProductListing = ({ products }) => {
                 <td className="py-3 px-4 flex items-center gap-3">
                   <div className="w-11 h-11 rounded-lg overflow-hidden bg-white border border-stone-150 dark:border-[#D4AF37]/15 flex-shrink-0 animate-fade-in animate-dur-300">
                     <img
-                      alt=""
+                      alt={p.productMedia[0].media.altText}
+                      src={`${p.image}`}
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                     />

@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { errorHandler } = require("./middleware/errorHandler");
+const path = require("path");
 
 const categoryRoutes = require("./routes/categoryRoutes");
 const productRoutes = require("./routes/productRoutes");
@@ -38,6 +39,8 @@ app.use("/api/admin/coupon", couponRoutes);
 app.use("/api/checkout", checkoutRoutes);
 
 app.use("/api/admin/orders", adminOrderRoutes);
+
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 module.exports = app;
 app.use(errorHandler);

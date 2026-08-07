@@ -7,6 +7,9 @@ function ImageUploader({
   onChange,
   multiple = true,
   title = "Drag & drop images here, or click to select",
+  setDeletedMediaIds,
+  setNewPrimaryImages,
+  isEditing
 }) {
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -17,7 +20,7 @@ function ImageUploader({
       const files = acceptedFiles.map((file) =>
         Object.assign(file, {
           preview: URL.createObjectURL(file),
-        })
+        }),
       );
 
       if (multiple) {
@@ -28,18 +31,23 @@ function ImageUploader({
     },
   });
 
-  const removeImage = (imageIndex) => {
+  const removeImage = (imageIndex, file) => {
+    if (file.isExisting) {
+      setDeletedMediaIds((ids) => [...ids, file.mediaId]);
+    }
     const updatedImages = images.filter((_, i) => i !== imageIndex);
     onChange(updatedImages);
   };
 
   useEffect(() => {
     return () => {
-      images ? images.forEach((file) => {
-        if (file.preview) {
-          URL.revokeObjectURL(file.preview);
-        }
-      }) : [];
+      images
+        ? images.forEach((file) => {
+            if (file.preview) {
+              URL.revokeObjectURL(file.preview);
+            }
+          })
+        : [];
     };
   }, [images]);
 
@@ -71,7 +79,7 @@ function ImageUploader({
 
               <button
                 type="button"
-                onClick={() => removeImage(index)}
+                onClick={() => removeImage(index, file)}
                 className="absolute top-2 right-2 p-1.5 rounded-full bg-red-600 text-white opacity-0 group-hover:opacity-100 transition hover:bg-red-700"
               >
                 <Trash2 className="w-4 h-4" />

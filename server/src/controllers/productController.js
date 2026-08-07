@@ -15,6 +15,7 @@ const createProduct = async (req, res, next) => {
     let title = req.body.title.toLowerCase();
     body["slug"] = title.replaceAll(" ", "-");
     body["categoryId"] = parseInt(body.categoryId);
+    body["isEnabled"] = true; //TODO: check if we need to make product enabled by default.
     const product = await productService.createProduct(body, req.files);
 
     return success(res, "Product created", product, 201);
@@ -26,22 +27,21 @@ const createProduct = async (req, res, next) => {
   }
 };
 const getProductById = async (req, res) => {
-    const product = await productService.getProductById(req.params.id)
-    res.json(product);
-    return success(res, "Product fetched successfully.", product, 200);
+  const product = await productService.getProductById(req.params.id);
+  res.json(product);
+  return success(res, "Product fetched successfully.", product, 200);
 };
 
-const deleteProduct = async(req, res) => {
+const deleteProduct = async (req, res) => {
   const response = await productService.deleteProduct(req.params.id);
   return success(res, "Product deleted successfully.", response, 200);
 };
-const updateProduct = async(req, res) => {
-   let body = req.body;
-   body['categoryId'] = parseInt(body.categoryId);
-   body['qty'] = parseInt(body.qty);
-   body['price'] = parseInt(body.price);
-   body['discountedPrice'] = parseInt(body.discountedPrice);
-  const response = await productService.updateProduct(req.params.id,req.body);
+const updateProduct = async (req, res) => {
+  // let body = req.body;
+  // body["categoryId"] = parseInt(body.categoryId);
+  // body["title"] = body.title;
+  // body["description"] = body.description;
+  const response = await productService.updateProduct(req.params.id, req.body);
   return success(res, "Product updated successfully.", response, 200);
 };
 const inventoryHistory = async(req,res,next) => {

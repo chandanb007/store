@@ -1,6 +1,8 @@
 const { equal } = require("joi");
 const prisma = require("../config/prisma.js");
 const mediaService = require("../services/mediaService")
+const productMediaService = require("../services/productMediaService");
+const { buildMediaUrl } = require("../helpers/urlHelper.js");
 const {
   productStockSummary,
   productPriceSummary,
@@ -68,8 +70,23 @@ const getProducts = async (data) => {
           name: true,
         },
       },
+      productMedia: {
+        where: {
+          owner: "PRODUCT",
+          isPrimary: true,
+        },
+        include: {
+          media: true,
+        },
+        take: 1,
+      },
       variants: {
         include: {
+          productMedia: {
+            include: {
+              media: true,
+            },
+          },
           variantValues: {
             include: {
               value: {
@@ -105,6 +122,10 @@ const getProducts = async (data) => {
   );
   return products.map((product) => ({
     ...product,
+    image:
+      product.productMedia.length > 0
+        ? buildMediaUrl(product.productMedia[0].media.url)
+        : null,
     ...priceMap[product.id],
     totalStock: stockMap[product.id] || 0,
   }));
@@ -123,53 +144,32 @@ const createProduct = async (data, files) => {
     files?.forEach((file) => {
       if (file.fieldname.startsWith("variantImages_")) {
         const index = Number(file.fieldname.replace("variantImages_", ""));
-
         if (!variantImages[index]) {
           variantImages[index] = [];
         }
-
         variantImages[index].push(file);
       }
-    }) || [];
-    if (files.length > 0) {
-      files.forEach((file) => {
-        const secondaryMedia = await mediaService.saveMedia({
-          type: "IMAGE", //TODO : make it dynamic if image was uploaded then type will be IMAGE, if video then VIDEO
-          fileName: file.filename,
-          storageKey: file.path,
-          url: file.path,
-          mimeType: file.mimetype,
-          fileSize: file.size,
-          altText: "primaryImages"
-        });
-      })
+    });
+    for (const [index, file] of primaryImages.entries()) {
+      const media = await mediaService.saveMedia(tx, {
+        type: file.mimetype.startsWith("image/") ? "IMAGE" : "VIDEO",
+        fileName: file.filename,
+        storageKey: file.path.replace(/\\/g, "/"),
+        url: file.path.replace(/\\/g, "/"),
+        mimeType: file.mimetype,
+        fileSize: file.size,
+        altText: file.originalname,
+      });
+      console.log(media);
+      await productMediaService.saveProductMedia(tx, {
+        productId: product.id,
+        mediaId: media.id,
+        owner: "PRODUCT",
+        isPrimary: index === 0,
+        sortOrder: index,
+      });
     }
-    if (primaryImages.length > 0) {
-      files.forEach((file) => {
-        await productMediaService.saveProductMedia({
-          productId: product.id,
-          mediaId: secondaryMedia.id,
-          isPrimary: false,
-          sortOrder: i + 2,
-        });
-      })
-    }
-    // const secondaryFiles = req.files?.secondaryImages || [];
-    // for (let i = 0; i < secondaryFiles.length; i++) {
-    //   const secondaryFile = secondaryFiles[i];
-    //   const secondaryMedia = await mediaService.saveMedia({
-    //     fileName: secondaryFile.filename,
-    //     filePath: secondaryFile.path,
-    //     mimeType: secondaryFile.mimetype,
-    //     fileSize: secondaryFile.size,
-    //   });
-    //   await productMediaService.saveProductMedia({
-    //     productId: product.id,
-    //     mediaId: secondaryMedia.id,
-    //     isPrimary: false,
-    //     sortOrder: i + 2,
-    //   });
-    // }
+    let indexVariant = 0;
     for (const variant of parsedVariants) {
       const createdVariant = await tx.productVariant.create({
         data: {
@@ -183,6 +183,29 @@ const createProduct = async (data, files) => {
           isDefault: variant.isDefault,
         },
       });
+      const images = variantImages[indexVariant] || [];
+      console.log("--------------------");
+      console.log(images);
+      console.log("--------------------");
+      // Upload this variant's images
+      for (const file of images) {
+        const media = await mediaService.saveMedia(tx, {
+          type: file.mimetype.startsWith("image/") ? "IMAGE" : "VIDEO",
+          fileName: file.filename,
+          storageKey: file.path.replace(/\\/g, "/"),
+          url: file.path.replace(/\\/g, "/"),
+          mimeType: file.mimetype,
+          fileSize: file.size,
+          altText: file.originalname,
+        });
+        await productMediaService.saveProductMedia(tx, {
+          productId: product.id,
+          variantId: createdVariant.id,
+          mediaId: media.id,
+          owner: "VARIANT",
+          isPrimary: false,
+        });
+      }
       for (const attribute of variant.attributes) {
         // Find or create VariantType
         let variantType = await tx.variantType.findUnique({
@@ -220,6 +243,7 @@ const createProduct = async (data, files) => {
           },
         });
       }
+      indexVariant++;
     }
     return await tx.product.findUnique({
       where: { id: product.id },
@@ -241,43 +265,45 @@ const createProduct = async (data, files) => {
     });
   });
 };
-const getProductById = async(data) => {
-    return prisma.product.findFirstOrThrow({ 
-      where : {
-        id : Number(data)
+const getProductById = async (data) => {
+  return prisma.product.findFirstOrThrow({
+    where: {
+      id: Number(data),
+    },
+    include: {
+      variants: {
+        include: {
+          variantValues: {
+            include: {
+              value: {
+                include: {
+                  variantType: true,
+                },
+              },
+            },
+          },
+        },
       },
-      include: {
-        variants: {
-          include: {
-            variantValues: {
-              include: {
-                value: {
-                  include: {
-                    variantType: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    })
+    },
+  });
 };
-const deleteProduct = async (id ,data) => {
-  return prisma.product.delete(
-    {
-      where: { id: parseInt(id) },
-    }
-  )
+const deleteProduct = async (id, data) => {
+  return prisma.product.delete({
+    where: { id: parseInt(id) },
+  });
 };
-const updateProduct = async (id ,data) => {
-  console.log(data)
-  return prisma.product.update(
-    {
+const updateProduct = async (id, body) => {
+  const productData = {
+    title: body.title,
+    categoryId: parseInt(body.categoryId),
+    description: body.description,
+  };
+  return await prisma.$transaction(async (tx) => {
+    const product = await tx.product.update({
       where: { id: parseInt(id) },
-      data: data,
-    }
-  )
+      data: productData,
+    });
+  });
 };
 const inventoryHistory = async (id) => {
   return prisma.inventoryTransaction.findMany({

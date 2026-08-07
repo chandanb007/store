@@ -24,7 +24,7 @@ router.post(
 
 router.post(
   "/:id",
-  productUpload.none(),
+  productUpload.any(),
   auth,
   allowRoles("ADMIN"),
   productController.updateProduct,

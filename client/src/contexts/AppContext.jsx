@@ -376,13 +376,10 @@ export const AppProvider = ({ children }) => {
   // Products Management
   const addProduct = async (formState) => {
     try {
-      debugger;
       const formData = new FormData();
       formData.append("title", formState.title);
       formData.append("description", formState.description);
       formData.append("categoryId", formState.categoryId);
-
-      //formData.append("variants", JSON.stringify(formState.variants));
 
       formState.images.forEach((file) => {
         formData.append("primaryImages", file);
@@ -416,12 +413,49 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const updateProduct = (updated) => {
-    setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-    addNotification(
-      "success",
-      `Product "${updated.name}" updated successfully.`,
-    );
+  const updateProduct = async (
+    id,
+    formState,
+    deletedMediaIds,
+    deletedVariantIds,
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("title", formState.title);
+      formData.append("description", formState.description);
+      formData.append("categoryId", formState.categoryId);
+      formData.append("deletedMediaIds", deletedMediaIds);
+      formData.append("deletedVariantIds", deletedVariantIds);
+      formState.images.forEach((file) => {
+        formData.append("primaryImages", file);
+      });
+      formState.variants.forEach((variant, index) => {
+        variant.images.forEach((file) => {
+          formData.append(`variantImages_${index}`, file);
+        });
+      });
+      formData.append(
+        "variants",
+        JSON.stringify(
+          formState.variants.map((v) => ({
+            ...v,
+            images: undefined, // remove File objects
+          })),
+        ),
+      );
+      const response = await productService.updateProduct(id, formData);
+      if (response.status == 201) {
+        addNotification("success", response.data.data.message);
+        return true;
+      }
+    } catch (error) {
+      console.log(error);
+      addNotification(
+        "error",
+        error.response?.data?.message || "Something went wrong.",
+      );
+      return false;
+    }
   };
 
   const deleteProduct = (id) => {
