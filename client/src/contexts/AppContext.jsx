@@ -416,7 +416,7 @@ export const AppProvider = ({ children }) => {
   const updateProduct = async (
     id,
     formState,
-    deletedMediaIds,
+    deletedProductMediaIds,
     deletedVariantIds,
   ) => {
     try {
@@ -424,11 +424,13 @@ export const AppProvider = ({ children }) => {
       formData.append("title", formState.title);
       formData.append("description", formState.description);
       formData.append("categoryId", formState.categoryId);
-      formData.append("deletedMediaIds", deletedMediaIds);
+      formData.append("deletedProductMediaIds", deletedProductMediaIds);
       formData.append("deletedVariantIds", deletedVariantIds);
-      formState.images.forEach((file) => {
-        formData.append("primaryImages", file);
-      });
+      formState.images
+        .filter((image) => !image.isExisting)
+        .forEach((image) => {
+          formData.append("primaryImages", image);
+        });
       formState.variants.forEach((variant, index) => {
         variant.images.forEach((file) => {
           formData.append(`variantImages_${index}`, file);

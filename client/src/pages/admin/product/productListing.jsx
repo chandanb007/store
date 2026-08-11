@@ -37,7 +37,7 @@ const ProductListing = ({ handleOpenEdit, products }) => {
                 <td className="py-3 px-4 flex items-center gap-3">
                   <div className="w-11 h-11 rounded-lg overflow-hidden bg-white border border-stone-150 dark:border-[#D4AF37]/15 flex-shrink-0 animate-fade-in animate-dur-300">
                     <img
-                      alt={p.productMedia[0].media.altText}
+                      alt={p.productMedia[0]?.media?.altText}
                       src={`${p.image}`}
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"

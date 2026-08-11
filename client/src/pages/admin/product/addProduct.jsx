@@ -25,7 +25,7 @@ const AddProductTemp = ({
   setVariantImages,
   setIsAddOpen,
   setEditingProduct,
-  setDeletedMediaIds,
+  setDeletedProductMediaIds,
   setNewPrimaryImages,
   setDeletedVariantIds,
 }) => {
@@ -98,7 +98,6 @@ const AddProductTemp = ({
     });
   };
   const removeVariant = (variantIndex, variant) => {
-    debugger;
     if (variant?.id) {
       setDeletedVariantIds((ids) => [...ids, variant.id]);
     }
@@ -128,7 +127,9 @@ const AddProductTemp = ({
         className="absolute inset-0 bg-stone-900/60 backdrop-blur-xs select-none"
         onClick={() => {
           setIsAddOpen(false);
-          setEditingProduct(null);
+          if (editingProduct !== null) {
+            setEditingProduct(null);
+          }
         }}
       />
 
@@ -136,7 +137,9 @@ const AddProductTemp = ({
         <button
           onClick={() => {
             setIsAddOpen(false);
-            setEditingProduct(null);
+            if (editingProduct !== null) {
+              setEditingProduct(null);
+            }
           }}
           className="absolute top-4 right-4 p-2 rounded-full hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500 cursor-pointer z-20"
         >
@@ -208,16 +211,20 @@ const AddProductTemp = ({
             <div className="space-y-2">
               <label>Primary Image</label>
               <ImageUploader
-                setNewPrimaryImages={setNewPrimaryImages}
-                setDeletedMediaIds={setDeletedMediaIds}
+                primary={true}
+                setDeletedProductMediaIds={setDeletedProductMediaIds}
                 images={formState.images}
-                multiple={false}
-                onChange={(images) =>
+                multiple={true}
+                onChange={(images) => {
+                  setNewPrimaryImages((prev) => ({
+                    ...prev,
+                    images,
+                  }));
                   setFormState((prev) => ({
                     ...prev,
                     images,
-                  }))
-                }
+                  }));
+                }}
               />
             </div>
             <div className="sm:col-span-2 p-5">
@@ -248,7 +255,7 @@ const AddProductTemp = ({
                       <span>#{index + 1} </span>
                     </div>
                     <div className="col-span-1 flex justify-end">
-                      {index !== 0 ? (
+                      {editingProduct !== null || index !== 0 ? (
                         <button
                           onClick={(e) => {
                             removeVariant(index, variant);
@@ -443,8 +450,9 @@ const AddProductTemp = ({
                       </label>
                       <div className="col-span-12">
                         <ImageUploader
+                          primary={false}
                           isEditing={editingProduct?.id ? true : false}
-                          setDeletedMediaIds={setDeletedMediaIds}
+                          setDeletedProductMediaIds={setDeletedProductMediaIds}
                           images={variant.images}
                           onChange={(images) => {
                             setFormState((prev) => {

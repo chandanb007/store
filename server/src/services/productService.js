@@ -3,6 +3,7 @@ const prisma = require("../config/prisma.js");
 const mediaService = require("../services/mediaService")
 const productMediaService = require("../services/productMediaService");
 const { buildMediaUrl } = require("../helpers/urlHelper.js");
+const fs = require("fs/promises");
 const {
   productStockSummary,
   productPriceSummary,
@@ -73,12 +74,10 @@ const getProducts = async (data) => {
       productMedia: {
         where: {
           owner: "PRODUCT",
-          isPrimary: true,
         },
         include: {
           media: true,
         },
-        take: 1,
       },
       variants: {
         include: {
@@ -160,7 +159,6 @@ const createProduct = async (data, files) => {
         fileSize: file.size,
         altText: file.originalname,
       });
-      console.log(media);
       await productMediaService.saveProductMedia(tx, {
         productId: product.id,
         mediaId: media.id,
@@ -292,17 +290,128 @@ const deleteProduct = async (id, data) => {
     where: { id: parseInt(id) },
   });
 };
-const updateProduct = async (id, body) => {
+const updateProduct = async (id, body, files) => {
+  const productId = Number(id);
+
   const productData = {
     title: body.title,
-    categoryId: parseInt(body.categoryId),
+    categoryId: Number(body.categoryId),
     description: body.description,
   };
+
+  // Handle both:
+  // "1,2,3"
+  // and JSON "[1,2,3]"
+  let deletedProductMediaIds = [];
+
+  if (body.deletedProductMediaIds) {
+    try {
+      deletedProductMediaIds = Array.isArray(body.deletedProductMediaIds)
+        ? body.deletedProductMediaIds.map(Number)
+        : JSON.parse(body.deletedProductMediaIds).map(Number);
+    } catch {
+      deletedProductMediaIds = body.deletedProductMediaIds
+        .split(",")
+        .map((id) => Number(id))
+        .filter(Boolean);
+    }
+  }
   return await prisma.$transaction(async (tx) => {
+    // 1. Update product
     const product = await tx.product.update({
-      where: { id: parseInt(id) },
+      where: {
+        id: productId,
+      },
       data: productData,
     });
+
+    // 2. Delete selected product media
+    if (deletedProductMediaIds.length > 0) {
+      const productMediaRecords = await tx.productMedia.findMany({
+        where: {
+          id: {
+            in: deletedProductMediaIds,
+          },
+          productId: productId, // IMPORTANT: verify ownership
+        },
+        include: {
+          media: {
+            select: {
+              id: true,
+              storageKey: true,
+            },
+          },
+        },
+      });
+
+      for (const productMedia of productMediaRecords) {
+        // Delete ProductMedia relationship
+        await tx.productMedia.delete({
+          where: {
+            id: productMedia.id,
+          },
+        });
+
+        // Check whether Media is used anywhere else
+        const mediaUsageCount = await tx.productMedia.count({
+          where: {
+            mediaId: productMedia.media.id,
+          },
+        });
+
+        // Delete Media only if it is no longer referenced
+        if (mediaUsageCount === 0) {
+          await tx.media.delete({
+            where: {
+              id: productMedia.media.id,
+            },
+          });
+          //Finally delete the physical file uploaded
+          await mediaService.deleteMediaFile(productMedia.media.storageKey);
+        }
+      }
+    }
+    // Handle new upload primary images
+    if (files) {
+      const primaryImages =
+        files?.filter((file) => file.fieldname === "primaryImages") || [];
+      for (const [index, file] of primaryImages.entries()) {
+        const media = await mediaService.saveMedia(tx, {
+          type: file.mimetype.startsWith("image/") ? "IMAGE" : "VIDEO",
+          fileName: file.filename,
+          storageKey: file.path.replace(/\\/g, "/"),
+          url: file.path.replace(/\\/g, "/"),
+          mimeType: file.mimetype,
+          fileSize: file.size,
+          altText: file.originalname,
+        });
+        const existingPrimary = await tx.productMedia.findFirst({
+          where: {
+            productId: product.id,
+            owner: "PRODUCT",
+            isPrimary: true,
+          },
+        });
+        const maxSortOrder = await tx.productMedia.aggregate({
+          where: {
+            productId: product.id,
+            owner: "PRODUCT",
+          },
+          _max: {
+            sortOrder: true,
+          },
+        });
+        let sortOrder = (maxSortOrder._max.sortOrder ?? -1) + 1;
+        await productMediaService.saveProductMedia(tx, {
+          productId: product.id,
+          mediaId: media.id,
+          owner: "PRODUCT",
+          isPrimary: !existingPrimary && index === 0,
+          sortOrder: sortOrder++,
+        });
+      }
+    }
+    return product;
   });
 };
 const inventoryHistory = async (id) => {

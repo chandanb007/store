@@ -37,11 +37,11 @@ const deleteProduct = async (req, res) => {
   return success(res, "Product deleted successfully.", response, 200);
 };
 const updateProduct = async (req, res) => {
-  // let body = req.body;
-  // body["categoryId"] = parseInt(body.categoryId);
-  // body["title"] = body.title;
-  // body["description"] = body.description;
-  const response = await productService.updateProduct(req.params.id, req.body);
+  const response = await productService.updateProduct(
+    req.params.id,
+    req.body,
+    req.files,
+  );
   return success(res, "Product updated successfully.", response, 200);
 };
 const inventoryHistory = async(req,res,next) => {

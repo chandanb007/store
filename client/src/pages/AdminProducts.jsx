@@ -53,7 +53,7 @@ export const AdminProducts = () => {
     variants: [emptyVariant],
   });
   const [newPrimaryImages, setNewPrimaryImages] = useState([]);
-  const [deletedMediaIds, setDeletedMediaIds] = useState([]);
+  const [deletedProductMediaIds, setDeletedProductMediaIds] = useState([]);
   const [deletedVariantIds, setDeletedVariantIds] = useState([]);
   const addVariantRow = () => {
     setFormState((prev) => ({
@@ -130,13 +130,15 @@ export const AdminProducts = () => {
         images: variantImages,
       };
     });
-    const primaryImages = product.productMedia.map((media) => ({
-      productMediaId: media.id,
-      mediaId: media.mediaId,
-      isPrimary: media.isPrimary,
-      isExisting: true,
-      url: apiUrl + media.media.url,
-    }));
+    const primaryImages = product.productMedia.map((media) => {
+      return {
+        productMediaId: media.id,
+        mediaId: media.mediaId,
+        isPrimary: media.isPrimary,
+        isExisting: true,
+        url: apiUrl + media.media.url,
+      };
+    });
     setFormState({
       images: primaryImages,
       title: product.title,
@@ -155,7 +157,7 @@ export const AdminProducts = () => {
       updateProduct(
         editingProduct.id,
         formState,
-        deletedMediaIds,
+        deletedProductMediaIds,
         deletedVariantIds,
       );
     }
@@ -197,7 +199,7 @@ export const AdminProducts = () => {
         <AddProductTemp
           setDeletedVariantIds={setDeletedVariantIds}
           setNewPrimaryImages={setNewPrimaryImages}
-          setDeletedMediaIds={setDeletedMediaIds}
+          setDeletedProductMediaIds={setDeletedProductMediaIds}
           setEditingProduct={setEditingProduct}
           setIsAddOpen={setIsAddOpen}
           editingProduct={editingProduct}
