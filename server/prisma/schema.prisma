@@ -207,6 +207,7 @@ enum InventoryTransactionType {
 model InventoryTransaction {
   id        Int                      @id @default(autoincrement())
   productId Int
+  variantId Int?
   orderId   Int?
   qty       Int
   type      InventoryTransactionType
@@ -229,6 +230,7 @@ model ProductVariant {
   discountedPrice Int?
   qty             Int
   isEnabled       Boolean               @default(true)
+  deletedAt       DateTime?
   material        String?
   style           String?
   variantValues   ProductVariantValue[]

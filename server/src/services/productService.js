@@ -3,6 +3,8 @@ const prisma = require("../config/prisma.js");
 const mediaService = require("../services/mediaService")
 const productMediaService = require("../services/productMediaService");
 const { buildMediaUrl } = require("../helpers/urlHelper.js");
+const { hasInventoryHistory } = require("../helpers/inventoryHelper.js");
+const { hasOrderHistory } = require("../helpers/orderHelper.js");
 const fs = require("fs/promises");
 const {
   productStockSummary,
@@ -119,15 +121,18 @@ const getProducts = async (data) => {
       },
     ]),
   );
-  return products.map((product) => ({
-    ...product,
-    image:
-      product.productMedia.length > 0
-        ? buildMediaUrl(product.productMedia[0].media.url)
-        : null,
-    ...priceMap[product.id],
-    totalStock: stockMap[product.id] || 0,
-  }));
+  return products.map((product) => {
+    const primaryMedia = product.productMedia.find(
+      (media) => media.isPrimary === true,
+    );
+
+    return {
+      ...product,
+      image: primaryMedia ? buildMediaUrl(primaryMedia.media.url) : null,
+      ...priceMap[product.id],
+      totalStock: stockMap[product.id] || 0,
+    };
+  });
 };
 
 const createProduct = async (data, files) => {
@@ -243,6 +248,7 @@ const createProduct = async (data, files) => {
       }
       indexVariant++;
     }
+
     return await tx.product.findUnique({
       where: { id: product.id },
       include: {
@@ -411,6 +417,122 @@ const updateProduct = async (id, body, files) => {
         });
       }
     }
+    //if change in primary image
+    if (body.primaryMediaId !== "null") {
+      const productPrimaryImage = await tx.productMedia.findFirst({
+        where: { productId: product.id, isPrimary: true, owner: "PRODUCT" },
+      });
+      if (Number(productPrimaryImage?.id) !== Number(body.primaryMediaId)) {
+        await tx.productMedia.update({
+          where: { id: productPrimaryImage.id },
+          data: { isPrimary: false },
+        });
+        await tx.productMedia.update({
+          where: { id: Number(body.primaryMediaId) },
+          data: { isPrimary: true },
+        });
+      }
+    }
+    //Start :: handle if deleted in product Variants
+    let deletedProductVariantIds = [];
+    if (body.deletedVariantIds !== "null") {
+      try {
+        deletedProductVariantIds = Array.isArray(body.deletedVariantIds)
+          ? body.deletedVariantIds.map(Number)
+          : JSON.parse(body.deletedVariantIds).map(Number);
+      } catch {
+        deletedProductVariantIds = body.deletedVariantIds
+          .split(",")
+          .map((id) => Number(id))
+          .filter(Boolean);
+      }
+      const filesToDelete = [];
+      if (deletedProductVariantIds.length > 0) {
+        const deletingVariants = await tx.productVariant.findMany({
+          where: {
+            id: {
+              in: deletedProductVariantIds,
+            },
+            productId,
+          },
+          include: {
+            productMedia: {
+              include: {
+                media: true,
+              },
+            },
+          },
+        });
+
+        for (const variant of deletingVariants) {
+          // 1. Check history FIRST
+          const hasHistory =
+            (await hasInventoryHistory(tx, variant.id)) ||
+            (await hasOrderHistory(tx, variant.id, productId));
+
+          // 2. Soft delete if historical
+          if (hasHistory) {
+            await tx.productVariant.update({
+              where: {
+                id: variant.id,
+              },
+              data: {
+                isEnabled: false,
+                deletedAt: new Date(),
+              },
+            });
+
+            continue;
+          }
+
+          // 3. No history -> hard delete
+
+          // Delete variant media
+          for (const productMedia of variant.productMedia) {
+            await tx.productMedia.delete({
+              where: {
+                id: productMedia.id,
+              },
+            });
+
+            const mediaUsageCount = await tx.productMedia.count({
+              where: {
+                mediaId: productMedia.media.id,
+              },
+            });
+
+            if (mediaUsageCount === 0) {
+              await tx.media.delete({
+                where: {
+                  id: productMedia.media.id,
+                },
+              });
+
+              filesToDelete.push(productMedia.media.storageKey);
+            }
+          }
+
+          // Delete variant-value relationships
+          await tx.productVariantValue.deleteMany({
+            where: {
+              variantId: variant.id,
+            },
+          });
+
+          // Delete variant
+          await tx.productVariant.delete({
+            where: {
+              id: variant.id,
+            },
+          });
+          for (const filePath of filesToDelete) {
+            await mediaService.deleteMediaFile(filePath);
+          }
+        }
+      }
+    }
+    //Ends :: handle if deleted in product Variants
+
     return product;
   });
 };

@@ -5,6 +5,7 @@ import { Trash2, Sparkles, CircleCheckBig } from "lucide-react";
 function ImageUploader({
   images = [],
   onChange,
+  setPrimaryImage,
   multiple = true,
   title = "Drag & drop images here, or click to select",
   setDeletedProductMediaIds,
@@ -16,7 +17,6 @@ function ImageUploader({
       "image/*": [],
     },
     multiple,
-
     onDrop: (acceptedFiles) => {
       const files = acceptedFiles.map((file) =>
         Object.assign(file, {
@@ -72,6 +72,7 @@ function ImageUploader({
         <aside className="flex flex-wrap gap-3 mt-4 p-3 border rounded-lg">
           {images.map((file, index) => (
             <div
+              dataId= {file.id ?? "test"}
               key={file.productMediaId || file.name || index}
               className="group relative w-28 h-28 rounded-lg overflow-hidden border border-stone-200 dark:border-stone-700 bg-stone-100"
             >
@@ -97,11 +98,10 @@ function ImageUploader({
               ) : (
                 ""
               )}
-              {primary == true && file.isPrimary === false ? (
+              {primary == true && file.isPrimary === false && file.isExisting ? (
                 <button
                   onClick={(e) => {
-                    debugger;
-                    setPrimaryImage(index, file)
+                     setPrimaryImage(index);
                   }}
                   className="absolute top-2 left-2 z-10 p-1.5 rounded-full bg-red-600 text-white opacity-0 group-hover:opacity-100 transition hover:bg-red-700"
                   title="Set Primary"

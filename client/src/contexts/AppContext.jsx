@@ -418,6 +418,7 @@ export const AppProvider = ({ children }) => {
     formState,
     deletedProductMediaIds,
     deletedVariantIds,
+    primaryMediaId,
   ) => {
     try {
       const formData = new FormData();
@@ -426,6 +427,7 @@ export const AppProvider = ({ children }) => {
       formData.append("categoryId", formState.categoryId);
       formData.append("deletedProductMediaIds", deletedProductMediaIds);
       formData.append("deletedVariantIds", deletedVariantIds);
+      formData.append("primaryMediaId", primaryMediaId);
       formState.images
         .filter((image) => !image.isExisting)
         .forEach((image) => {

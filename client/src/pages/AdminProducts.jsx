@@ -55,6 +55,7 @@ export const AdminProducts = () => {
   const [newPrimaryImages, setNewPrimaryImages] = useState([]);
   const [deletedProductMediaIds, setDeletedProductMediaIds] = useState([]);
   const [deletedVariantIds, setDeletedVariantIds] = useState([]);
+  const [primaryProductMediaId, setPrimaryProductMediaId] = useState(null);
   const addVariantRow = () => {
     setFormState((prev) => ({
       ...prev,
@@ -139,6 +140,8 @@ export const AdminProducts = () => {
         url: apiUrl + media.media.url,
       };
     });
+    const primaryImage = primaryImages.find((image) => image.isPrimary);
+    setPrimaryProductMediaId(primaryImage?.productMediaId ?? null);
     setFormState({
       images: primaryImages,
       title: product.title,
@@ -153,12 +156,14 @@ export const AdminProducts = () => {
     if (editingProduct == null) {
       addProduct(formState);
     } else {
-      console.log(editingProduct.id);
+      console.log(primaryProductMediaId);
+      console.log(formState.images);
       updateProduct(
         editingProduct.id,
         formState,
         deletedProductMediaIds,
         deletedVariantIds,
+        primaryProductMediaId,
       );
     }
     setIsAddOpen(true);
@@ -209,6 +214,7 @@ export const AdminProducts = () => {
           categories={categories}
           addVariantRow={addVariantRow}
           setFormState={setFormState}
+          setPrimaryProductMediaId={setPrimaryProductMediaId}
         />
       )}
     </div>

@@ -20,7 +20,6 @@ const AddProductTemp = ({
   addVariantRow,
   setFormState,
   primaryImage,
-  setPrimaryImage,
   variantImages,
   setVariantImages,
   setIsAddOpen,
@@ -28,6 +27,7 @@ const AddProductTemp = ({
   setDeletedProductMediaIds,
   setNewPrimaryImages,
   setDeletedVariantIds,
+  setPrimaryProductMediaId,
 }) => {
   const updateVariant = (variantIndex, field, value) => {
     setFormState((prev) => {
@@ -121,6 +121,18 @@ const AddProductTemp = ({
       image: file,
     }));
   };
+  const setPrimaryImage = (imageIndex) => {
+    setFormState((prev) => ({
+      ...prev,
+      images: prev.images.map((image, index) => ({
+        ...image,
+        isPrimary: index === imageIndex,
+      })),
+    }));
+    setPrimaryProductMediaId(
+      formState.images[imageIndex].productMediaId ?? null,
+    );
+  };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -211,6 +223,7 @@ const AddProductTemp = ({
             <div className="space-y-2">
               <label>Primary Image</label>
               <ImageUploader
+                setPrimaryImage={setPrimaryImage}
                 primary={true}
                 setDeletedProductMediaIds={setDeletedProductMediaIds}
                 images={formState.images}
