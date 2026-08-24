@@ -82,9 +82,11 @@ const ProductListing = ({ handleOpenEdit, products }) => {
                     }`}
                   >
                     {p.totalStock <= 5 && (
-                      <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                      <AlertTriangle title="Low stock" className="w-3.5 h-3.5 text-amber-500" />
                     )}
-                    <BookmarkCheck className="w-3 h-3 text-gold-600" />
+                    {p.totalStock > 0 && (
+                      <BookmarkCheck className="w-3 h-3 text-gold-600" />
+                    )}
                     {p.totalStock} Sku
                   </span>
                 </td>

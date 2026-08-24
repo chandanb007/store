@@ -260,7 +260,6 @@ const AddProductTemp = ({
                   Add Variant
                 </button>
               </div>
-
               {formState.variants.map((variant, index) => {
                 return (
                   <div className="rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 p-2">
@@ -367,6 +366,7 @@ const AddProductTemp = ({
                       </div>
                     </div>
                     <hr />
+                    {console.log(variant.attributes)}
                     {variant.attributes.map((attribute, attributeIndex) => {
                       return (
                         <div className="space-y-2">

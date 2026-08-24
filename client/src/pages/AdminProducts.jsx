@@ -106,12 +106,22 @@ export const AdminProducts = () => {
   const handleOpenEdit = (product) => {
     setEditingProduct(product);
     const variants = product.variants.map((variant) => {
-      const attributes = variant.variantValues.map((attribute) => {
+      
+      let attributes = variant.variantValues.map((attribute) => {
         return {
+          id: attribute.id,
           variantValue: attribute.value.value,
+          valueId: attribute.value.id,
           variantType: attribute.value.variantType.name,
         };
       });
+      console.log(variant);
+      if (attributes.length == 0) {
+         attributes = [{
+          variantValue: "",
+          variantType: "",
+        }];
+      }
       const variantImages = variant.productMedia.map((media) => ({
         productMediaId: media.id,
         mediaId: media.mediaId,

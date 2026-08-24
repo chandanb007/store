@@ -138,60 +138,24 @@ const getProducts = async (data) => {
 const createProduct = async (data, files) => {
   const { variants, ...productData } = data;
   let parsedVariants = JSON.parse(variants);
-  return await prisma.$transaction(async (tx) => {
-    const product = await tx.product.create({
-      data: productData,
-    });
-    const primaryImages =
-      files?.filter((file) => file.fieldname === "primaryImages") || [];
-    const variantImages = {};
-    files?.forEach((file) => {
-      if (file.fieldname.startsWith("variantImages_")) {
-        const index = Number(file.fieldname.replace("variantImages_", ""));
-        if (!variantImages[index]) {
-          variantImages[index] = [];
+  return await prisma.$transaction(
+    async (tx) => {
+      const product = await tx.product.create({
+        data: productData,
+      });
+      const primaryImages =
+        files?.filter((file) => file.fieldname === "primaryImages") || [];
+      const variantImages = {};
+      files?.forEach((file) => {
+        if (file.fieldname.startsWith("variantImages_")) {
+          const index = Number(file.fieldname.replace("variantImages_", ""));
+          if (!variantImages[index]) {
+            variantImages[index] = [];
+          }
+          variantImages[index].push(file);
         }
-        variantImages[index].push(file);
-      }
-    });
-    for (const [index, file] of primaryImages.entries()) {
-      const media = await mediaService.saveMedia(tx, {
-        type: file.mimetype.startsWith("image/") ? "IMAGE" : "VIDEO",
-        fileName: file.filename,
-        storageKey: file.path.replace(/\\/g, "/"),
-        url: file.path.replace(/\\/g, "/"),
-        mimeType: file.mimetype,
-        fileSize: file.size,
-        altText: file.originalname,
       });
-      await productMediaService.saveProductMedia(tx, {
-        productId: product.id,
-        mediaId: media.id,
-        owner: "PRODUCT",
-        isPrimary: index === 0,
-        sortOrder: index,
-      });
-    }
-    let indexVariant = 0;
-    for (const variant of parsedVariants) {
-      const createdVariant = await tx.productVariant.create({
-        data: {
-          productId: product.id,
-          sku: variant.sku,
-          price: Number(variant.price),
-          discountedPrice: Number(variant.discountedPrice),
-          qty: Number(variant.qty),
-          material: variant.material,
-          style: variant.style,
-          isDefault: variant.isDefault,
-        },
-      });
-      const images = variantImages[indexVariant] || [];
-      console.log("--------------------");
-      console.log(images);
-      console.log("--------------------");
-      // Upload this variant's images
-      for (const file of images) {
+      for (const [index, file] of primaryImages.entries()) {
         const media = await mediaService.saveMedia(tx, {
           type: file.mimetype.startsWith("image/") ? "IMAGE" : "VIDEO",
           fileName: file.filename,
@@ -203,71 +167,53 @@ const createProduct = async (data, files) => {
         });
         await productMediaService.saveProductMedia(tx, {
           productId: product.id,
-          variantId: createdVariant.id,
           mediaId: media.id,
-          owner: "VARIANT",
-          isPrimary: false,
+          owner: "PRODUCT",
+          isPrimary: index === 0,
+          sortOrder: index,
         });
       }
-      for (const attribute of variant.attributes) {
-        // Find or create VariantType
-        let variantType = await tx.variantType.findUnique({
-          where: {
-            name: attribute.variantType,
-          },
-        });
-        if (!variantType) {
-          variantType = await tx.variantType.create({
-            data: {
-              name: attribute.variantType,
-            },
-          });
+      //handle variant details and attribute creation
+      let indexVariant = 0;
+      for (const variant of parsedVariants) {
+        const images = variantImages[indexVariant] || [];
+        const variantObj = await createProductVariant(
+          product.id,
+          variant,
+          images,
+          tx,
+        );
+        // Upload this variant's images
+        await uploadVariantImages(images, product.id, variantObj.id, tx);
+        for (const attribute of variant.attributes) {
+          await createAttribute(attribute, variantObj.id, tx);
         }
-        // Find or create VariantValue
-        let variantValue = await tx.variantValue.findFirst({
-          where: {
-            variantTypeId: variantType.id,
-            value: attribute.variantValue,
-          },
-        });
-        if (!variantValue) {
-          variantValue = await tx.variantValue.create({
-            data: {
-              variantTypeId: variantType.id,
-              value: attribute.variantValue,
-            },
-          });
-        }
-        // Link Variant ↔ Value
-        await tx.productVariantValue.create({
-          data: {
-            variantId: createdVariant.id,
-            valueId: variantValue.id,
-          },
-        });
+        indexVariant++;
       }
-      indexVariant++;
-    }
-
-    return await tx.product.findUnique({
-      where: { id: product.id },
-      include: {
-        variants: {
-          include: {
-            variantValues: {
-              include: {
-                value: {
-                  include: {
-                    variantType: true,
+      return await tx.product.findUnique({
+        where: { id: product.id },
+        include: {
+          variants: {
+            include: {
+              variantValues: {
+                include: {
+                  value: {
+                    include: {
+                      variantType: true,
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
-    });
-  });
+      });
+    },
+    {
+      maxWait: 10000,
+      timeout: 40000,
+    },
+  );
 };
 const getProductById = async (data) => {
   return prisma.product.findFirstOrThrow({
@@ -322,219 +268,292 @@ const updateProduct = async (id, body, files) => {
         .filter(Boolean);
     }
   }
-  return await prisma.$transaction(async (tx) => {
-    // 1. Update product
-    const product = await tx.product.update({
-      where: {
-        id: productId,
-      },
-      data: productData,
-    });
-
-    // 2. Delete selected product media
-    if (deletedProductMediaIds.length > 0) {
-      const productMediaRecords = await tx.productMedia.findMany({
+  return await prisma.$transaction(
+    async (tx) => {
+      // 1. Update product
+      const product = await tx.product.update({
         where: {
-          id: {
-            in: deletedProductMediaIds,
-          },
-          productId: productId, // IMPORTANT: verify ownership
+          id: productId,
         },
+        data: productData,
         include: {
-          media: {
-            select: {
-              id: true,
-              storageKey: true,
+          variants: {
+            include: {
+              variantValues: {
+                include: {
+                  value: {
+                    include: {
+                      variantType: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
       });
 
-      for (const productMedia of productMediaRecords) {
-        // Delete ProductMedia relationship
-        await tx.productMedia.delete({
-          where: {
-            id: productMedia.id,
-          },
-        });
-
-        // Check whether Media is used anywhere else
-        const mediaUsageCount = await tx.productMedia.count({
-          where: {
-            mediaId: productMedia.media.id,
-          },
-        });
-
-        // Delete Media only if it is no longer referenced
-        if (mediaUsageCount === 0) {
-          await tx.media.delete({
-            where: {
-              id: productMedia.media.id,
-            },
-          });
-          //Finally delete the physical file uploaded
-          await mediaService.deleteMediaFile(productMedia.media.storageKey);
-        }
-      }
-    }
-    // Handle new upload primary images
-    if (files) {
-      const primaryImages =
-        files?.filter((file) => file.fieldname === "primaryImages") || [];
-      for (const [index, file] of primaryImages.entries()) {
-        const media = await mediaService.saveMedia(tx, {
-          type: file.mimetype.startsWith("image/") ? "IMAGE" : "VIDEO",
-          fileName: file.filename,
-          storageKey: file.path.replace(/\\/g, "/"),
-          url: file.path.replace(/\\/g, "/"),
-          mimeType: file.mimetype,
-          fileSize: file.size,
-          altText: file.originalname,
-        });
-        const existingPrimary = await tx.productMedia.findFirst({
-          where: {
-            productId: product.id,
-            owner: "PRODUCT",
-            isPrimary: true,
-          },
-        });
-        const maxSortOrder = await tx.productMedia.aggregate({
-          where: {
-            productId: product.id,
-            owner: "PRODUCT",
-          },
-          _max: {
-            sortOrder: true,
-          },
-        });
-        let sortOrder = (maxSortOrder._max.sortOrder ?? -1) + 1;
-        await productMediaService.saveProductMedia(tx, {
-          productId: product.id,
-          mediaId: media.id,
-          owner: "PRODUCT",
-          isPrimary: !existingPrimary && index === 0,
-          sortOrder: sortOrder++,
-        });
-      }
-    }
-    //if change in primary image
-    if (body.primaryMediaId !== "null") {
-      const productPrimaryImage = await tx.productMedia.findFirst({
-        where: { productId: product.id, isPrimary: true, owner: "PRODUCT" },
-      });
-      if (Number(productPrimaryImage?.id) !== Number(body.primaryMediaId)) {
-        await tx.productMedia.update({
-          where: { id: productPrimaryImage.id },
-          data: { isPrimary: false },
-        });
-        await tx.productMedia.update({
-          where: { id: Number(body.primaryMediaId) },
-          data: { isPrimary: true },
-        });
-      }
-    }
-    //Start :: handle if deleted in product Variants
-    let deletedProductVariantIds = [];
-    if (body.deletedVariantIds !== "null") {
-      try {
-        deletedProductVariantIds = Array.isArray(body.deletedVariantIds)
-          ? body.deletedVariantIds.map(Number)
-          : JSON.parse(body.deletedVariantIds).map(Number);
-      } catch {
-        deletedProductVariantIds = body.deletedVariantIds
-          .split(",")
-          .map((id) => Number(id))
-          .filter(Boolean);
-      }
-      const filesToDelete = [];
-      if (deletedProductVariantIds.length > 0) {
-        const deletingVariants = await tx.productVariant.findMany({
+      // 2. Delete selected product media
+      if (deletedProductMediaIds.length > 0) {
+        const productMediaRecords = await tx.productMedia.findMany({
           where: {
             id: {
-              in: deletedProductVariantIds,
+              in: deletedProductMediaIds,
             },
-            productId,
+            productId: productId, // IMPORTANT: verify ownership
           },
           include: {
-            productMedia: {
-              include: {
-                media: true,
+            media: {
+              select: {
+                id: true,
+                storageKey: true,
               },
             },
           },
         });
 
-        for (const variant of deletingVariants) {
-          // 1. Check history FIRST
-          const hasHistory =
-            (await hasInventoryHistory(tx, variant.id)) ||
-            (await hasOrderHistory(tx, variant.id, productId));
+        for (const productMedia of productMediaRecords) {
+          // Delete ProductMedia relationship
+          await tx.productMedia.delete({
+            where: {
+              id: productMedia.id,
+            },
+          });
 
-          // 2. Soft delete if historical
-          if (hasHistory) {
-            await tx.productVariant.update({
+          // Check whether Media is used anywhere else
+          const mediaUsageCount = await tx.productMedia.count({
+            where: {
+              mediaId: productMedia.media.id,
+            },
+          });
+
+          // Delete Media only if it is no longer referenced
+          if (mediaUsageCount === 0) {
+            await tx.media.delete({
               where: {
-                id: variant.id,
-              },
-              data: {
-                isEnabled: false,
-                deletedAt: new Date(),
+                id: productMedia.media.id,
               },
             });
-
-            continue;
+            //Finally delete the physical file uploaded
+            await mediaService.deleteMediaFile(productMedia.media.storageKey);
           }
-
-          // 3. No history -> hard delete
-
-          // Delete variant media
-          for (const productMedia of variant.productMedia) {
-            await tx.productMedia.delete({
-              where: {
-                id: productMedia.id,
+        }
+      }
+      // Handle new upload primary images
+      if (files) {
+        const primaryImages =
+          files?.filter((file) => file.fieldname === "primaryImages") || [];
+        for (const [index, file] of primaryImages.entries()) {
+          const media = await mediaService.saveMedia(tx, {
+            type: file.mimetype.startsWith("image/") ? "IMAGE" : "VIDEO",
+            fileName: file.filename,
+            storageKey: file.path.replace(/\\/g, "/"),
+            url: file.path.replace(/\\/g, "/"),
+            mimeType: file.mimetype,
+            fileSize: file.size,
+            altText: file.originalname,
+          });
+          const existingPrimary = await tx.productMedia.findFirst({
+            where: {
+              productId: product.id,
+              owner: "PRODUCT",
+              isPrimary: true,
+            },
+          });
+          const maxSortOrder = await tx.productMedia.aggregate({
+            where: {
+              productId: product.id,
+              owner: "PRODUCT",
+            },
+            _max: {
+              sortOrder: true,
+            },
+          });
+          let sortOrder = (maxSortOrder._max.sortOrder ?? -1) + 1;
+          await productMediaService.saveProductMedia(tx, {
+            productId: product.id,
+            mediaId: media.id,
+            owner: "PRODUCT",
+            isPrimary: !existingPrimary && index === 0,
+            sortOrder: sortOrder++,
+          });
+        }
+      }
+      //if change in primary image
+      if (body.primaryMediaId !== "null") {
+        const productPrimaryImage = await tx.productMedia.findFirst({
+          where: { productId: product.id, isPrimary: true, owner: "PRODUCT" },
+        });
+        if (Number(productPrimaryImage?.id) !== Number(body.primaryMediaId)) {
+          await tx.productMedia.update({
+            where: { id: productPrimaryImage.id },
+            data: { isPrimary: false },
+          });
+          await tx.productMedia.update({
+            where: { id: Number(body.primaryMediaId) },
+            data: { isPrimary: true },
+          });
+        }
+      }
+      //Start :: handle if deleted in product Variants
+      let deletedProductVariantIds = [];
+      if (body.deletedVariantIds !== "null") {
+        try {
+          deletedProductVariantIds = Array.isArray(body.deletedVariantIds)
+            ? body.deletedVariantIds.map(Number)
+            : JSON.parse(body.deletedVariantIds).map(Number);
+        } catch {
+          deletedProductVariantIds = body.deletedVariantIds
+            .split(",")
+            .map((id) => Number(id))
+            .filter(Boolean);
+        }
+        const filesToDelete = [];
+        if (deletedProductVariantIds.length > 0) {
+          const deletingVariants = await tx.productVariant.findMany({
+            where: {
+              id: {
+                in: deletedProductVariantIds,
               },
-            });
-
-            const mediaUsageCount = await tx.productMedia.count({
-              where: {
-                mediaId: productMedia.media.id,
+              productId,
+            },
+            include: {
+              productMedia: {
+                include: {
+                  media: true,
+                },
               },
-            });
+            },
+          });
 
-            if (mediaUsageCount === 0) {
-              await tx.media.delete({
+          for (const variant of deletingVariants) {
+            // 1. Check history FIRST
+            const hasHistory =
+              (await hasInventoryHistory(tx, variant.id)) ||
+              (await hasOrderHistory(tx, variant.id, productId));
+
+            // 2. Soft delete if historical
+            if (hasHistory) {
+              await tx.productVariant.update({
                 where: {
-                  id: productMedia.media.id,
+                  id: variant.id,
+                },
+                data: {
+                  isEnabled: false,
+                  deletedAt: new Date(),
                 },
               });
 
-              filesToDelete.push(productMedia.media.storageKey);
+              continue;
             }
-          }
 
-          // Delete variant-value relationships
-          await tx.productVariantValue.deleteMany({
-            where: {
-              variantId: variant.id,
-            },
-          });
+            // 3. No history -> hard delete
 
-          // Delete variant
-          await tx.productVariant.delete({
-            where: {
-              id: variant.id,
-            },
-          });
-          for (const filePath of filesToDelete) {
-            await mediaService.deleteMediaFile(filePath);
+            // Delete variant media
+            for (const productMedia of variant.productMedia) {
+              await tx.productMedia.delete({
+                where: {
+                  id: productMedia.id,
+                },
+              });
+
+              const mediaUsageCount = await tx.productMedia.count({
+                where: {
+                  mediaId: productMedia.media.id,
+                },
+              });
+
+              if (mediaUsageCount === 0) {
+                await tx.media.delete({
+                  where: {
+                    id: productMedia.media.id,
+                  },
+                });
+
+                filesToDelete.push(productMedia.media.storageKey);
+              }
+            }
+
+            // Delete variant-value relationships
+            await tx.productVariantValue.deleteMany({
+              where: {
+                variantId: variant.id,
+              },
+            });
+
+            // Delete variant
+            await tx.productVariant.delete({
+              where: {
+                id: variant.id,
+              },
+            });
+            for (const filePath of filesToDelete) {
+              await mediaService.deleteMediaFile(filePath);
+            }
           }
         }
       }
-    }
-    //Ends :: handle if deleted in product Variants
+      //Ends :: handle if deleted in product Variants
 
-    return product;
-  });
+      //Handle update variants or add new variants
+      if (body.variants.length > 0) {
+        let variants = "";
+        if (typeof body.variants == "string") {
+          variants = JSON.parse(body.variants);
+        } else {
+          variants = body.variants;
+        }
+        if (variants.length > 0) {
+          for (const variant of variants) {
+            if (variant.hasOwnProperty("id")) {
+              console.log("updating the existing variant : ", variant.id);
+              const isVariantExists = product.variants.filter(
+                (productVariant) => productVariant.id == variant.id,
+              );
+              if (isVariantExists) {
+                await updateVariant(variant.id, variant, "", tx);
+              }
+            } else {
+              console.log("New variant adding");
+              await createProductVariant(productId, variant, "", tx);
+            }
+            //handle attributes add/update
+            if (variant.attributes.length > 0) {
+              for (const attribute of variant.attributes) {
+                if (attribute.hasOwnProperty("id")) {
+                  const currentAttribute =
+                    await tx.productVariantValue.findUnique({
+                      where: { id: Number(attribute.id) },
+                      include: {
+                        value: {
+                          include: {
+                            variantType : true,
+                          },
+                        },
+                      },
+                    });
+                  await updateAttribute(
+                    attribute.id,
+                    currentAttribute,
+                    attribute,
+                    tx,
+                    variant.id
+                  );
+                } else {
+                  await createAttribute(attribute, variant.id, tx);
+                }
+              }
+            }
+          }
+        }
+      }
+      return product;
+    },
+    {
+      maxWait: 10000,
+      timeout: 40000,
+    },
+  );
 };
 const inventoryHistory = async (id) => {
   return prisma.inventoryTransaction.findMany({
@@ -546,6 +565,137 @@ const inventoryHistory = async (id) => {
   }
 });
 };
+const createProductVariant = async (productId, variant, images, tx) => {
+  return await tx.productVariant.create({
+    data: {
+      productId: productId,
+      sku: variant.sku,
+      price: Number(variant.price),
+      discountedPrice: Number(variant.discountedPrice),
+      qty: Number(variant.qty),
+      material: variant.material,
+      style: variant.style,
+      isDefault: variant.isDefault,
+    },
+  });
+};
+const uploadVariantImages = async (images,productId,variantId,tx) => {
+  for (const file of images) {
+    const media = await mediaService.saveMedia(tx, {
+      type: file.mimetype.startsWith("image/") ? "IMAGE" : "VIDEO",
+      fileName: file.filename,
+      storageKey: file.path.replace(/\\/g, "/"),
+      url: file.path.replace(/\\/g, "/"),
+      mimeType: file.mimetype,
+      fileSize: file.size,
+      altText: file.originalname,
+    });
+    await productMediaService.saveProductMedia(tx, {
+      productId: productId,
+      variantId: variantId,
+      mediaId: media.id,
+      owner: "VARIANT",
+      isPrimary: false,
+    });
+  }
+};
+const updateVariant = async (id,variant,files,tx) => {
+  const updatedVariant = await tx.productVariant.update({
+      where : {id},
+      data: {
+        sku: variant.sku,
+        price: Number(variant.price),
+        discountedPrice: Number(variant.discountedPrice),
+        qty: Number(variant.qty),
+        material: variant.material,
+        style: variant.style,
+        isDefault: variant.isDefault,
+      },
+    });
+}
+const createAttribute = async (attribute,variantId, tx) => {
+     // Find or create VariantType
+    let variantType = await tx.variantType.findUnique({
+      where: {
+        name: attribute.variantType,
+      },
+    });
+    if (!variantType) {
+      variantType = await tx.variantType.create({
+        data: {
+          name: attribute.variantType,
+        },
+      });
+    }
+    // Find or create VariantValue
+    let variantValue = await tx.variantValue.findFirst({
+      where: {
+        variantTypeId: variantType.id,
+        value: attribute.variantValue,
+      },
+    });
+    if (!variantValue) {
+      variantValue = await tx.variantValue.create({
+        data: {
+          variantTypeId: variantType.id,
+          value: attribute.variantValue,
+        },
+      });
+    }
+    // Link Variant ↔ Value
+    await tx.productVariantValue.create({
+      data: {
+        variantId: variantId,
+        valueId: variantValue.id,
+      },
+    });
+};
+const updateAttribute = async (id,currentAttribute, newAttribute,tx,variantId) => {
+    //if updating value of the attribute 
+    // we can update with no issue but if change the attribute name 
+    // then we need check if the attribute type is used in other product or not if not used then we can update it
+    // else will create new one
+  if (currentAttribute) {
+    const isAttributeNameChanged = currentAttribute.value.variantType.name !== newAttribute.variantType;
+    if (isAttributeNameChanged) { //if name changed
+      const checkIfAttributeAlreadyUsed = await tx.variantValue.count({
+        where: { variantTypeId: Number(currentAttribute.value.variantType.id) },
+      });
+      if (checkIfAttributeAlreadyUsed > 1) {
+        await createAttribute(
+          {
+            variantType: newAttribute.variantType,
+            variantValue: newAttribute.variantValue,
+          },
+          variantId,tx
+        );
+        //delete the old product variant attribute type
+        await tx.productVariantValue.delete({
+          where: {
+            variantId: variantId,
+            valueId: currentAttribute.value,
+          },
+        });
+      } else {
+        await tx.variantType.update({
+          where: { id: Number(currentAttribute.value.variantType.id) },
+          data: { name: newAttribute.variantType },
+        });
+      }
+    }
+    await tx.variantValue.update({
+      where: {
+        id: Number(currentAttribute.value.id),
+      },
+      data: {
+        value: newAttribute.variantValue,
+      },
+    });
+  } else {
+    console.log("No attribute found with the id :",id);
+  }
+} 
+
 module.exports = {
   createProduct,
   getProducts,
