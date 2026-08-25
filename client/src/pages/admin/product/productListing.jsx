@@ -10,12 +10,15 @@ import {
   CirclePlus,
   CircleDollarSign,
   ShoppingBasket,
-  BookmarkCheck,
+  BookmarkCheck,ArchiveRestore
 } from "lucide-react";
-const ProductListing = ({ handleOpenEdit, products }) => {
+
+const ProductListing = ({ handleOpenEdit,products,deleteProduct,restoreProduct }) => {
+  
+ 
   return (
     <div className="bg-white dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-800/30 rounded-2xl shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden text-xs">
-      <div className="overflow-x-auto text-gold-600">
+       <div className="overflow-x-auto text-gold-600">
         <table className="w-full text-left font-sans text-[#2D2926] dark:text-stone-105">
           <thead>
             <tr className="border-b border-stone-150 dark:border-stone-850 text-stone-400 uppercase tracking-widest text-[9px] font-bold bg-[#FDFCF8] dark:bg-stone-955/20">
@@ -24,14 +27,15 @@ const ProductListing = ({ handleOpenEdit, products }) => {
               <th className="py-3 px-4">Price Range</th>
               <th className="py-3 px-4">Variants Count</th>
               <th className="py-3 px-4">Stock level</th>
+              <th className="py-3 px-4">Status</th>
               <th className="py-3 px-4 text-center">Admin Controls</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-105 dark:divide-stone-850/40 text-stone-700 dark:text-stone-300 font-medium whitespace-nowrap">
-            {products.map((p) => (
+            {products?.data?.map((p) => (
               <tr
                 key={p.id}
-                className="hover:bg-[#FDFCF8] dark:hover:bg-stone-950/10 transition-colors"
+                className={`hover:bg-[#FDFCF8] dark:hover:bg-stone-950/10 transition-colors`}
               >
                 {/* Title and image block */}
                 <td className="py-3 px-4 flex items-center gap-3">
@@ -90,7 +94,15 @@ const ProductListing = ({ handleOpenEdit, products }) => {
                     {p.totalStock} Sku
                   </span>
                 </td>
-
+                 <td className="py-3 px-4">
+                  <span className={`px-2 py-0.5 rounded-full bg-${p.isEnabled==true ? 'yellow' : 'red'}-100 dark:bg-${p.isEnabled==true? 'green' : 'red'}-955/20 text-[10px] font-bold uppercase tracking-wider text-${p.isEnabled==true? 'green' : 'red'}-700 dark:text-${p.isEnabled==true? 'green' : 'red'}-200 flex items-center gap-1 w-fit border border-[#D4AF37]/20`}>
+                    {p.isEnabled == true ? 
+                      <Check className="w-3 h-3 text-gold-600"/>
+                     : <X className="w-3 h-3 text-gold-600" /> 
+                  }                   
+                    {p.isEnabled == true ? 'Active' : 'Inactive'}
+                  </span>
+                </td>
                 {/* edit or delete click actions */}
                 <td className="py-3 px-4 text-center">
                   <div className="flex gap-2 justify-center">
@@ -102,11 +114,13 @@ const ProductListing = ({ handleOpenEdit, products }) => {
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={() => deleteProduct(p.id)}
+                      onClick={() => p.deletedAt == null ? deleteProduct(p.id) : restoreProduct(p.id)}
                       className="p-1.5 rounded-lg border border-stone-200 dark:border-stone-850 hover:border-rose-300 hover:bg-rose-50 dark:hover:bg-rose-955/10 text-stone-400 hover:text-rose-555 hover:text-rose-500 transition-colors cursor-pointer"
-                      title="Dismantle Entry"
+                      title={p.deletedAt == null ? `Dismantle Entry` : 'Restore'}
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      {p.deletedAt == null ? 
+                        <Trash2 className="w-3.5 h-3.5 red" />
+                       : <ArchiveRestore className="w-3.5 h-3.5 red"/>}
                     </button>
                   </div>
                 </td>
@@ -114,7 +128,9 @@ const ProductListing = ({ handleOpenEdit, products }) => {
             ))}
           </tbody>
         </table>
+        
       </div>
+      
     </div>
   );
 };

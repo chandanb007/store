@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import ProductListing from "./admin/product/productListing.jsx";
 import { object } from "motion/react-client";
+import Filters from './common/Filters.jsx';import Pagination from './common/pagination.jsx';
+
 
 export const AdminProducts = () => {
   const {
@@ -22,11 +24,12 @@ export const AdminProducts = () => {
     addProduct,
     updateProduct,
     deleteProduct,
+    restoreProduct,
     addNotification,
     categories,
     loadCategories,
+    loadProducts
   } = useApp();
-
   // Dialog states
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -49,6 +52,7 @@ export const AdminProducts = () => {
     title: "",
     categoryId: "",
     description: "",
+    isEnabled : "",
     images: [],
     variants: [emptyVariant],
   });
@@ -56,6 +60,8 @@ export const AdminProducts = () => {
   const [deletedProductMediaIds, setDeletedProductMediaIds] = useState([]);
   const [deletedVariantIds, setDeletedVariantIds] = useState([]);
   const [primaryProductMediaId, setPrimaryProductMediaId] = useState(null);
+  const [deletedVariantAttributes,setDeletedVariantAttributes] = useState([]);
+  const [pagination,setPagination] = useState([]);
   const addVariantRow = () => {
     setFormState((prev) => ({
       ...prev,
@@ -155,6 +161,7 @@ export const AdminProducts = () => {
     setFormState({
       images: primaryImages,
       title: product.title,
+      isEnabled: product.isEnabled,
       description: product.description,
       categoryId: product.categoryId,
       variants: variants,
@@ -174,11 +181,95 @@ export const AdminProducts = () => {
         deletedProductMediaIds,
         deletedVariantIds,
         primaryProductMediaId,
+        deletedVariantAttributes
       );
     }
-    setIsAddOpen(true);
-  };
+    setIsAddOpen(false);
+    setEditingProduct(null)
+    loadProducts(filters);
 
+  };
+  const filterConfig = [
+    {
+        name: "status",
+        label: "Status",
+        type: "select",
+        options: [
+            { label: "Active", value: "active" },
+            { label: "Inactive", value: "inactive" },
+        ],
+        width: "sm",
+    },
+
+    {
+        name: "search",
+        label: "Product Name/Description",
+        type: "text",
+        placeholder: "Search product...",
+        width: "lg",
+    },
+
+    {
+        name: "minPrice",
+        label: "Min Price",
+        type: "number",
+        placeholder: "₹ 0",
+        width: "sm",
+    },
+
+    {
+        name: "maxPrice",
+        label: "Max Price",
+        type: "number",
+        placeholder: "₹10,000",
+        width: "sm",
+    },
+
+    {
+        name: "category",
+        label: "Category",
+        type: "select",
+        options: categories,
+        width: "md",
+    },
+];
+  const [filters, setFilters] = useState({
+    status: "",
+    search: "",
+    minPrice: "",
+    maxPrice: "",
+    category: "",
+    page : "",
+  });
+  const handleFilterChange = (name, value) => {
+    setFilters((prev) => ({
+        ...prev,
+        [name]: value,
+    }));
+  };
+  
+  const handleApplyFilters = () => {
+     loadProducts(filters);
+  };
+  const handleClearFilters = () => {
+    setFilters({  status: "",
+    search: "",
+    minPrice: "",
+    maxPrice: "",
+    category: "",})
+    loadProducts();
+  }
+const handlePageChange = async (page) => {
+    setPagination((prev) => ({
+        ...prev,
+        page,
+    }));
+    loadProducts({
+        ...filters,
+        page,
+        pageSize: pagination.pageSize,
+    });
+};
   return (
     <div className="space-y-6">
       {/* Title Header bar */}
@@ -201,14 +292,32 @@ export const AdminProducts = () => {
           Acquire New Product
         </button>
       </div>
-
-      {/* Main product listings table */}
+      <Filters   
+        filters={filterConfig}
+        values={filters}
+        onChange={handleFilterChange}
+        onApply={handleApplyFilters}
+        onClear={handleClearFilters}
+      >
+      </Filters>
+      {/* Main product listings table   //}
+      // 
+    */}
       <ProductListing
         handleOpenEdit={handleOpenEdit}
         products={products}
         setIsAddOpen={setIsAddOpen}
+        deleteProduct={deleteProduct}
+        restoreProduct={restoreProduct}
       ></ProductListing>
-
+      <Pagination
+        currentPage={products?.pagination?.page}
+        totalPages={products?.pagination?.totalPages}
+        onPageChange={handlePageChange}
+        totalItems={products?.pagination?.total}
+        pageSize={products?.pagination?.pageSize}
+      
+      />
       {/* dialog forms drawer (Add / Edit item) */}
       {(isAddOpen || editingProduct) && (
         <AddProductTemp
@@ -225,6 +334,7 @@ export const AdminProducts = () => {
           addVariantRow={addVariantRow}
           setFormState={setFormState}
           setPrimaryProductMediaId={setPrimaryProductMediaId}
+          setDeletedVariantAttributes={setDeletedVariantAttributes}
         />
       )}
     </div>

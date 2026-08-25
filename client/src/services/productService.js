@@ -14,6 +14,13 @@ export const updateProduct = (id, data) => {
     },
   });
 };
-export const getProducts = () => {
-  return api.get("/product");
+export const getProducts = (filters) => {
+   const queryString = new URLSearchParams(filters).toString(); 
+  return api.get(`/product?${queryString}`);
+};
+export const deleteProduct = (id) => {
+  return api.delete(`/product/${id}`);
+};
+export const restoreProduct = (id) => {
+  return api.put(`/product/${id}/restore`);
 };

@@ -28,6 +28,7 @@ const AddProductTemp = ({
   setNewPrimaryImages,
   setDeletedVariantIds,
   setPrimaryProductMediaId,
+  setDeletedVariantAttributes
 }) => {
   const updateVariant = (variantIndex, field, value) => {
     setFormState((prev) => {
@@ -81,7 +82,11 @@ const AddProductTemp = ({
       }),
     }));
   };
-  const removeAttribute = (variantIndex, attributeIndex) => {
+  const removeAttribute = (variantIndex,attributeIndex,attributeId) => {
+    debugger;
+    if (attributeId) {
+      setDeletedVariantAttributes((ids) => [...ids, attributeId]);
+    }
     setFormState((prev) => {
       const variants = [...prev.variants];
       variants[variantIndex] = {
@@ -218,6 +223,22 @@ const AddProductTemp = ({
                     {c.name}
                   </option>
                 ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label>Status</label>
+              <select
+                required
+                value={formState.isEnabled}
+                onChange={(e) =>
+                  setFormState({ ...formState, isEnabled: e.target.value })
+                }
+                className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100 focus:outline-none"
+              >
+                <option value="">Select Status</option>
+                <option key="true" value="true">Active</option>
+                <option key="false" value="false">Inactive</option>
+                
               </select>
             </div>
             <div className="space-y-2">
@@ -441,7 +462,7 @@ const AddProductTemp = ({
                               {attributeIndex !== 0 ? (
                                 <button
                                   onClick={(e) =>
-                                    removeAttribute(index, attributeIndex)
+                                    removeAttribute(index, attributeIndex,attribute?.id)
                                   }
                                   type="button"
                                   className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-950 text-red-500"

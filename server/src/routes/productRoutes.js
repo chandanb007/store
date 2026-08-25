@@ -36,7 +36,12 @@ router.delete(
   allowRoles("ADMIN"),
   productController.deleteProduct,
 );
-
+router.put(
+  "/:id/restore",
+  auth,
+  allowRoles("ADMIN"),
+  productController.restoreProduct,
+);
 router.get(
   "/:id/inventory",
   productUpload.none(),

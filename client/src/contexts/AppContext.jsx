@@ -215,9 +215,9 @@ export const AppProvider = ({ children }) => {
     loadProducts();
   }, []);
 
-  const loadProducts = async () => {
+  const loadProducts = async (filters) => {
     try {
-      const response = await productService.getProducts();
+      const response = await productService.getProducts(filters);
       setProducts(response.data.data);
     } catch (error) {
       console.error(error);
@@ -400,7 +400,7 @@ export const AppProvider = ({ children }) => {
       );
       const response = await productService.addProduct(formData);
       if (response.status == 201) {
-        addNotification("success", response.data.data.message);
+        addNotification("success", response.data.message);
         return true;
       }
     } catch (error) {
@@ -419,15 +419,18 @@ export const AppProvider = ({ children }) => {
     deletedProductMediaIds,
     deletedVariantIds,
     primaryMediaId,
+    deletedVariantAttributes
   ) => {
     try {
       const formData = new FormData();
       formData.append("title", formState.title);
       formData.append("description", formState.description);
+      formData.append("isEnabled", formState.isEnabled);
       formData.append("categoryId", formState.categoryId);
       formData.append("deletedProductMediaIds", deletedProductMediaIds);
       formData.append("deletedVariantIds", deletedVariantIds);
       formData.append("primaryMediaId", primaryMediaId);
+      formData.append("deletedVariantAttributes", deletedVariantAttributes);
       formState.images
         .filter((image) => !image.isExisting)
         .forEach((image) => {
@@ -448,8 +451,8 @@ export const AppProvider = ({ children }) => {
         ),
       );
       const response = await productService.updateProduct(id, formData);
-      if (response.status == 201) {
-        addNotification("success", response.data.data.message);
+      if (response.status == 200) {
+        addNotification("success", response.data.message);
         return true;
       }
     } catch (error) {
@@ -462,11 +465,40 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const deleteProduct = (id) => {
-    const product = products.find((p) => p.id === id);
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-    addNotification("warning", `Product "${product?.name || "Item"}" deleted.`);
-  };
+  const deleteProduct = async (id) => {
+    try {
+      const response = await productService.deleteProduct(id);
+      if (response.status == 200) {
+        addNotification("success",response.data.message);
+         loadProducts()
+        return true;
+      }
+    } catch (error) {
+      console.log(error);
+      addNotification(
+        "error",
+        error.response?.data?.message || "Something went wrong.",
+      );
+       return false;
+    };
+  }
+  const restoreProduct = async (id) => {
+     try {
+      const response = await productService.restoreProduct(id);
+      if (response.status == 200) {
+        addNotification("success",response.data.message);
+         loadProducts()
+        return true;
+      }
+    } catch (error) {
+      console.log(error);
+      addNotification(
+        "error",
+        error.response?.data?.message || "Something went wrong.",
+      );
+       return false;
+    };
+  }
 
   const addReview = (productId, rating, comment) => {
     if (!currentUser) {
@@ -916,6 +948,7 @@ export const AppProvider = ({ children }) => {
         addProduct,
         updateProduct,
         deleteProduct,
+        restoreProduct,
         addReview,
         addToCart,
         removeFromCart,
@@ -934,6 +967,7 @@ export const AppProvider = ({ children }) => {
         addNotification,
         removeNotification,
         toggleTheme,
+        loadProducts
       }}
     >
       {children}

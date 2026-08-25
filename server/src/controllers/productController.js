@@ -36,6 +36,10 @@ const deleteProduct = async (req, res) => {
   const response = await productService.deleteProduct(req.params.id);
   return success(res, "Product deleted successfully.", response, 200);
 };
+const restoreProduct = async (req, res) => {
+  const response = await productService.restoreProduct(req.params.id);
+  return success(res, "Product restored successfully.", response, 200);
+};
 const updateProduct = async (req, res) => {
   const response = await productService.updateProduct(
     req.params.id,
@@ -54,5 +58,6 @@ module.exports = {
   getProductById,
   deleteProduct,
   updateProduct,
-  inventoryHistory
+  inventoryHistory,
+  restoreProduct
 };
