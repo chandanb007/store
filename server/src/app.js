@@ -13,6 +13,8 @@ const wishListRoutes = require("./routes/wishListRoutes");
 const couponRoutes = require("./routes/couponRoutes");
 const checkoutRoutes = require("./routes/checkout");
 const adminOrderRoutes = require("./routes/adminOrderRoutes");
+const patronTestimonialsRoutes = require("./routes/patronTestimonialsRoutes");
+
 
 const app = express();
 
@@ -38,6 +40,8 @@ app.use("/api/admin/coupon", couponRoutes);
 app.use("/api/checkout", checkoutRoutes);
 
 app.use("/api/admin/orders", adminOrderRoutes);
+app.use("/api/admin/patron-testimonials", patronTestimonialsRoutes);
+
 
 module.exports = app;
 app.use(errorHandler);

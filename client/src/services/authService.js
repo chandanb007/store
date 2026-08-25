@@ -7,6 +7,9 @@ export const login = (email,password) => {
 export const register = (user) => {
   return api.post("/auth/register", user);
 };
+export const userByRole = () => {
+  return api.get("/auth/user-by-role");
+};
 
 export const logout = () => {
   localStorage.removeItem("token");

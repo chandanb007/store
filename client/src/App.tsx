@@ -12,6 +12,7 @@ import { UserAccount } from './pages/UserAccount';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { AdminProducts } from './pages/AdminProducts';
 import { NotificationToast } from './components/NotificationToast';
+import { CustomerLogs } from './pages/CustomerLogs';
 
 export default function App() {
   return (
@@ -39,12 +40,8 @@ export default function App() {
                 <p className="text-xs text-stone-400">Order fulfillment queue is live. There are currently no pending manual reviews required.</p>
               </div>
             } />
-            <Route path="customers" element={
-              <div className="bg-white dark:bg-stone-900 border border-stone-150 dark:border-stone-850 p-8 rounded-2xl shadow-sm text-center">
-                <h2 className="font-serif text-xl font-bold text-stone-900 dark:text-white mb-2">Customer Ledger Accounts</h2>
-                <p className="text-xs text-stone-400">Patron registration logbook is active. All current accounts are cleared for secure checkout.</p>
-              </div>
-            } />
+          
+            <Route path="customers" element={<CustomerLogs />} />
             <Route path="reports" element={
               <div className="bg-white dark:bg-stone-900 border border-stone-150 dark:border-stone-850 p-8 rounded-2xl shadow-sm text-center">
                 <h2 className="font-serif text-xl font-bold text-stone-900 dark:text-white mb-2">Registry Reports Hub</h2>
