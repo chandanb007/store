@@ -2,7 +2,13 @@ const prisma = require("../config/prisma.js");
 const { formatCategoryResponse } = require("../helpers/categoryHelper.js");
 const AppError = require("../utils/appError");
 
-const getCategories = async () => {
+const getCategories = async (data) => {
+  const page = Math.max(Number(data?.page) || 1, 1);
+  const pageSize = Math.min(Math.max(Number(data?.pageSize) || 5, 1), 100);
+  const where = {};
+   const total = await prisma.category.count({
+    where,
+  });
   const categories = await prisma.category.findMany({
     select: {
       id: true,
@@ -17,9 +23,23 @@ const getCategories = async () => {
         },
       },
     },
+    skip: (page - 1) * pageSize,
+    take: pageSize,
     orderBy: { id: "desc" },
   });
-  return formatCategoryResponse(categories);
+  const totalPages = Math.ceil(total / pageSize);
+  const pagination = {
+    page,
+    pageSize,
+    total,
+    totalPages,
+    hasNextPage: page < totalPages,
+    hasPreviousPage: page > 1,
+  };
+ return {
+    categories: formatCategoryResponse(categories),
+    pagination,
+  };
 };
 
 const createCategory = async (data) => {

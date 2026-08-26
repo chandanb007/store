@@ -1,4 +1,4 @@
-const formatCategoryResponse = (categories) => {
+const formatCategoryResponse = (categories,pagination) => {
     if (categories.map !== undefined) {
       return categories.map((category) => ({
         id: category.id,
@@ -8,6 +8,7 @@ const formatCategoryResponse = (categories) => {
         slug: category.slug,
         status: category.isEnabled,
         productCount: category._count.products,
+        
       }));
     } else {
       return {

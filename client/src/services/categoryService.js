@@ -1,7 +1,8 @@
 import api from "./api";
 
-export const getCategories = () => {
-  return api.get("/category");
+export const getCategories = (filters) => {
+  const queryString = new URLSearchParams(filters).toString(); 
+  return api.get(`/category?${queryString}`);
 };
 
 export const createCategory = (data) => {

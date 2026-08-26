@@ -304,20 +304,24 @@ const handlePageChange = async (page) => {
       // 
     */}
       <ProductListing
+        filters={filters}
+        loadProducts={loadProducts}
         handleOpenEdit={handleOpenEdit}
         products={products}
         setIsAddOpen={setIsAddOpen}
         deleteProduct={deleteProduct}
         restoreProduct={restoreProduct}
       ></ProductListing>
-      <Pagination
-        currentPage={products?.pagination?.page}
-        totalPages={products?.pagination?.totalPages}
-        onPageChange={handlePageChange}
-        totalItems={products?.pagination?.total}
-        pageSize={products?.pagination?.pageSize}
+      {products.data.length > 0 ? 
+          <Pagination
+          currentPage={products?.pagination?.page}
+          totalPages={products?.pagination?.totalPages}
+          onPageChange={handlePageChange}
+          totalItems={products?.pagination?.total}
+          pageSize={products?.pagination?.pageSize}        
+        />
+      : ""}
       
-      />
       {/* dialog forms drawer (Add / Edit item) */}
       {(isAddOpen || editingProduct) && (
         <AddProductTemp

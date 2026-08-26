@@ -223,9 +223,9 @@ export const AppProvider = ({ children }) => {
       console.error(error);
     }
   };
-  const loadCategories = async () => {
+  const loadCategories = async (data) => {
     try {
-      const response = await categoryService.getCategories();
+      const response = await categoryService.getCategories(data);
       setCategories(response.data.data);
     } catch (error) {
       console.error(error);
@@ -470,7 +470,6 @@ export const AppProvider = ({ children }) => {
       const response = await productService.deleteProduct(id);
       if (response.status == 200) {
         addNotification("success",response.data.message);
-         loadProducts()
         return true;
       }
     } catch (error) {
@@ -487,7 +486,6 @@ export const AppProvider = ({ children }) => {
       const response = await productService.restoreProduct(id);
       if (response.status == 200) {
         addNotification("success",response.data.message);
-         loadProducts()
         return true;
       }
     } catch (error) {

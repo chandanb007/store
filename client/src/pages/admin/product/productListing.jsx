@@ -13,8 +13,16 @@ import {
   BookmarkCheck,ArchiveRestore
 } from "lucide-react";
 
-const ProductListing = ({ handleOpenEdit,products,deleteProduct,restoreProduct }) => {
-  
+const ProductListing = ({ handleOpenEdit,products,deleteProduct,restoreProduct,loadProducts,filters }) => {
+
+  const handleDeleteProduct = (id) => {
+    deleteProduct(id);
+    loadProducts(filters);
+  }
+  const handleRestoreProduct = (id) => {
+    restoreProduct(id);
+    loadProducts(filters);
+  }
  
   return (
     <div className="bg-white dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-800/30 rounded-2xl shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden text-xs">
@@ -32,7 +40,16 @@ const ProductListing = ({ handleOpenEdit,products,deleteProduct,restoreProduct }
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-105 dark:divide-stone-850/40 text-stone-700 dark:text-stone-300 font-medium whitespace-nowrap">
-            {products?.data?.map((p) => (
+            {products?.data.length == 0 ?
+                 <tr
+                key="none"
+                className={`hover:bg-[#FDFCF8] dark:hover:bg-stone-950/10 transition-colors justify-center`}
+              >
+                <td className="font-serif font-bold text-[#2D2926] dark:text-stone-100 truncate capitalize py-3 px-4 flex items-center gap-3" colSpan={7}>No product found!!</td>
+
+              </tr>
+            : ""}
+            {products?.data.length > 0 && products?.data?.map((p) => (
               <tr
                 key={p.id}
                 className={`hover:bg-[#FDFCF8] dark:hover:bg-stone-950/10 transition-colors`}
@@ -114,7 +131,7 @@ const ProductListing = ({ handleOpenEdit,products,deleteProduct,restoreProduct }
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={() => p.deletedAt == null ? deleteProduct(p.id) : restoreProduct(p.id)}
+                      onClick={() => p.deletedAt == null ? handleDeleteProduct(p.id) : handleRestoreProduct(p.id)}
                       className="p-1.5 rounded-lg border border-stone-200 dark:border-stone-850 hover:border-rose-300 hover:bg-rose-50 dark:hover:bg-rose-955/10 text-stone-400 hover:text-rose-555 hover:text-rose-500 transition-colors cursor-pointer"
                       title={p.deletedAt == null ? `Dismantle Entry` : 'Restore'}
                     >
