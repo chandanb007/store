@@ -1,9 +1,8 @@
-
-const createOrder = async (db,data) => {
-    return await db.order.create({
-        data
-    })
-}
+const createOrder = async (db, data) => {
+  return await db.order.create({
+    data,
+  });
+};
 const createOrderItems = async (db, orderId, items) => {
   return await db.OrderItem.createMany({
     data: items.map((item) => ({
@@ -18,8 +17,15 @@ const createOrderItems = async (db, orderId, items) => {
     })),
   });
 };
+const hasOrderHistory = async (db, productId, variantId) => {
+  const orderHistory = await db.OrderItem.count({
+    where: { variantId: Number(variantId), productId: Number(productId) },
+  });
+  return orderHistory > 0 ? true : false;
+};
 
 module.exports = {
-    createOrder,
-    createOrderItems
-}
+  createOrder,
+  createOrderItems,
+  hasOrderHistory,
+};

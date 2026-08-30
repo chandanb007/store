@@ -1,28 +1,29 @@
 import api from "./api";
-
-export const getCategories = () => {
-  return api.get("/category");
+const resourceBaseUrl = "admin/category"
+export const getCategories = (filters) => {
+  const queryString = new URLSearchParams(filters).toString(); 
+  return api.get(`/${resourceBaseUrl}?${queryString}`);
 };
 
 export const createCategory = (data) => {
-  return api.post("/category", data);
+  return api.post(`${resourceBaseUrl}`, data);
 };
 
 export const getCategoryById = (id) => {
-  return api.get(`/category/${id}`);
+  return api.get(`/${resourceBaseUrl}/${id}`);
 };
 
 export const updateCategoryStatus = (id, status) => {
-  return api.post(`/category/${id}/status`, { isEnabled: status });
+  return api.post(`/${resourceBaseUrl}/${id}/status`, { isEnabled: status });
 };
 
 export const updateCategoryData = (id, data) => {
-  return api.put(`/category/${id}`, data);
+  return api.put(`/${resourceBaseUrl}/${id}`, data);
 };
 export const deleteTheCategory = (id) => {
-  return api.delete(`/category/${id}`);
+  return api.delete(`/${resourceBaseUrl}/${id}`);
 };
 
 export const restoreCategory = (id) => {
-  return api.put(`/category/${id}/restore`);
+  return api.put(`/${resourceBaseUrl}/${id}/restore`);
 };

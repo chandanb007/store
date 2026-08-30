@@ -1,0 +1,155 @@
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  X,
+  AlertTriangle,
+  Sparkles,
+  Tag,
+  Check,
+  CirclePlus,
+  CircleDollarSign,
+  ShoppingBasket,
+  BookmarkCheck,ArchiveRestore
+} from "lucide-react";
+
+const ProductListing = ({ handleOpenEdit,products,deleteProduct,restoreProduct,loadProducts,filters }) => {
+  const handleDeleteProduct = (id) => {
+    deleteProduct(id);
+    loadProducts(filters);
+  }
+  const handleRestoreProduct = (id) => {
+    restoreProduct(id);
+    loadProducts(filters);
+  }
+ 
+  return (
+    <div className="bg-white dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-800/30 rounded-2xl shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden text-xs">
+       <div className="overflow-x-auto text-gold-600">
+        <table className="w-full text-left font-sans text-[#2D2926] dark:text-stone-105">
+          <thead>
+            <tr className="border-b border-stone-150 dark:border-stone-850 text-stone-400 uppercase tracking-widest text-[9px] font-bold bg-[#FDFCF8] dark:bg-stone-955/20">
+              <th className="py-3 px-4">Item Detail</th>
+              <th className="py-3 px-4">Category</th>
+              <th className="py-3 px-4">Price Range</th>
+              <th className="py-3 px-4">Variants Count</th>
+              <th className="py-3 px-4">Stock level</th>
+              <th className="py-3 px-4">Status</th>
+              <th className="py-3 px-4 text-center">Admin Controls</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-stone-105 dark:divide-stone-850/40 text-stone-700 dark:text-stone-300 font-medium whitespace-nowrap">
+            {products.products?.length == 0 ?
+                 <tr
+                key="none"
+                className={`hover:bg-[#FDFCF8] dark:hover:bg-stone-950/10 transition-colors`}
+              >
+                <td className="py-3 px-4 flex items-center gap-3 text" colSpan={7}>No product found!!</td>
+
+              </tr>
+            : ""}
+            {products.products?.length > 0 && products.products?.map((p) => (
+              <tr
+                key={p.id}
+                className={`hover:bg-[#FDFCF8] dark:hover:bg-stone-950/10 transition-colors`}
+              >
+                {/* Title and image block */}
+                <td className="py-3 px-4 flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-lg overflow-hidden bg-white border border-stone-150 dark:border-[#D4AF37]/15 flex-shrink-0 animate-fade-in animate-dur-300">
+                    <img
+                      alt={p.productMedia[0]?.media?.altText}
+                      src={`${p.image}`}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="max-w-64 truncate">
+                    <p className="font-serif font-bold text-[#2D2926] dark:text-stone-100 truncate capitalize">
+                      {p.title}
+                    </p>
+                    <p className="text-[10px] text-stone-400 truncate mt-0.5">
+                      {p.description}
+                    </p>
+                  </div>
+                </td>
+
+                {/* Category */}
+                <td className="py-3 px-4">
+                  <span className="px-2 py-0.5 rounded-full bg-gold-100 dark:bg-gold-955/20 text-[10px] font-bold uppercase tracking-wider text-gold-700 dark:text-gold-200 flex items-center gap-1 w-fit border border-[#D4AF37]/20">
+                    <Tag className="w-3 h-3 text-gold-600" />
+                    {p.category.name}
+                  </span>
+                </td>
+                <td className="py-3 px-4">
+                  <span className="font-bold font-mono text-xs flex items-center gap-1.5">
+                    <CircleDollarSign className="w-3 h-3 text-gold-600" />₹
+                    {p.minPrice}- ₹{p.maxPrice}
+                  </span>
+                </td>
+                <td className="py-3 px-4">
+                  <span className="font-bold font-mono text-xs flex items-center gap-1.5">
+                    <ShoppingBasket className="w-3 h-3 text-gold-600" />
+                    {p.variants.length}
+                  </span>
+                </td>
+                {/* Inventory stock */}
+                <td className="py-3 px-4">
+                  <span
+                    className={`font-bold font-mono text-xs flex items-center gap-1.5 ${
+                      p.totalStock <= 5
+                        ? "text-amber-600 animate-pulse font-sans"
+                        : "text-stone-850 dark:text-white font-sans"
+                    }`}
+                  >
+                    {p.totalStock <= 5 && (
+                      <AlertTriangle title="Low stock" className="w-3.5 h-3.5 text-amber-500" />
+                    )}
+                    {p.totalStock > 0 && (
+                      <BookmarkCheck className="w-3 h-3 text-gold-600" />
+                    )}
+                    {p.totalStock} Sku
+                  </span>
+                </td>
+                 <td className="py-3 px-4">
+                  {p.isEnabled == true ?
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-[#10b981]/40 dark:border-emerald-800/20">
+                      Active / Visible
+                    </span>
+                    : 
+                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200/40 dark:border-amber-800/30">
+                                Disabled / Hidden
+                     </span>
+                    }
+                </td>
+                {/* edit or delete click actions */}
+                <td className="py-3 px-4 text-center">
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      onClick={() => handleOpenEdit(p)}
+                      className="p-1.5 rounded-lg border border-stone-200 dark:border-stone-800 text-stone-400 hover:text-gold-500 hover:border-gold-300 dark:hover:border-gold-700 hover:scale-105 transition-all cursor-pointer"
+                      title="Edit Entry"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => p.deletedAt == null ? handleDeleteProduct(p.id) : handleRestoreProduct(p.id)}
+                      className="p-1.5 rounded-lg border border-stone-200 dark:border-stone-850 hover:border-rose-300 hover:bg-rose-50 dark:hover:bg-rose-955/10 text-stone-400 hover:text-rose-555 hover:text-rose-500 transition-colors cursor-pointer"
+                      title={p.deletedAt == null ? `Dismantle Entry` : 'Restore'}
+                    >
+                      {p.deletedAt == null ? 
+                        <Trash2 className="w-3.5 h-3.5 red" />
+                       : <ArchiveRestore className="w-3.5 h-3.5 red"/>}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+      </div>
+      
+    </div>
+  );
+};
+export default ProductListing;
