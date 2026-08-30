@@ -108,7 +108,6 @@ export const AdminProducts = () => {
     setIsAddOpen(true);
     loadCategories();
   };
-
   const handleOpenEdit = (product) => {
     setEditingProduct(product);
     const variants = product.variants.map((variant) => {
@@ -229,10 +228,14 @@ export const AdminProducts = () => {
         name: "category",
         label: "Category",
         type: "select",
-        options: categories,
+        options: categories?.categories?.map((category) => ({
+          value: category.id,
+          label: category.name,
+        })),
         width: "md",
     },
-];
+  ];
+  console.log(filterConfig)
   const [filters, setFilters] = useState({
     status: "",
     search: "",
@@ -312,7 +315,7 @@ const handlePageChange = async (page) => {
         deleteProduct={deleteProduct}
         restoreProduct={restoreProduct}
       ></ProductListing>
-      {products.data.length > 0 ? 
+      {products?.products?.length > 0 ? 
           <Pagination
           currentPage={products?.pagination?.page}
           totalPages={products?.pagination?.totalPages}

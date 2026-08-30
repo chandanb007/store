@@ -20,7 +20,7 @@ const Filters = ({
             "w-full h-9 px-3 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 transition";
 
         const value = values[filter.name] ?? "";
-
+        console.log(filter)   
         switch (filter.type) {
             case "select":
                 return (
@@ -39,7 +39,7 @@ const Filters = ({
 
                         {filter.options?.map((option) => (
                             <option
-                                key={option?.value ? option.value : option.id}
+                                key={option?.value ? option.value : option``.id}
                                 value={option?.value ? option.value : option.id}
                             >
                                 {option?.label ? option.label : option.name}
@@ -106,8 +106,7 @@ const Filters = ({
     };
 
     return (
-        <div className="bg-white dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-800/30 rounded-2xl shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden text-xs">
-
+        <div className="w-full bg-white dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-800/30 p-4 rounded-2xl shadow-xs hover:shadow-md transition-all duration-300 space-y-1 text-xs">
             {/* Filter Header */}
             <div className="flex items-center justify-between px-4 py-3">
 
@@ -196,14 +195,14 @@ const Filters = ({
                             ))}
 
                             {/* Apply Button */}
-                            <div className="flex items-end">
-                                <button
-                                    type="button"
-                                    onClick={onApply}
-                                    className="w-full h-9 px-4 rounded-lg bg-gold-600 hover:bg-gold-700 text-white font-medium transition-all duration-200 shadow-sm hover:shadow-md"
-                                >
-                                    Apply Filters
-                                </button>
+                           <div className="flex items-end">
+                            <button
+                            type="button"
+                            onClick={onApply}
+                            className="w-full h-9 px-4 rounded-lg bg-gold-600 hover:bg-gold-700 text-white font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+                            >
+                            Apply Filters
+                            </button>
                             </div>
 
                         </div>

@@ -85,23 +85,22 @@ export const AdminCategories = () => {
   };
    const filterConfig = [
     {
-        name: "status",
-        label: "Status",
-        type: "select",
-        options: [
-            { label: "Active", value: "active" },
-            { label: "Inactive", value: "inactive" },
-        ],
-        width: "sm",
-    },
-
-    {
         name: "search",
         label: "Name/Description",
         type: "text",
-        placeholder: "Search Category...",
-        width: "lg",
-    },
+        placeholder: "Search name or description...",
+        width: "lg:col-span-2",
+     },
+      {
+      name: "status",
+      label: "Status",
+      type: "select",
+      options: [
+          { label: "Active", value: "active" },
+          { label: "Inactive", value: "inactive" },
+      ],
+      width: "sm",
+  },
   ];
     const [filters, setFilters] = useState({
       status: "",

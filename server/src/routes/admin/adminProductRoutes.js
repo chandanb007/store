@@ -1,16 +1,16 @@
-const { createUploader } = require("../middleware/uploader.js");
-const validate = require("../middleware/validate");
-const { createProductSchema } = require("../validators/productValidator");
+const { createUploader } = require("../../middleware/uploader.js");
+const validate = require("../../middleware/validate.js");
+const { createProductSchema } = require("../../validators/productValidator.js");
 
 const productUpload = createUploader("products");
 const express = require("express");
 const router = express.Router();
 
-const productController = require("../controllers/productController");
-const { auth, allowRoles } = require("../middleware/auth.js");
+const productController = require("../../controllers/productController.js");
+const { auth, allowRoles } = require("../../middleware/auth.js");
 
 //public endpoint
-router.get("/", productController.getProducts);
+router.get("/", auth,allowRoles("ADMIN"),productController.getProducts);
 router.get("/:id", productController.getProductById);
 //admin only endpoints
 router.post(

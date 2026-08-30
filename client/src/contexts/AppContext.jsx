@@ -3,6 +3,8 @@ import { INITIAL_PRODUCTS, INITIAL_COUPONS } from '../data.js';
 import { login as authLogin } from "../services/authService";
 import * as categoryService from "../services/categoryService.js";
 import * as productService from "../services/productService.js";
+import * as publicProductService from "../services/public/productService.js";
+import * as publicCategoryService from "../services/public/categoryService.js";
 
 const AppContext = createContext(undefined);
 
@@ -158,6 +160,7 @@ const adjustShade = (hex, percent) => {
 export const AppProvider = ({ children }) => {
   // Load initial states from localStorage or defaults
   const [products, setProducts] = useState([]);
+  const [publicProducts, setPublicProducts] = useState([]);
 
   const [cart, setCart] = useState(() => {
     const stored = localStorage.getItem("ht_cart");
@@ -210,11 +213,30 @@ export const AppProvider = ({ children }) => {
         };
   });
   const [categories, setCategories] = useState([]);
-  useEffect(() => {
-    loadCategories();
-    loadProducts();
+  useEffect(() => {   
+    const currentUser = localStorage.getItem("ht_current_user");
+     const user = JSON.parse(currentUser);
+    if (user != null) {
+       if ((user.role) == 'ADMIN') {
+        loadProducts();
+        loadCategories();
+      }else {
+         loadPublicProducts();
+         loadPublicCategories();
+      }
+    }else {
+      loadPublicProducts();
+      loadPublicCategories();
+    }   
   }, []);
-
+ const loadPublicProducts = async (filters) => {
+    try {
+      const response = await publicProductService.getPublicProducts(filters);
+      setProducts(response.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const loadProducts = async (filters) => {
     try {
       const response = await productService.getProducts(filters);
@@ -226,6 +248,14 @@ export const AppProvider = ({ children }) => {
   const loadCategories = async (data) => {
     try {
       const response = await categoryService.getCategories(data);
+      setCategories(response.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const loadPublicCategories = async (data) => {
+    try {
+      const response = await publicCategoryService.getPublicCategories(data);
       setCategories(response.data.data);
     } catch (error) {
       console.error(error);
@@ -314,9 +344,9 @@ export const AppProvider = ({ children }) => {
   }, [themeConfig]);
 
   // Sync state with localStorage
-  useEffect(() => {
-    localStorage.setItem("ht_products", JSON.stringify(products));
-  }, [products]);
+  // useEffect(() => {
+  //   localStorage.setItem("ht_products", JSON.stringify(products));
+  // }, [products]);
 
   useEffect(() => {
     localStorage.setItem("ht_cart", JSON.stringify(cart));
@@ -925,6 +955,7 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider
       value={{
         products,
+        loadPublicProducts,
         cart,
         wishlist,
         orders,

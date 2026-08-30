@@ -3,8 +3,9 @@ const cors = require("cors");
 const { errorHandler } = require("./middleware/errorHandler");
 const path = require("path");
 
-const categoryRoutes = require("./routes/categoryRoutes");
-const productRoutes = require("./routes/productRoutes");
+const categoryRoutes = require("./routes/admin/categoryRoutes");
+const publicCategoryRoutes = require("./routes/public/categoryRoutes");
+const adminProductRoutes = require("./routes/admin/adminProductRoutes");
 const authRoutes = require("./routes/authRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const addressRoutes = require("./routes/addressRoutes");
@@ -14,6 +15,7 @@ const wishListRoutes = require("./routes/wishListRoutes");
 const couponRoutes = require("./routes/couponRoutes");
 const checkoutRoutes = require("./routes/checkout");
 const adminOrderRoutes = require("./routes/adminOrderRoutes");
+const publicProductRoutes = require("./routes/public/productRoutes");
 
 const app = express();
 
@@ -23,9 +25,17 @@ app.use(express.urlencoded({ extended: true }));
 //Common routes
 app.use("/api/auth", authRoutes);
 
-//Admin and public routes
-app.use("/api/category", categoryRoutes);
-app.use("/api/product", productRoutes);
+//admin routes
+app.use("/api/admin/product",adminProductRoutes);
+
+app.use("/api/product",publicProductRoutes);
+
+
+
+//
+app.use("/api/admin/category", categoryRoutes);
+app.use("/api/category", publicCategoryRoutes);
+
 
 app.use("/api/order", orderRoutes);
 app.use("/api/addresses", addressRoutes);

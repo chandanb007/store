@@ -1,12 +1,18 @@
 const productService = require("../services/productService");
 const fs = require("fs/promises");
-
-const productMediaService = require("../services/productMediaService")
 const {success} = require("../helpers/apiResponse");
-
+const isAdmin = true;
 const getProducts = async (req, res) => {
-  const products = await productService.getProducts(req.query);
-  return success(res, "Product list", products);
+  try {
+    const result = await productService.getProducts(req.query,isAdmin);
+    return success(res, "Products fetched successfully.",result, 200);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch products",
+    });
+  }
 };
 
 const createProduct = async (req, res, next) => {
@@ -51,7 +57,9 @@ const updateProduct = async (req, res) => {
 const inventoryHistory = async(req,res,next) => {
   const response = await productService.inventoryHistory(req.params.id);
   return success(res, "Inventory history fetched successfully.", response, 200);
+  
 }
+
 module.exports = {
   createProduct,
   getProducts,

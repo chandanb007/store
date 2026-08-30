@@ -10,7 +10,7 @@ export const ShopLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const activeCategories = (categories || []).filter(c => !(disabledCategories || []).includes(c));
+  const activeCategories = (categories.categories || []).filter(c => !(disabledCategories || []).includes(c));
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -139,10 +139,10 @@ export const ShopLayout = () => {
             >
               Shop
             </Link>
-            {activeCategories.slice(0, 4).map((cat) => (
+            {activeCategories.slice(0, 3).map((cat) => (
               <Link
-                key={cat.id}
-                to={`/shop?category=${encodeURIComponent(cat.id)}`}
+                key={cat.name}
+                to={`/shop?category=${encodeURIComponent(cat.name)}`}
                 className="text-stone-605 dark:text-stone-400 hover:text-gold-600 transition-colors capitalize animate-fade-in"
               >
                 {cat.name}

@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 export const ProductCard = ({ product }) => {
   const { addToCart, toggleWishlist, wishlist } = useApp();
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(product.images[0]);
+  const [selectedImage, setSelectedImage] = useState();
 
   const hasDiscount = !!product.discountPrice;
   const isWishlisted = wishlist.includes(product.id);
@@ -37,12 +37,12 @@ export const ProductCard = ({ product }) => {
 
         {/* Badges */}
         <div className="absolute top-4 left-4 z-10 flex flex-col gap-1.5 pointer-events-none">
-          {product.isBestSeller && (
+          {product?.isBestSeller && (
             <span className="px-3 py-1 text-[10px] uppercase tracking-wider font-semibold text-white bg-red-650 bg-red-800 rounded-full shadow-sm">
               Best Seller
             </span>
           )}
-          {product.isTrending && (
+          {product?.isTrending && (
             <span className="px-3 py-1 text-[10px] uppercase tracking-wider font-semibold text-white bg-blue-700 rounded-full shadow-sm">
               Trending
             </span>
@@ -55,10 +55,10 @@ export const ProductCard = ({ product }) => {
         </div>
 
         {/* Product Image Stage */}
-        <Link to={`/product/${product.id}`} className="block relative aspect-3/4 overflow-hidden bg-stone-50 dark:bg-stone-950">
+        <Link to={`/product/${product.slug}`} className="block relative aspect-3/4 overflow-hidden bg-stone-50 dark:bg-stone-950">
           <img
-            src={product.images[0]}
-            alt={product.name}
+            src={product.image}
+            alt={product.title}
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
           />
@@ -91,15 +91,15 @@ export const ProductCard = ({ product }) => {
         <div className="p-5 flex flex-col flex-grow">
           {/* Category */}
           <span className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-widest leading-none mb-1.5 block">
-            {product.category}
+            {product.category.name}
           </span>
 
           {/* Name */}
           <Link
-            to={`/product/${product.id}`}
+            to={`/product/${product.slug}`}
             className="font-serif text-lg font-medium text-stone-800 dark:text-stone-100 group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors line-clamp-1 mb-2"
           >
-            {product.name}
+            {product.title}
           </Link>
 
           {/* Rating */}
@@ -115,7 +115,7 @@ export const ProductCard = ({ product }) => {
               ))}
             </div>
             <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">
-              {product.rating} ({product.reviews.length})
+              {/* {product.rating} ({product?.reviews?.length}) */}
             </span>
           </div>
 
@@ -127,8 +127,8 @@ export const ProductCard = ({ product }) => {
                   ₹{product.price.toLocaleString('en-IN')}
                 </span>
               )}
-              <span className="text-lg font-bold text-stone-900 dark:text-gold-100 font-sans">
-                ₹{displayPrice.toLocaleString('en-IN')}
+              <span className="text-lg font-bold text-stone-900 dark:text-gold-100 font-sans text-xs">
+                ₹{product.minPrice} - ₹{product.maxPrice}
               </span>
             </div>
 
@@ -176,15 +176,15 @@ export const ProductCard = ({ product }) => {
                 <div className="p-6 bg-stone-50 dark:bg-stone-950 flex flex-col gap-4">
                   <div className="aspect-3/4 rounded-xl overflow-hidden bg-white dark:bg-stone-900 border border-stone-100 dark:border-stone-800">
                     <img
-                      src={selectedImage}
+                      src={product.image}
                       alt={product.name}
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  {product.images.length > 1 && (
+                  {product.productMedia.media.length > 1 && (
                     <div className="flex gap-2.5 overflow-x-auto py-1">
-                      {product.images.map((img, index) => (
+                      {product.productMedia.media.map((img, index) => (
                         <button
                           key={index}
                           onClick={() => setSelectedImage(img)}
@@ -192,7 +192,7 @@ export const ProductCard = ({ product }) => {
                             selectedImage === img ? 'border-gold-500' : 'border-transparent opacity-70 hover:opacity-100'
                           }`}
                         >
-                          <img src={img} alt="" className="w-full h-full object-cover" />
+                          <img src={img.storageKey} alt="" className="w-full h-full object-cover" />
                         </button>
                       ))}
                     </div>
@@ -203,7 +203,7 @@ export const ProductCard = ({ product }) => {
                 <div className="p-8 flex flex-col justify-between">
                   <div>
                     <span className="text-xs font-semibold text-gold-600 dark:text-gold-400 uppercase tracking-widest block mb-1">
-                      {product.category}
+                      {product.category.name}
                     </span>
                     <h2 className="font-serif text-2xl md:text-3xl font-medium text-stone-900 dark:text-stone-101 mb-3">
                       {product.name}
@@ -229,7 +229,7 @@ export const ProductCard = ({ product }) => {
                     {/* Price */}
                     <div className="mb-5 flex items-baseline gap-2.5">
                       <span className="text-3xl font-bold text-stone-900 dark:text-gold-100 font-sans">
-                        ₹{displayPrice.toLocaleString('en-IN')}
+                        ₹{product.maxPrice} - ₹{product.minPrice}
                       </span>
                       {hasDiscount && (
                         <span className="text-base text-stone-400 line-through">

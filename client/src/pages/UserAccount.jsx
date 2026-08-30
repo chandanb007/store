@@ -139,7 +139,7 @@ export const UserAccount = () => {
   );
 
   // Retrieve products in wishlist
-  const wishlistedProducts = products.filter((p) => wishlist.includes(p.id));
+  const wishlistedProducts = products?.data?.filter((p) => wishlist.includes(p.id));
 
   // If user is NOT authenticated, display Login / Register pages
   if (!currentUser) {

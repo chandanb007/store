@@ -2,22 +2,43 @@ const prisma = require("../config/prisma.js");
 const { formatCategoryResponse } = require("../helpers/categoryHelper.js");
 const AppError = require("../utils/appError");
 
-const getCategories = async (data) => {
+const getCategories = async (data,isAdmin) => {
   const page = Math.max(Number(data?.page) || 1, 1);
-  const pageSize = Math.min(Math.max(Number(data?.pageSize) || 5, 1), 100);
+  const pageSize = Math.min(Math.max(Number(data?.pageSize) || 5,1),100);
   const where = {};
+  if (data?.search?.trim()) {
+    const search = data.search.trim();
+    where.OR = [
+      {
+        name: {
+          contains: search,
+        },
+      },
+      {
+        description: {
+          contains: search,
+        },
+      },
+    ];  
+  }
+  if (data?.status) {
+    where.isEnabled = data.status === 'active' ? true : false;
+  }
    const total = await prisma.category.count({
     where,
   });
   const categories = await prisma.category.findMany({
+    where : where,
     select: {
       id: true,
       name: true,
       description: true,
       slug: true,
-      isEnabled: true,
-      deletedAt: true,
-      _count: {
+      ...(isAdmin && {
+        isEnabled: true,
+        deletedAt: true,
+      }),
+      _count: { 
         select: {
           products: true,
         },
@@ -36,10 +57,10 @@ const getCategories = async (data) => {
     hasNextPage: page < totalPages,
     hasPreviousPage: page > 1,
   };
- return {
-    categories: formatCategoryResponse(categories),
-    pagination,
-  };
+return {
+  categories: formatCategoryResponse(categories),
+  pagination,
+};
 };
 
 const createCategory = async (data) => {

@@ -11,10 +11,9 @@ const {
   productPriceSummary,
 } = require("../helpers/productVariantHelper.js");
 
-const getProducts = async (data) => {
+const getProducts = async (data,isAdmin) => {
   const page = Math.max(Number(data?.page) || 1, 1);
   const pageSize = Math.min(Math.max(Number(data?.pageSize) || 5, 1), 100);
-
   const where = {
     category: {
       deletedAt: null,
@@ -116,43 +115,111 @@ const getProducts = async (data) => {
    */
   const products = await prisma.product.findMany({
     where,
-
-    include: {
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description : true,
+      ...(isAdmin && {
+          isEnabled: true,
+          deletedAt: true,          
+        }
+      ),
       category: {
         select: {
           name: true,
         },
       },
-
       productMedia: {
         where: {
           owner: "PRODUCT",
         },
-        include: {
-          media: true,
+        select: {
+          productId :true,
+          variantId :true,
+          mediaId :true,
+          isPrimary :true,
+          sortOrder :true,
+          owner: true,
+          ...(isAdmin && {
+            createdAt :true,
+            updatedAt :true,
+          }),
+          media: {
+            select: {
+              id: true,
+              type: true,
+              storageKey: true,
+              url: true,
+              mimeType: true,
+              altText: true,              
+              ...(isAdmin && {
+                fileName : true,
+                fileSize : true,
+                createdAt :true,
+                updatedAt :true,
+              })
+            }
+          },
         },
       },
-
       variants: {
         where: whereVariant,
-        include: {
+        select: {
+          id: true,
+          productId : true,
+          sku : true,
+          price : true,
+          discountedPrice : true,
+          material  : true,
+          style: true,
+          ...(isAdmin && {
+            qty: true,
+            isEnabled: true,
+            createdAt: true,
+            updatedAt : true,
+          }),
           productMedia: {
-            include: {
-              media: true,
+            select: {
+              productId :true,
+              variantId :true,
+              mediaId :true,
+              isPrimary :true,
+              sortOrder :true,
+              owner: true,
+              ...(isAdmin && {
+                createdAt :true,
+                updatedAt :true,
+              }),
+              media: {
+                select: {
+                  id: true,
+                  type: true,
+                  storageKey: true,
+                  url: true,
+                  mimeType: true,
+                  altText: true,              
+                  ...(isAdmin && {
+                    fileName : true,
+                    fileSize : true,
+                    createdAt :true,
+                    updatedAt :true,
+                  })
+                }
+              },
             },
           },
-
           variantValues: {
             include: {
               value: {
-                include: {
+                select: {
                   variantType: true,
                 },
               },
             },
           },
         },
-      },
+        },        
     },
 
     skip: (page - 1) * pageSize,
@@ -222,16 +289,13 @@ const getProducts = async (data) => {
   });
 
   const totalPages = Math.ceil(total / pageSize);
-
   return {
-    data: formattedProducts,
-
+    products : formattedProducts,
     pagination: {
       page,
       pageSize,
       total,
       totalPages,
-
       hasNextPage: page < totalPages,
       hasPreviousPage: page > 1,
     },

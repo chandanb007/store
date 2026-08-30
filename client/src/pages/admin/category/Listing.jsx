@@ -16,20 +16,21 @@ import Filters from "../../common/Filters";
 const Listing = ({categories,handleSaveRename,updatedCatName,setUpdatedCatName,updatedCatDes,setEditingCatId,toggleCategoryDisabled,handleStartRename,handleConfirmDelete,handleExecuteDelete,editingCatId,handleRestoreCategory,loadCategories,setPagination,filters,filterConfig,handleFilterChange,handleClearFilters,handleApplyFilters,pagination,handlePageChange}) => {
 
     return (
-        <>
+       <div className="lg:col-span-8 space-y-4">
         {/* Categories Main Table/Grid */}
+            <Filters
+            filters={filterConfig}
+            values={filters}
+            onChange={handleFilterChange}
+            onApply={handleApplyFilters}
+            onClear={handleClearFilters}>                    
+            </Filters>
         <div className="lg:col-span-8 bg-white dark:bg-stone-900/60 backdrop-blur-md border border-stone-200/40 dark:border-stone-800/30 p-6 rounded-2xl shadow-xs hover:shadow-md transition-all duration-300 space-y-4">
-           <Filters
-        filters={filterConfig}
-        values={filters}
-        onChange={handleFilterChange}
-        onApply={handleApplyFilters}
-        onClear={handleClearFilters}>                    
-        </Filters>
+           
                 <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-850 pb-3">
             <h3 className="font-serif text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
               <Layers className="w-5 h-5 text-gold-500" />
-              Active Catalog Layout ({categories.length})
+              Active Catalog Layout
             </h3>
           </div>
 
@@ -176,12 +177,15 @@ const Listing = ({categories,handleSaveRename,updatedCatName,setUpdatedCatName,u
                 
               );
             })}
-            <Pagination 
-            currentPage={categories?.pagination?.page}
-          totalPages={categories?.pagination?.totalPages}
-          onPageChange={handlePageChange}
-          totalItems={categories?.pagination?.total}
-          pageSize={categories?.pagination?.pageSize}     />
+            {categories?.categories?.length === 0 ?  <label className="py-3 px-4 flex items-center gap-3 text-xs">No product found!!</label> : ""}
+            {categories?.categories && categories?.categories?.length > 0 ?
+              <Pagination
+                currentPage={categories?.pagination?.page}
+                totalPages={categories?.pagination?.totalPages}
+                onPageChange={handlePageChange}
+                totalItems={categories?.pagination?.total}
+                pageSize={categories?.pagination?.pageSize} />
+              : ""}
             {categories?.categories?.length === 0 && (
               <div className="py-8 text-center text-xs text-stone-400">
                 No active categories in state. Click 'Create Category' to begin
@@ -190,7 +194,7 @@ const Listing = ({categories,handleSaveRename,updatedCatName,setUpdatedCatName,u
             )}
           </div>
         </div>
-        </>
+        </div>
     )
 }
 

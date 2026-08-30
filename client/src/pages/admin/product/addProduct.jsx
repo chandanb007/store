@@ -218,7 +218,7 @@ const AddProductTemp = ({
                 className="w-full px-3.5 py-3 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-950 dark:text-stone-100 focus:outline-none"
               >
                 <option value="">Select Category</option>
-                {categories.map((c) => (
+                {categories?.categories?.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
                   </option>

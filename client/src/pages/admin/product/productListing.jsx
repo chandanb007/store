@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 
 const ProductListing = ({ handleOpenEdit,products,deleteProduct,restoreProduct,loadProducts,filters }) => {
-
   const handleDeleteProduct = (id) => {
     deleteProduct(id);
     loadProducts(filters);
@@ -40,16 +39,16 @@ const ProductListing = ({ handleOpenEdit,products,deleteProduct,restoreProduct,l
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-105 dark:divide-stone-850/40 text-stone-700 dark:text-stone-300 font-medium whitespace-nowrap">
-            {products?.data.length == 0 ?
+            {products.products?.length == 0 ?
                  <tr
                 key="none"
-                className={`hover:bg-[#FDFCF8] dark:hover:bg-stone-950/10 transition-colors justify-center`}
+                className={`hover:bg-[#FDFCF8] dark:hover:bg-stone-950/10 transition-colors`}
               >
-                <td className="font-serif font-bold text-[#2D2926] dark:text-stone-100 truncate capitalize py-3 px-4 flex items-center gap-3" colSpan={7}>No product found!!</td>
+                <td className="py-3 px-4 flex items-center gap-3 text" colSpan={7}>No product found!!</td>
 
               </tr>
             : ""}
-            {products?.data.length > 0 && products?.data?.map((p) => (
+            {products.products?.length > 0 && products.products?.map((p) => (
               <tr
                 key={p.id}
                 className={`hover:bg-[#FDFCF8] dark:hover:bg-stone-950/10 transition-colors`}
@@ -112,13 +111,15 @@ const ProductListing = ({ handleOpenEdit,products,deleteProduct,restoreProduct,l
                   </span>
                 </td>
                  <td className="py-3 px-4">
-                  <span className={`px-2 py-0.5 rounded-full bg-${p.isEnabled==true ? 'yellow' : 'red'}-100 dark:bg-${p.isEnabled==true? 'green' : 'red'}-955/20 text-[10px] font-bold uppercase tracking-wider text-${p.isEnabled==true? 'green' : 'red'}-700 dark:text-${p.isEnabled==true? 'green' : 'red'}-200 flex items-center gap-1 w-fit border border-[#D4AF37]/20`}>
-                    {p.isEnabled == true ? 
-                      <Check className="w-3 h-3 text-gold-600"/>
-                     : <X className="w-3 h-3 text-gold-600" /> 
-                  }                   
-                    {p.isEnabled == true ? 'Active' : 'Inactive'}
-                  </span>
+                  {p.isEnabled == true ?
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-[#10b981]/40 dark:border-emerald-800/20">
+                      Active / Visible
+                    </span>
+                    : 
+                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200/40 dark:border-amber-800/30">
+                                Disabled / Hidden
+                     </span>
+                    }
                 </td>
                 {/* edit or delete click actions */}
                 <td className="py-3 px-4 text-center">
