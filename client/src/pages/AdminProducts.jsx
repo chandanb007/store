@@ -132,7 +132,7 @@ export const AdminProducts = () => {
         mediaId: media.mediaId,
         isPrimary: media.isPrimary,
         isExisting: true,
-        url: apiUrl + media.media.url,
+        url: media.media.url,
       }));
       return {
         id: variant.id,
@@ -152,7 +152,7 @@ export const AdminProducts = () => {
         mediaId: media.mediaId,
         isPrimary: media.isPrimary,
         isExisting: true,
-        url: apiUrl + media.media.url,
+        url: media.media.url,
       };
     });
     const primaryImage = primaryImages.find((image) => image.isPrimary);

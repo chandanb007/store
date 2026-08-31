@@ -44,7 +44,7 @@ export const ProductListing = () => {
     Math.max(Number(searchParams.get("page")) || 1, 1)
   );
 
-  const itemsPerPage = 4;
+  const itemsPerPage = 6;
 
   // --------------------------------------------------
   // Helpers

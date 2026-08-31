@@ -12,11 +12,11 @@ export const Cart = () => {
   const [activeCoupon, setActiveCoupon] = useState('');
 
   const cartItems = cart;
+ 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + (item.product.discountPrice || item.product.price) * item.quantity,
+    (sum, item) => sum + (item.selectedVariant.discountPrice || item.selectedVariant.price) * item.quantity,
     0
   );
-
   // Apply Coupon Logic
   const handleApplyCoupon = (e) => {
     e.preventDefault();
@@ -100,12 +100,12 @@ export const Cart = () => {
           <div className="bg-white dark:bg-stone-900 border border-stone-150/45 dark:border-stone-850 p-6 rounded-2xl shadow-sm space-y-6">
             {cartItems.map((item, index) => {
               const p = item.product;
-              const price = p.discountPrice || p.price;
-              const hasDiscount = !!p.discountPrice;
+              const price = item.selectedVariant.discountPrice || item.selectedVariant.price;
+              const hasDiscount = !!item.selectedVariant.discountPrice;
 
               return (
                 <div
-                  key={`${p.id}-${item.selectedVariant}`}
+                  key={`${p.id}-${item.selectedVariant.id}`}
                   className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
                     index > 0 ? 'border-t border-stone-100 dark:border-stone-800 pt-6' : ''
                   }`}
@@ -113,26 +113,26 @@ export const Cart = () => {
                   {/* Info Block */}
                   <div className="flex gap-4">
                     <div className="w-20 h-20 rounded-xl overflow-hidden bg-stone-50 border border-stone-100 dark:border-stone-800 flex-shrink-0">
-                      <img src={p.images[0]} alt={p.name} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                      <img src={p.image} alt={p.title} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <span className="text-[9px] font-bold text-gold-600 uppercase tracking-widest block mb-0.5">
-                        {p.category}
+                        {p.category.name}
                       </span>
                       <Link
                         to={`/product/${p.id}`}
                         className="font-serif font-bold text-stone-900 dark:text-stone-105 text-sm hover:text-gold-600 dark:hover:text-gold-400 transition-colors line-clamp-1"
                       >
-                        {p.name}
+                        {p.title}
                       </Link>
                       <span className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider block mt-0.5">
-                        Variant: <span className="text-stone-600 dark:text-stone-300 capitalize">{item.selectedVariant || 'Standard'}</span>
+                        Variant: <span className="text-stone-600 dark:text-stone-300 capitalize">{item.selectedVariant.sku || 'Standard'}</span>
                       </span>
                       
                       {/* Price tag */}
                       <div className="flex items-center gap-2 mt-2 leading-none">
                         <span className="font-bold text-xs text-stone-900 dark:text-gold-200">
-                          ₹{price.toLocaleString('en-IN')}
+                          ₹{price?.toLocaleString('en-IN')}
                         </span>
                         {hasDiscount && (
                           <span className="text-[10px] text-stone-400 line-through">

@@ -5,6 +5,7 @@ import * as categoryService from "../services/categoryService.js";
 import * as productService from "../services/productService.js";
 import * as publicProductService from "../services/public/productService.js";
 import * as publicCategoryService from "../services/public/categoryService.js";
+import * as publicCartService from "../services/public/cartService.js";
 
 const AppContext = createContext(undefined);
 
@@ -564,32 +565,29 @@ export const AppProvider = ({ children }) => {
   };
 
   // Cart Actions
-  const addToCart = (product, quantity, variant) => {
+  const addToCart =  async(product, quantity, variant) => {
     const selectedVariant = variant || "Standard";
-
     // Check stock limit
-    if (product.inventory < quantity) {
+    if (selectedVariant.qty < quantity) {
       addNotification(
         "error",
-        `Only ${product.inventory} items available in stock.`,
+        `Only ${selectedVariant.qty} items available in stock.`,
       );
       return;
     }
-
     setCart((prev) => {
       const existingIndex = prev.findIndex(
         (item) =>
-          item.product.id === product.id &&
-          item.selectedVariant === selectedVariant,
+          item.selectedVariant.id === selectedVariant.id
       );
 
       if (existingIndex > -1) {
         const item = prev[existingIndex];
         const newQty = item.quantity + quantity;
-        if (newQty > product.inventory) {
+        if (newQty > selectedVariant.qty) {
           addNotification(
             "error",
-            `Maximum available stock reached (${product.inventory} items).`,
+            `Maximum available stock reached (${selectedVariant.qty} items).`,
           );
           return prev;
         }
@@ -597,17 +595,34 @@ export const AppProvider = ({ children }) => {
         updated[existingIndex] = { ...item, quantity: newQty };
         addNotification(
           "success",
-          `Updated "${product.name}" quantity to ${newQty} in cart.`,
+          `Updated "${product.title}" quantity to ${newQty} in cart.`,
         );
         return updated;
       } else {
         addNotification(
           "success",
-          `Added "${product.name}" (${selectedVariant}) to cart.`,
+          `Added "${product.title}" (${selectedVariant.sku}) to cart.`,
         );
         return [...prev, { product, quantity, selectedVariant }];
       }
     });
+      //Only login user will have a cart object into the database for guest user will only store data into localstorage
+      if (currentUser) {
+        const cartData = {
+          cartItems: [{
+            variantId: selectedVariant.id,
+            qty: quantity
+          }]
+        }
+        try {
+          const response = await publicCartService.addToCart(cartData);
+          if (response.status == 200) {
+            console.log(response.data.data);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
   };
 
   const removeFromCart = (productId, variant) => {

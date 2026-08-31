@@ -7,7 +7,7 @@ const { validateVariantInventory } = require("../helpers/inventoryHelper.js");
 const createCart = async (cartData) => {
   const userId = Number(cartData.userId);
   const { cartItems } = cartData;
-
+  console.log(cartItems)
   return await prisma.$transaction(async (tx) => {
 
     let cart = await tx.cart.findUnique({

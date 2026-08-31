@@ -213,6 +213,7 @@ const getProducts = async (data,isAdmin) => {
             include: {
               value: {
                 select: {
+                  value :true,
                   variantType: true,
                 },
               },
@@ -277,6 +278,13 @@ const getProducts = async (data,isAdmin) => {
 
     return {
       ...product,
+       productMedia: product.productMedia.map(pm => ({
+        ...pm,
+        media: {
+            ...pm.media,
+            url: buildMediaUrl(pm.media?.url)
+        }
+    })),
 
       image: primaryMedia
         ? buildMediaUrl(primaryMedia.media.url)
@@ -285,6 +293,17 @@ const getProducts = async (data,isAdmin) => {
       ...priceMap[product.id],
 
       totalStock: stockMap[product.id] || 0,
+      variants: product.variants.map(variant => ({
+        ...variant,
+
+        productMedia: variant.productMedia.map(pm => ({
+            ...pm,
+            media: {
+                ...pm.media,
+                url: buildMediaUrl(pm.media?.url)
+            }
+        }))
+    }))
     };
   });
 
