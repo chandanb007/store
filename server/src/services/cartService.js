@@ -104,7 +104,8 @@ const clearCart = async (userId) => {
     message: "Cart cleared successfully.",
   };
 };
-const updateItem = async (itemId, userId, data) => {
+const updateItem = async (itemId,userId,data) => {
+  console.log(itemId,userId)
   const cartItem = await prisma.cartItem.findFirst({
     where: {
       id: Number(itemId),

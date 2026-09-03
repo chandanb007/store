@@ -173,8 +173,8 @@ const getProducts = async (data,isAdmin) => {
           discountedPrice : true,
           material  : true,
           style: true,
+           qty: true,
           ...(isAdmin && {
-            qty: true,
             isEnabled: true,
             createdAt: true,
             updatedAt : true,

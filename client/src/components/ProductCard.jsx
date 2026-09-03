@@ -626,24 +626,6 @@ const validateQty = (e) => {
       if (Number(variant.qty || 0) <= 0) {
         return;
       }
-      const cart = {
-        items: [
-          {
-              "qty": quantity,
-                "unitPrice": variant.price,
-                "totalPrice": variant.price*quantity,
-                "product": {
-                    "id": product.id,
-                    "title": product.title,
-                },
-                "variant": {
-                    "id": variant.id,
-                    "sku": variant.sku
-                }
-          }
-        ]
-      }
-      
       addToCart(product, quantity, variant);
       return;
     }

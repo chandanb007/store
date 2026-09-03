@@ -163,11 +163,14 @@ export const AppProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [publicProducts, setPublicProducts] = useState([]);
 
-  const [cart, setCart] = useState(() => {
-    const stored = localStorage.getItem("ht_cart");
+  const [gustCart, setGuestCart] = useState(() => {
+    const stored = localStorage.getItem("guest_cart");
     return stored ? JSON.parse(stored) : [];
   });
-
+  const [cart, setCart] = useState(() => {
+    const stored = localStorage.getItem("user_cart");
+    return stored ? JSON.parse(stored) : [];
+  });
   const [wishlist, setWishlist] = useState(() => {
     const stored = localStorage.getItem("ht_wishlist");
     return stored ? JSON.parse(stored) : SEED_USERS[1].wishlist || [];
@@ -350,9 +353,13 @@ export const AppProvider = ({ children }) => {
   // }, [products]);
 
   useEffect(() => {
-    localStorage.setItem("ht_cart", JSON.stringify(cart));
-  }, [cart]);
-
+    console.log(cart)
+    localStorage.setItem("user_cart", JSON.stringify(cart));
+  },[cart]);
+  
+  useEffect(() => {
+    localStorage.setItem("guest_cart", JSON.stringify(gustCart));
+  }, [gustCart]);
   useEffect(() => {
     localStorage.setItem("ht_wishlist", JSON.stringify(wishlist));
   }, [wishlist]);
@@ -565,49 +572,22 @@ export const AppProvider = ({ children }) => {
   };
 
   // Cart Actions
+  const getUserCart = async () => {
+    try {
+          const response = await publicCartService.getUserCart();
+      if (response.status == 200) {
+        debugger;
+            setGuestCart([])
+            setCart([response.data.data]);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+  }
   const addToCart =  async(product, quantity, variant) => {
     const selectedVariant = variant || "Standard";
-    // Check stock limit
-    if (selectedVariant.qty < quantity) {
-      addNotification(
-        "error",
-        `Only ${selectedVariant.qty} items available in stock.`,
-      );
-      return;
-    }
-    setCart((prev) => {
-      const existingIndex = prev.findIndex(
-        (item) =>
-          item.selectedVariant.id === selectedVariant.id
-      );
-
-      if (existingIndex > -1) {
-        const item = prev[existingIndex];
-        const newQty = item.quantity + quantity;
-        if (newQty > selectedVariant.qty) {
-          addNotification(
-            "error",
-            `Maximum available stock reached (${selectedVariant.qty} items).`,
-          );
-          return prev;
-        }
-        const updated = [...prev];
-        updated[existingIndex] = { ...item, quantity: newQty };
-        addNotification(
-          "success",
-          `Updated "${product.title}" quantity to ${newQty} in cart.`,
-        );
-        return updated;
-      } else {
-        addNotification(
-          "success",
-          `Added "${product.title}" (${selectedVariant.sku}) to cart.`,
-        );
-        return [...prev, { product, quantity, selectedVariant }];
-      }
-    });
-      //Only login user will have a cart object into the database for guest user will only store data into localstorage
-      if (currentUser) {
+        //Only login user will have a cart object into the database for guest user will only store data into localstorage
+    if (currentUser) {
         const cartData = {
           cartItems: [{
             variantId: selectedVariant.id,
@@ -616,14 +596,54 @@ export const AppProvider = ({ children }) => {
         }
         try {
           const response = await publicCartService.addToCart(cartData);
-          if (response.status == 200) {
-            console.log(response.data.data);
+          if (response.status == 201) {
+            setGuestCart([])
+            setCart([response.data.data]);
           }
         } catch (error) {
           console.log(error);
         }
+      } else {
+        if (selectedVariant.qty < quantity) {
+          addNotification(
+            "error",
+            `Only ${selectedVariant.qty} items available in stock.`,
+          );
+          return;
+        }
+        setGuestCart((prev) => {
+          const existingIndex = prev.findIndex(
+            (item) =>
+              item.selectedVariant.id === selectedVariant.id
+          );
+
+          if (existingIndex > -1) {
+            const item = prev[existingIndex];
+            const newQty = item.quantity + quantity;
+            if (newQty > selectedVariant.qty) {
+              addNotification(
+                "error",
+                `Maximum available stock reached (${selectedVariant.qty} items).`,
+              );
+              return prev;
+            }
+            const updated = [...prev];
+            updated[existingIndex] = { ...item, quantity: newQty };
+            addNotification(
+              "success",
+              `Updated "${product.title}" quantity to ${newQty} in cart.`,
+            );
+            return updated;
+          } else {
+            addNotification(
+              "success",
+              `Added "${product.title}" (${selectedVariant.sku}) to cart.`,
+            );
+            return [...prev, { product, quantity, selectedVariant }];
+          }
+        });
       }
-  };
+   };
 
   const removeFromCart = (productId, variant) => {
     const selectedVariant = variant || "Standard";
@@ -638,24 +658,33 @@ export const AppProvider = ({ children }) => {
     );
     addNotification("info", `Removed item from cart.`);
   };
-
-  const updateCartQty = (productId, quantity, variant) => {
+  const removeFromUserCart = async (itemId) => {
+    try {
+      const response = await publicCartService.removeItem(itemId); 
+      if (response.status == 200) {
+        setCart([response.data.data]);
+        addNotification("info", `Removed item from cart.`);
+      }
+      }catch (error) {
+      console.log(error);
+    }
+  }
+  const updateGustCartQty = (productId,quantity,variant) => {
     const selectedVariant = variant || "Standard";
     if (quantity <= 0) {
       removeFromCart(productId, selectedVariant);
       return;
     }
-
-    setCart((prev) =>
+    setGuestCart((prev) =>
       prev.map((item) => {
         if (
           item.product.id === productId &&
           item.selectedVariant === selectedVariant
         ) {
-          if (quantity > item.product.inventory) {
+          if (quantity > selectedVariant.qty) {
             addNotification(
               "error",
-              `Only ${item.product.inventory} items available in stock.`,
+              `Only ${selectedVariant.qty} items available in stock.`,
             );
             return item;
           }
@@ -665,10 +694,34 @@ export const AppProvider = ({ children }) => {
       }),
     );
   };
+  const updateUserCartQty = async (variantId,qty) => {
+    try {
+      const response = await publicCartService.updateCartItemQty(variantId,qty); 
+      if (response.status == 200) {
+        setCart([response.data.data]);
+      }
+      }catch (error) {
+      console.log(error);
+    }
+  }
 
-  const clearCart = () => {
-    setCart([]);
-  };
+  const clearCart = async() => {
+    if (currentUser) {
+      try {
+        const response = await publicCartService.deleteCart(); 
+        if (response.status == 200) {
+          setCart([]);
+          addNotification("info",response.data.message);
+        }
+      } catch (error) {
+
+      }
+      
+    } else {
+      setGuestCart([]); 
+       addNotification("info","Cart cleared successfully");
+    }
+      };
 
   // Wishlist Actions
   const toggleWishlist = (productId) => {
@@ -817,6 +870,7 @@ export const AppProvider = ({ children }) => {
         setCurrentUser(foundUser);
         localStorage.setItem("token", response.data.data.token);
         //setWishlist(foundUser.wishlist || []);
+        await getUserCart();
         addNotification("success", `Welcome back, ${foundUser.firstName}!`);
         return { success: true };
       }
@@ -972,6 +1026,7 @@ export const AppProvider = ({ children }) => {
         products,
         loadPublicProducts,
         cart,
+        gustCart,
         wishlist,
         orders,
         coupons,
@@ -996,7 +1051,9 @@ export const AppProvider = ({ children }) => {
         addReview,
         addToCart,
         removeFromCart,
-        updateCartQty,
+        updateGustCartQty,
+        updateUserCartQty,
+        removeFromUserCart,
         clearCart,
         toggleWishlist,
         placeOrder,

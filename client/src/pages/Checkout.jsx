@@ -5,7 +5,7 @@ import { ArrowLeft, CreditCard, ShieldCheck, ShoppingBag, Sparkles, Truck, Check
 import { motion, AnimatePresence } from 'motion/react';
 
 export const Checkout = () => {
-  const { cart, clearCart, addNotification } = useApp();
+  const { cart, clearCart, addNotification,currentUser} = useApp();
   const navigate = useNavigate();
 
   // If cart is empty, redirect user back to shop
@@ -38,9 +38,12 @@ export const Checkout = () => {
   const [generatedOrderId, setGeneratedOrderId] = useState('');
 
   // Calculations
-  const cartSubtotal = cart.reduce((sum, item) => {
-    const price = item.product.discountPrice || item.product.price;
+  const cartSubtotal = !currentUser ? gustCart.reduce((sum, item) => {
+    const price = item.selectedVariant.discountPrice || item.selectedVariant.price;
     return sum + (price * item.quantity);
+  }, 0) : cart[0]?.items.reduce((sum, item) => {
+    const price = item.variant.discountPrice || item.variant.price;
+    return sum + (price * item.qty);
   }, 0);
 
   const deliveryCost = formState.deliveryMethod === 'express' ? 350 : 150;
@@ -372,6 +375,11 @@ export const Checkout = () => {
             {cart.length > 0 ? (
               <div className="divide-y divide-stone-100 dark:divide-stone-850/60 max-h-80 overflow-y-auto mb-6 pr-2">
                 {cart.map((item) => {
+                  if (currentUser) {
+
+                  } else {
+                    
+                  }
                   const price = item.product.discountPrice || item.product.price;
                   return (
                     <div key={item.product.id} className="py-3 flex gap-3.5 text-xs">
