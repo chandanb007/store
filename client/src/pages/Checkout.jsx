@@ -5,7 +5,8 @@ import { ArrowLeft, CreditCard, ShieldCheck, ShoppingBag, Sparkles, Truck, Check
 import { motion, AnimatePresence } from 'motion/react';
 
 export const Checkout = () => {
-  const { cart, clearCart, addNotification,currentUser} = useApp();
+  const {  cart,
+    gustCart, clearCart, addNotification,currentUser} = useApp();
   const navigate = useNavigate();
 
   // If cart is empty, redirect user back to shop
@@ -380,11 +381,14 @@ export const Checkout = () => {
                   } else {
                     
                   }
-                  const price = item.product.discountPrice || item.product.price;
+                  const price = item?.variant?.price ?? item?.product?.price ?? 0;
+                   const image = currentUser
+        ? item?.variant?.image ?? item?.product?.image ?? ""
+        : item?.product?.image ?? "";
                   return (
                     <div key={item.product.id} className="py-3 flex gap-3.5 text-xs">
                       <div className="w-12 h-16 rounded-lg overflow-hidden border border-stone-100 dark:border-stone-800 flex-shrink-0 bg-stone-50">
-                        <img src={item.product.images[0]} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                        <img src={image} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-serif font-bold text-[#2D2926] dark:text-stone-100 truncate">{item.product.name}</p>

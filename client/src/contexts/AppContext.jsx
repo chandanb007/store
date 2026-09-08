@@ -644,7 +644,36 @@ export const AppProvider = ({ children }) => {
         });
       }
    };
-
+  const applyCoupon = async (code) => {
+      try {
+        const response = await publicCartService.applyCoupon(code);
+        if (response.status == 200) {
+            setCart([response.data.data]);
+            return true; 
+          } else {
+            addNotification("info", response.data?.message);
+            return false;
+            }
+      } catch (error) {
+          addNotification("info","Coupon is invalid or not found, try again with other code");
+          return false;
+        }
+  }
+  const removeCoupon = async () => {
+    try {
+        const response = await publicCartService.removeCoupon();
+        if (response.status == 200) {
+            setCart([response.data.data]);
+            return true; 
+          } else {
+            addNotification("info", response.data?.message);
+            return false;
+            }
+      } catch (error) {
+          addNotification("info","Coupon is invalid or not found, try again with other code");
+          return false;
+        }
+  }
   const removeFromCart = (productId, variant) => {
     const selectedVariant = variant || "Standard";
     setCart((prev) =>
@@ -1068,7 +1097,9 @@ export const AppProvider = ({ children }) => {
         addNotification,
         removeNotification,
         toggleTheme,
-        loadProducts
+        loadProducts,
+        applyCoupon,
+        removeCoupon
       }}
     >
       {children}

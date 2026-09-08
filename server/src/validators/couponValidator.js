@@ -7,7 +7,7 @@ const validateCoupon = async (db,code,subtotal) => {
         where: { code }
     });
     if (!coupon) {
-        throw new AppError("Coupon not found.", 404);
+        throw new AppError("Coupon not found.", 400);
     }
     if (!coupon.isEnabled) {
         throw new AppError("Coupon is disabled.", 400);

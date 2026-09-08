@@ -20,6 +20,8 @@ export const Cart = () => {
     currentUser,
     removeFromUserCart,
     clearCart,
+    applyCoupon,
+    removeCoupon
   } = useApp();
 
   const navigate = useNavigate();
@@ -147,30 +149,13 @@ export const Cart = () => {
    */
 
   const discountAmount = useMemo(() => {
-    if (!matchedCoupon) {
+    if (!couponCode) {
       return 0;
     }
 
     // Don't apply coupon if minimum order is no longer met.
-    if (
-      matchedCoupon.minOrder &&
-      subtotal < Number(matchedCoupon.minOrder)
-    ) {
-      return 0;
-    }
-
-    let discount = 0;
-
-    if (matchedCoupon.type === "percentage") {
-      discount =
-        (subtotal * Number(matchedCoupon.value)) / 100;
-    } else {
-      discount = Number(matchedCoupon.value) || 0;
-    }
-
-    // Never allow discount to exceed subtotal.
-    return Math.min(discount, subtotal);
-  }, [matchedCoupon, subtotal]);
+     
+  }, [couponCode, subtotal]);
 
   /*
    * ----------------------------------------------------
@@ -178,7 +163,7 @@ export const Cart = () => {
    * ----------------------------------------------------
    */
 
-  const shippingCharge = currentUser ? cart[0]?.summary.shipping : subtotal > 5000 ? 0 : 250;
+  const shippingCharge = currentUser ? cart[0]?.summary.shipping : subtotal > 5000 ? 0 : 100;
 
   /*
    * ----------------------------------------------------
@@ -188,7 +173,7 @@ export const Cart = () => {
 
   const orderTotal = Math.max(
     0,
-    subtotal - discountAmount + shippingCharge
+    subtotal - (cart[0]?.summary?.discount > 0 ? cart[0].summary.discount : 0) + shippingCharge
   );
 
   /*
@@ -197,7 +182,7 @@ export const Cart = () => {
    * ----------------------------------------------------
    */
 
-  const handleApplyCoupon = (e) => {
+  const handleApplyCoupon = async (e) => {
     e.preventDefault();
 
     const code = couponCode.trim().toUpperCase();
@@ -205,40 +190,50 @@ export const Cart = () => {
     if (!code) {
       return;
     }
-
-    const matched = coupons.find(
-      (coupon) =>
-        coupon?.code?.toUpperCase() === code &&
-        coupon?.active
-    );
-
-    if (!matched) {
-      addNotification(
-        "error",
-        "Coupon code is invalid or has expired."
+    
+    const couponApplied = await applyCoupon(code); 
+    if (couponApplied) {
+      setActiveCoupon(couponApplied);
+      setCouponCode("");
+        addNotification(
+        "success",
+        `Coupon applied`
       );
-      return;
     }
 
-    const minimumOrder = Number(matched.minOrder ?? 0);
+    // const matched = coupons.find(
+    //   (coupon) =>
+    //     coupon?.code?.toUpperCase() === code &&
+    //     coupon?.active
+    // );
 
-    if (minimumOrder > 0 && subtotal < minimumOrder) {
-      addNotification(
-        "error",
-        `This coupon requires a minimum purchase of ₹${minimumOrder.toLocaleString(
-          "en-IN"
-        )}.`
-      );
-      return;
-    }
+    // if (!matched) {
+    //   addNotification(
+    //     "error",
+    //     "Coupon code is invalid or has expired."
+    //   );
+    //   return;
+    // }
 
-    setActiveCoupon(code);
-    setCouponCode("");
+    // const minimumOrder = Number(matched.minOrder ?? 0);
 
-    addNotification(
-      "success",
-      `Voucher applied: ${matched.description}`
-    );
+    // if (minimumOrder > 0 && subtotal < minimumOrder) {
+    //   addNotification(
+    //     "error",
+    //     `This coupon requires a minimum purchase of ₹${minimumOrder.toLocaleString(
+    //       "en-IN"
+    //     )}.`
+    //   );
+    //   return;
+    // }
+
+    // setActiveCoupon(code);
+    // setCouponCode("");
+
+    // addNotification(
+    //   "success",
+    //   `Voucher applied: ${matched.description}`
+    // );
   };
 
   /*
@@ -303,6 +298,17 @@ export const Cart = () => {
 
     navigate("/checkout");
   };
+  const handleCouponRemove = async () => {
+    const response = await removeCoupon();
+    if (response) {
+       setActiveCoupon();
+      setCouponCode("");
+        addNotification(
+        "success",
+        `Coupon removed`
+      );
+    }
+  }
 
   /*
    * ----------------------------------------------------
@@ -552,14 +558,14 @@ export const Cart = () => {
                 </span>
               </div>
 
-              {discountAmount > 0 && (
+              {cart[0]?.summary?.discount > 0 && (
                 <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
-                  <span>
-                    Loyal Ticket discount ({activeCoupon})
+                  <span> 
+                    Discount ({cart[0]?.summary?.coupon?.code})  <Trash2 onClick={handleCouponRemove} className="h-3.5" ></Trash2>
                   </span>
-
+                  
                   <span>
-                    -₹{discountAmount.toLocaleString("en-IN")}
+                    -₹{cart[0]?.summary?.discount.toLocaleString("en-IN")} 
                   </span>
                 </div>
             )}
@@ -573,9 +579,8 @@ export const Cart = () => {
                     : `₹${shippingCharge.toLocaleString("en-IN")}`}
                 </span>
               </div>
-
               <div className="pt-4 border-t border-stone-200 dark:border-stone-800 flex justify-between text-stone-900 dark:text-stone-100 text-base font-bold">
-                <span>Honorary Total</span>
+                <span>Grand Total</span>
 
                 <span className="text-lg text-gold-600 dark:text-gold-200">
                   ₹{orderTotal.toLocaleString("en-IN")}
@@ -624,7 +629,7 @@ export const Cart = () => {
               </button>
             </form>
 
-            <div className="space-y-1.5 pt-2 font-sans">
+            {/* <div className="space-y-1.5 pt-2 font-sans">
 
               <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider">
                 Available Codes
@@ -656,7 +661,7 @@ export const Cart = () => {
                 </li>
               </ul>
 
-            </div>
+            </div> */}
           </div>
 
         </div>

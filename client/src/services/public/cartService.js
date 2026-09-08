@@ -16,3 +16,9 @@ export const removeItem = (itemId) => {
 export const deleteCart = () => {
   return api.delete(`/${resourceBaseUrl}`);
 }
+export const applyCoupon = (code) => {
+  return api.post(`/${resourceBaseUrl}/coupon`,{code : code});
+}
+export const removeCoupon = (code) => {
+  return api.delete(`/${resourceBaseUrl}/coupon`);
+}
