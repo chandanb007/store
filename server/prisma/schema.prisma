@@ -35,15 +35,26 @@ model User {
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 }
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
 model Media {
-  id           Int            @id @default(autoincrement())
-  fileName     String
-  filePath     String
-  mimeType     String?
-  fileSize     Int?
-  altText      String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id          Int       @id @default(autoincrement())
+  type        MediaType @default(IMAGE)
+
+  fileName    String
+  storageKey  String
+  url         String
+
+  mimeType    String?
+  fileSize    Int?
+  altText     String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
   productMedia ProductMedia[]
 }
 
@@ -78,22 +89,28 @@ model Product {
   @@index([slug])
 }
 
-model ProductMedia {
-  id        Int      @id @default(autoincrement())
-  productId Int
-  mediaId   Int
-  isPrimary Boolean  @default(false)
-  sortOrder Int      @default(0)
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-
-  @@unique([productId, mediaId])
-  @@index([productId])
-  @@index([mediaId])
+enum MediaOwner {
+  PRODUCT
+  VARIANT
 }
 
+model ProductMedia {
+  id         Int @id @default(autoincrement())
 
+  productId  Int
+  variantId  Int?
+  mediaId    Int
+
+  isPrimary  Boolean @default(false)
+  sortOrder  Int     @default(0)
+  owner      MediaOwner @default(PRODUCT)
+  product    Product         @relation(fields: [productId], references: [id])
+  variant    ProductVariant? @relation(fields: [variantId], references: [id])
+  media      Media           @relation(fields: [mediaId], references: [id])
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
 
 enum AddressType {
   HOME
@@ -190,6 +207,7 @@ enum InventoryTransactionType {
 model InventoryTransaction {
   id        Int                      @id @default(autoincrement())
   productId Int
+  variantId Int?
   orderId   Int?
   qty       Int
   type      InventoryTransactionType
@@ -212,12 +230,14 @@ model ProductVariant {
   discountedPrice Int?
   qty             Int
   isEnabled       Boolean               @default(true)
+  deletedAt       DateTime?
   material        String?
   style           String?
   variantValues   ProductVariantValue[]
   orderItems      OrderItem[]
   cartItems       CartItem[]
   wishListItems   WishListItem[]
+  productMedia    ProductMedia[]
   createdAt       DateTime              @default(now())
   updatedAt       DateTime              @updatedAt
 }

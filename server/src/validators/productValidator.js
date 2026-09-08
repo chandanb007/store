@@ -5,8 +5,9 @@ const createProductSchema = Joi.object({
   sku: Joi.string().min(3).max(20).optional(),
   categoryId: Joi.number().integer().required(),
   description: Joi.string().min(3).max(500).required(),
+  images: Joi.optional(), //TODO: add the validation for files
   isEnabled: Joi.boolean(),
-  variants: Joi.string().optional(),
+  variants: Joi.optional(),
 });
 
 module.exports = {

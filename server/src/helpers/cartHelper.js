@@ -1,4 +1,6 @@
-const calculateCartSummary = async (db, cartId) => {
+const { buildMediaUrl } = require("../helpers/urlHelper.js");
+
+const calculateCartSummary = async (db,cartId) => {
   const cart = await db.cart.findUnique({
     where: {
       id: cartId,
@@ -8,7 +10,16 @@ const calculateCartSummary = async (db, cartId) => {
         include: {
           variant: {
             include: {
-              product: true,
+              productMedia: {
+                include: {
+                  media : true,
+                }
+              },
+              product: {
+                include: {
+                  category: true
+                }
+              },
             },
           },
         },
@@ -30,10 +41,14 @@ const calculateCartSummary = async (db, cartId) => {
       product: {
         id: item.variant.product.id,
         title: item.variant.product.title,
+        category: item.variant.product.category.name,
       },
       variant: {
         id: item.variant.id,
         sku: item.variant.sku,
+        price : item.variant.price,
+        discountedPrice: item.variant.discountedPrice,
+        image : item?.variant?.productMedia[0]?.media?.url ? buildMediaUrl(item.variant.productMedia[0].media.url) :"",
       },
     };
   });
@@ -73,6 +88,7 @@ const calculateCartSummary = async (db, cartId) => {
             code: cart.coupon.code,
             name: cart.coupon.name,
             description: cart.coupon.description,
+            
           }
         : null,
       totalSavings,

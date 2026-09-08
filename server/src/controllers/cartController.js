@@ -65,7 +65,6 @@ const deleteItem = async (req,res,next) => {
     }
 }
 const applyCoupon = async(req,res,next)=> {
-           
     try{
         const updatedCart = await cartService.applyCoupon(req.body.code,req.user.userId);
          return success(

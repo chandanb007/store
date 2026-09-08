@@ -21,6 +21,7 @@
     "motion": "^12.23.24",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
+    "react-dropzone": "^19.1.1",
     "react-is": "^19.2.7",
     "react-router-dom": "^7.18.0",
     "recharts": "^3.8.1",

@@ -27,6 +27,7 @@ export const UserAccount = () => {
     products,
     addNotification,
     themeConfig,
+    getUserCart,
   } = useApp();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -67,8 +68,7 @@ export const UserAccount = () => {
   // Handle Logins
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    debugger;
-    const res = await login(email, password);
+   const res = await login(email, password);
     if (res.success) {
       setProfileName(currentUser?.firstName || "");
     } else {
@@ -139,7 +139,7 @@ export const UserAccount = () => {
   );
 
   // Retrieve products in wishlist
-  const wishlistedProducts = products.filter((p) => wishlist.includes(p.id));
+  const wishlistedProducts = products?.data?.filter((p) => wishlist.includes(p.id));
 
   // If user is NOT authenticated, display Login / Register pages
   if (!currentUser) {

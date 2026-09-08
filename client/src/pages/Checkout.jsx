@@ -5,7 +5,8 @@ import { ArrowLeft, CreditCard, ShieldCheck, ShoppingBag, Sparkles, Truck, Check
 import { motion, AnimatePresence } from 'motion/react';
 
 export const Checkout = () => {
-  const { cart, clearCart, addNotification } = useApp();
+  const {  cart,
+    gustCart, clearCart, addNotification,currentUser} = useApp();
   const navigate = useNavigate();
 
   // If cart is empty, redirect user back to shop
@@ -38,9 +39,12 @@ export const Checkout = () => {
   const [generatedOrderId, setGeneratedOrderId] = useState('');
 
   // Calculations
-  const cartSubtotal = cart.reduce((sum, item) => {
-    const price = item.product.discountPrice || item.product.price;
+  const cartSubtotal = !currentUser ? gustCart.reduce((sum, item) => {
+    const price = item.selectedVariant.discountPrice || item.selectedVariant.price;
     return sum + (price * item.quantity);
+  }, 0) : cart[0]?.items.reduce((sum, item) => {
+    const price = item.variant.discountPrice || item.variant.price;
+    return sum + (price * item.qty);
   }, 0);
 
   const deliveryCost = formState.deliveryMethod === 'express' ? 350 : 150;
@@ -372,11 +376,19 @@ export const Checkout = () => {
             {cart.length > 0 ? (
               <div className="divide-y divide-stone-100 dark:divide-stone-850/60 max-h-80 overflow-y-auto mb-6 pr-2">
                 {cart.map((item) => {
-                  const price = item.product.discountPrice || item.product.price;
+                  if (currentUser) {
+
+                  } else {
+                    
+                  }
+                  const price = item?.variant?.price ?? item?.product?.price ?? 0;
+                   const image = currentUser
+        ? item?.variant?.image ?? item?.product?.image ?? ""
+        : item?.product?.image ?? "";
                   return (
                     <div key={item.product.id} className="py-3 flex gap-3.5 text-xs">
                       <div className="w-12 h-16 rounded-lg overflow-hidden border border-stone-100 dark:border-stone-800 flex-shrink-0 bg-stone-50">
-                        <img src={item.product.images[0]} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                        <img src={image} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-serif font-bold text-[#2D2926] dark:text-stone-100 truncate">{item.product.name}</p>

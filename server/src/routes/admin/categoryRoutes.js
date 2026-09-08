@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const {createCategorySchema,updateCategorySchema ,deleteCategorySchema,getCategorySchema} = require("../validators/categoryValidator");
-const validate = require("../middleware/validate");
-const  {createUploader} =  require("../middleware/uploader.js");
+const {createCategorySchema,updateCategorySchema ,deleteCategorySchema,getCategorySchema} = require("../../validators/categoryValidator.js");
+const validate = require("../../middleware/validate.js");
+const  {createUploader} =  require("../../middleware/uploader.js");
 const upload = createUploader("category");
-const categoryController = require("../controllers/categoryController");
-const {auth,allowRoles} = require("../middleware/auth")
+const categoryController = require("../../controllers/categoryController.js");
+const {auth,allowRoles} = require("../../middleware/auth.js")
 
 //public endpoints
 router.get("/", categoryController.getCategories);

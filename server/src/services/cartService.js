@@ -7,7 +7,7 @@ const { validateVariantInventory } = require("../helpers/inventoryHelper.js");
 const createCart = async (cartData) => {
   const userId = Number(cartData.userId);
   const { cartItems } = cartData;
-
+  console.log(cartItems)
   return await prisma.$transaction(async (tx) => {
 
     let cart = await tx.cart.findUnique({
@@ -23,6 +23,8 @@ const createCart = async (cartData) => {
         },
       });
     }
+    console.log("---------tttttt-------------");
+    console.log(cartItems);
     for (const item of cartItems) {
       await validateVariantInventory(tx, item.variantId, item.qty);
       const existingItem = await tx.cartItem.findUnique({
@@ -64,6 +66,7 @@ const createCart = async (cartData) => {
   });
 };
 const getCart = async (userId) => {
+  console.log("---------test---------")
   return await prisma.$transaction(async (tx) => {
     let cart = await prisma.cart.findUnique({
       where: {
@@ -104,7 +107,8 @@ const clearCart = async (userId) => {
     message: "Cart cleared successfully.",
   };
 };
-const updateItem = async (itemId, userId, data) => {
+const updateItem = async (itemId,userId,data) => {
+  console.log(itemId,userId)
   const cartItem = await prisma.cartItem.findFirst({
     where: {
       id: Number(itemId),
@@ -162,9 +166,11 @@ const deleteItem = async (itemId,userId) => {
    return response;
 }
 const applyCoupon = async(code,userId) => {
-    const cart = await getCart(Number(userId));
+  const cart = await getCart(Number(userId));
+  console.log("-----------------");
+  console.log(cart);
     if(!cart) {
-        throw new AppError("Cart does not exists",404);
+        throw new AppError("Cart does not exists",400);
     }
     const coupon = await validateCoupon(prisma,code,cart.summary.subTotal);
     if(coupon) {

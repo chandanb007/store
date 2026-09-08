@@ -92,7 +92,7 @@ export const Home = () => {
   const { products, categories, disabledCategories } = useApp();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const activeCategories = (categories || []).filter(c => !(disabledCategories || []).includes(c));
+  const activeCategories = (categories.categories  || []).filter(c => !(disabledCategories || []).includes(c));
 
   // Auto slide effect
   useEffect(() => {
@@ -102,8 +102,8 @@ export const Home = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 4);
-  const trendingProducts = products.filter((p) => p.isTrending).slice(0, 4);
+  const featuredProducts = [];
+  const trendingProducts = [];
 
   return (
     <div className="flex flex-col gap-16 md:gap-24 overflow-hidden">

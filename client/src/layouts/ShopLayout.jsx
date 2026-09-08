@@ -4,13 +4,13 @@ import { useApp } from '../contexts/AppContext.jsx';
 import { ShoppingBag, Heart, User, Menu, X, Search, LogOut, ShieldAlert, Moon, Sun } from 'lucide-react';
 
 export const ShopLayout = () => {
-  const { cart, wishlist, currentUser, logout, theme, toggleTheme, addNotification, themeConfig, categories, disabledCategories } = useApp();
+  const { cart,gustCart, wishlist, currentUser, logout, theme, toggleTheme, addNotification, themeConfig, categories, disabledCategories } = useApp();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
-  const activeCategories = (categories || []).filter(c => !(disabledCategories || []).includes(c));
+  const activeCategories = (categories.categories || []).filter(c => !(disabledCategories || []).includes(c));
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -18,10 +18,9 @@ export const ShopLayout = () => {
       navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
-
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartCount = currentUser ? cart[0]?.items.reduce((sum, item) => sum + item.qty, 0): gustCart.reduce((sum, item) => sum + item.quantity, 0);
   const wishlistCount = wishlist.length;
-
+  console.log(cartCount)
   return (
     <div className="min-h-screen flex flex-col bg-stone-50/65 dark:bg-stone-950/60">
       {/* Top Announcements */}
@@ -139,10 +138,10 @@ export const ShopLayout = () => {
             >
               Shop
             </Link>
-            {activeCategories.slice(0, 4).map((cat) => (
+            {activeCategories.slice(0, 3).map((cat) => (
               <Link
-                key={cat.id}
-                to={`/shop?category=${encodeURIComponent(cat.id)}`}
+                key={cat.name}
+                to={`/shop?category=${encodeURIComponent(cat.name)}`}
                 className="text-stone-605 dark:text-stone-400 hover:text-gold-600 transition-colors capitalize animate-fade-in"
               >
                 {cat.name}

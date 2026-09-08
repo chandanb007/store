@@ -12,7 +12,7 @@ import { UserAccount } from './pages/UserAccount.jsx';
 import { AdminDashboard } from './pages/AdminDashboard.jsx';
 import { AdminProducts } from './pages/AdminProducts.jsx';
 import { AdminTheme } from './pages/AdminTheme.jsx';
-import { AdminCategories } from './pages/AdminCategories.jsx';
+import { AdminCategories } from './pages/admin/category/Categories.jsx';
 import { NotificationToast } from './components/NotificationToast.jsx';
 
 export default function App() {

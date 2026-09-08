@@ -87,9 +87,17 @@ const incrementInventory = async (db, orderId, cartItems) => {
   }
 };
 
+const hasInventoryHistory = async (db, variantId) => {
+  const inventoryData = await db.inventoryTransaction.count({
+    where: { variantId: Number(variantId) },
+  });
+  return inventoryData > 0 ? true : false;
+};
+
 module.exports = {
   validateCartInventory,
   decrementInventory,
   validateVariantInventory,
   incrementInventory,
+  hasInventoryHistory,
 };

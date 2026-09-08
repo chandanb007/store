@@ -37,10 +37,10 @@ export const AdminDashboard = () => {
 
     const totalOrders = orders.length;
     const totalCustomers = users.filter((u) => u.role === 'Customer').length;
-    const totalProducts = products.length;
+    const totalProducts = products?.data?.length;
 
     // Detect products with low inventory stock (threshold <= 5 items)
-    const lowStockItems = products.filter((p) => p.inventory <= 5);
+    const lowStockItems = products?.data?.filter((p) => p.inventory <= 5);
 
     return {
       totalRev,
@@ -49,12 +49,12 @@ export const AdminDashboard = () => {
       totalProducts,
       lowStockItems
     };
-  }, [orders, users, products]);
+  }, [orders, users, products.data]);
 
   // Aggregate category margins for Pie Wheel
   const categoryChartData = useMemo(() => {
     const counts = {};
-    products.forEach((p) => {
+    products?.data?.forEach((p) => {
       counts[p.category] = (counts[p.category] || 0) + 1;
     });
 
@@ -155,7 +155,7 @@ export const AdminDashboard = () => {
       </div>
 
       {/* Low Stock Warning Banner */}
-      {summaryMetrics.lowStockItems.length > 0 && (
+      {summaryMetrics?.lowStockItems?.length > 0 && (
         <div className="bg-amber-50 dark:bg-amber-955/20 border border-amber-200 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs font-medium text-amber-800 dark:text-amber-200">
           <div className="flex gap-2.5 items-center">
             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />

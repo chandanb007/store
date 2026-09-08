@@ -2,7 +2,10 @@ const prisma = require("../config/prisma.js");
 const { incrementInventory } = require("../helpers/inventoryHelper.js");
 const {
   createOrderStatusHistory,
-} = require("../helpers/OrderStatusHistoryHelper.js");
+} = require("../helpers/OrderStatusHistoryHelper");
+
+
+
 const AppError = require("../utils/appError.js");
 
 const createOrder = async (data, userId) => {
