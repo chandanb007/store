@@ -33,16 +33,15 @@ const validateCoupon = async (db,code,subtotal) => {
     return coupon;
 };
 const validateCouponUsage = async(db,couponId,usagePerUser,userId) => {
-    let couponUseageCount = await db.couponUsage.count({  //TODO change after testing done
+    let couponUsageCount = await db.couponUsage.count({  //TODO change after testing done
         where: { couponId : Number(couponId),
             userId : Number(userId)
         }
     });
-    couponUseageCount = 4; //TODO change after testing done
-    if (couponUseageCount !== null &&  Number(usagePerUser) === couponUseageCount ){
-        throw new AppError(`Coupon is only applicable for only  ${usagePerUser} time/s`, 400);
+    if (couponUsageCount !== null &&  Number(usagePerUser) === couponUsageCount ){
+        throw new AppError(`Coupon is only applicable for user only  ${usagePerUser} time/s`, 400);
     }
-    return couponUseageCount;
+    return couponUsageCount;
 }
 const validateCouponAssignment = async (db, couponId, userId) => {
     const assignedUsers = await db.couponAssignment.findMany({

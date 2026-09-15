@@ -4,7 +4,7 @@ const { auth, allowRoles } = require("../middleware/auth");
 const checkoutController = require("../controllers/checkoutController");
 
 //public endpoints
-router.post("/",auth,allowRoles('CUSTOMER'),checkoutController.checkout);
+router.post("/",auth,allowRoles('CUSTOMER','ADMIN'),checkoutController.checkout);
 
 
 module.exports = router;

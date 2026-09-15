@@ -72,11 +72,11 @@ export const Cart = () => {
       const product = item?.product ?? {};
 
       const regularPrice = Number(
-        variant?.price ?? product?.price ?? 0
+        variant?.price ?? variant?.price ?? 0
       );
 
       const discountPrice = Number(
-        variant?.discountPrice ?? 0
+        variant?.discountedPrice ?? 0
       );
 
       const hasDiscount =
@@ -194,12 +194,13 @@ export const Cart = () => {
     const couponApplied = await applyCoupon(code); 
     if (couponApplied) {
       setActiveCoupon(couponApplied);
-      setCouponCode("");
+      
         addNotification(
         "success",
         `Coupon applied`
       );
     }
+    setCouponCode("");
 
     // const matched = coupons.find(
     //   (coupon) =>

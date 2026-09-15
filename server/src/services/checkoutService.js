@@ -96,7 +96,7 @@ const checkout = async (data, userId) => {
     };
     await createPayment(tx, paymentData);
     await clearCart(tx, cart.id);
-    return orderDataUpdated;
+    return orderDataUpdated.orderNumber;
   });
 };
 

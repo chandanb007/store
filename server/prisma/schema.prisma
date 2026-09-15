@@ -135,6 +135,7 @@ model Address {
   isDefault  Boolean     @default(false)
   user       User        @relation(fields: [userId], references: [id])
   createdAt  DateTime    @default(now())
+  deletedAt  DateTime?
   updatedAt  DateTime    @updatedAt
 }
 

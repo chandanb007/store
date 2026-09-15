@@ -18,6 +18,14 @@ const getOrderById = async (req, res, next) => {
     next(error);
   }
 };
+const getOrderByOrderNumber = async (req, res, next) => {
+  try {
+    const order = await orderService.getOrderByOrderNumber(req.params.orderNumber);
+    return success(res, null, order);
+  } catch (error) {
+    next(error);
+  }
+};
 const cancelOrder = async (req, res, next) => {
   try {
     const order = await orderService.cancelOrder(
@@ -49,4 +57,5 @@ module.exports = {
   getOrderById,
   cancelOrder,
   getOrderInvoice,
+  getOrderByOrderNumber
 };

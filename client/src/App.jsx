@@ -14,6 +14,7 @@ import { AdminProducts } from './pages/AdminProducts.jsx';
 import { AdminTheme } from './pages/AdminTheme.jsx';
 import { AdminCategories } from './pages/admin/category/Categories.jsx';
 import { NotificationToast } from './components/NotificationToast.jsx';
+import Success from './pages/success.jsx'
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
             <Route path="account" element={<UserAccount />} />
+            <Route path="/success/:orderNumber" element={<Success />} />
           </Route>
 
           {/* Administrative Registry */}

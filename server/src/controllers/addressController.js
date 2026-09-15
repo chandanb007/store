@@ -17,7 +17,7 @@ const updateAddress = async (req, res,next) => {
         let body =  req.body;
         body['userId'] = req.user.userId;
         const address = await addressService.updateAddress(body, req.params.id);
-        return success(res, "Address updated", address, 201);
+        return success(res, "Address updated", address, 200);
    }catch(error){
         next(error)
    }

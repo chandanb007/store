@@ -139,6 +139,23 @@ const getOrderById = async (orderId) => {
     },
   });
 };
+const getOrderByOrderNumber = async (orderNumber) => {
+  return prisma.order.findUnique({
+    where: {
+      orderNumber: orderNumber,
+    },
+    include: {
+      items: true,
+      payment: {
+        select: {
+          paymentMethod: true,
+          paymentStatus: true,
+        },
+      },
+    },
+  });
+};
+
 
 const getAllOrders = async (query) => {
   const page = Number(query.page || 1);
@@ -319,4 +336,5 @@ module.exports = {
   getAllOrders,
   updateStatus,
   cancelOrder,
+  getOrderByOrderNumber
 };

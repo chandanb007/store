@@ -6,6 +6,9 @@ import * as productService from "../services/productService.js";
 import * as publicProductService from "../services/public/productService.js";
 import * as publicCategoryService from "../services/public/categoryService.js";
 import * as publicCartService from "../services/public/cartService.js";
+import * as addressService from "../services/public/addressService.js";
+import * as checkoutService from "../services/public/checkoutService.js";
+import * as orderService from "../services/public/orderService.js";
 
 const AppContext = createContext(undefined);
 
@@ -161,7 +164,8 @@ const adjustShade = (hex, percent) => {
 export const AppProvider = ({ children }) => {
   // Load initial states from localStorage or defaults
   const [products, setProducts] = useState([]);
-  const [publicProducts, setPublicProducts] = useState([]);
+  const [publicProducts,setPublicProducts] = useState([]);
+  const [orderNumber,setOrderNumber] = useState();
 
   const [gustCart, setGuestCart] = useState(() => {
     const stored = localStorage.getItem("guest_cart");
@@ -180,6 +184,10 @@ export const AppProvider = ({ children }) => {
     const stored = localStorage.getItem("ht_orders");
     return stored ? JSON.parse(stored) : SEED_ORDERS;
   });
+   const [addresses, setAddresses] = useState(() => {
+    const stored = localStorage.getItem("ht_addresses");
+     return stored ? JSON.parse(stored) : "";
+  });
 
   const [coupons, setCoupons] = useState(() => {
     const stored = localStorage.getItem("ht_coupons");
@@ -190,6 +198,7 @@ export const AppProvider = ({ children }) => {
     const stored = localStorage.getItem("ht_users");
     return stored ? JSON.parse(stored) : SEED_USERS;
   });
+  const [orderData,setOrderData] = useState([]);
 
   const [currentUser, setCurrentUser] = useState(() => {
     const stored = localStorage.getItem("ht_current_user");
@@ -223,10 +232,12 @@ export const AppProvider = ({ children }) => {
     if (user != null) {
        if ((user.role) == 'ADMIN') {
         loadProducts();
-        loadCategories();
+         loadCategories();
+         getUserAddresses();
       }else {
          loadPublicProducts();
          loadPublicCategories();
+         getUserAddresses();
       }
     }else {
       loadPublicProducts();
@@ -655,9 +666,53 @@ export const AppProvider = ({ children }) => {
             return false;
             }
       } catch (error) {
-          addNotification("info","Coupon is invalid or not found, try again with other code");
+        addNotification("info",
+          error.response?.data?.message ||
+          "Something went wrong. Please try again."
+        );
           return false;
         }
+  }
+
+  // Placement of Orders
+  const placeOrder = async (data) => {
+    if (!currentUser) {
+      addNotification("error","Please register or login to complete orders.");
+      return null;
+    }
+    if (cart.length === 0) {
+      addNotification("error","Your shopping cart is empty.");
+      return null;
+    }
+    debugger;
+    try {
+      const response = await checkoutService.placeOrder(data);
+      console.log(response);
+      if (response.status == 201) {
+        debugger;
+        setCart([]);
+        console.log("Order Number : ",response.data.data)
+        setOrderNumber(response.data.data);
+        addNotification("info",response?.data?.message);
+      }
+    } catch (error) {
+      addNotification("error",error.response?.data?.message); 
+    }
+
+  };
+  const getOrderData = async (orderNumber) => {
+    try {
+      const response = await orderService.getOrderData(orderNumber);
+      if (response.status == 200) {
+        return response.data.data;
+      } else {
+        addNotification("info",response.data?.message);
+        return false;
+      }
+    } catch (error) {
+      addNotification("info","Coupon is invalid or not found, try again with other code");
+      return false;
+    }
   }
   const removeCoupon = async () => {
     try {
@@ -673,6 +728,67 @@ export const AppProvider = ({ children }) => {
           addNotification("info","Coupon is invalid or not found, try again with other code");
           return false;
         }
+  }
+  const getUserAddresses = async () => {
+    try {
+       const response = await addressService.getUserAddresses();
+      if (response.status == 200) {
+          setAddresses(response.data.data)
+          } else {
+            addNotification("info", response.data?.message);
+            return false;
+            }
+    } catch (error) {
+      
+    }
+  }
+  const addAddress = async(form) => {
+    try {
+      const response = await addressService.addAddress(form);
+      if (response.status === 201) {
+        addNotification("info",response.data?.message);
+        getUserAddresses();
+      } else {
+        addNotification("info", response.data?.message);
+      }
+    } catch (error) {
+      addNotification("info",
+      error.response?.data?.message ||
+      "Something went wrong. Please try again."
+    );
+    }
+  }
+  const deleteAddress = async (addressId) => {
+     try {
+      const response = await addressService.deleteAddress(addressId);
+      if (response.status === 200) {
+        addNotification("info",response.data?.message);
+        getUserAddresses();
+      } else {
+        addNotification("info", response.data?.message);
+      }
+    } catch (error) {
+      addNotification("info",
+      error.response?.data?.message ||
+      "Something went wrong. Please try again."
+    );
+    }
+  }
+  const makeAddressDefault = async (addressId) => {
+     try {
+      const response = await addressService.updateAddress(addressId,{isDefault : true});
+      if (response.status === 200) {
+        addNotification("info",response.data?.message);
+        getUserAddresses();
+      } else {
+        addNotification("info", response.data?.message);
+      }
+    } catch (error) {
+      addNotification("info",
+      error.response?.data?.message ||
+      "Something went wrong. Please try again."
+    );
+    }
   }
   const removeFromCart = (productId, variant) => {
     const selectedVariant = variant || "Standard";
@@ -781,86 +897,6 @@ export const AppProvider = ({ children }) => {
     );
   };
 
-  // Placement of Orders
-  const placeOrder = (billingAddress, paymentMethod, discountCode) => {
-    if (!currentUser) {
-      addNotification("error", "Please register or login to complete orders.");
-      return null;
-    }
-    if (cart.length === 0) {
-      addNotification("error", "Your shopping cart is empty.");
-      return null;
-    }
-
-    // Calculate subtotal, discount
-    const subtotal = cart.reduce(
-      (sum, item) =>
-        sum +
-        (item.product.discountPrice || item.product.price) * item.quantity,
-      0,
-    );
-    let discount = 0;
-
-    if (discountCode) {
-      const activeCoupon = coupons.find(
-        (c) => c.code.toUpperCase() === discountCode.toUpperCase() && c.active,
-      );
-      if (activeCoupon) {
-        if (!activeCoupon.minOrder || subtotal >= activeCoupon.minOrder) {
-          if (activeCoupon.type === "percentage") {
-            discount = parseFloat(
-              ((subtotal * activeCoupon.value) / 100).toFixed(2),
-            );
-          } else {
-            discount = activeCoupon.value;
-          }
-        }
-      }
-    }
-
-    const shipping = subtotal > 5000 ? 0 : 250;
-    const total = subtotal - discount + shipping;
-
-    // Deduct inventories
-    setProducts((prevProds) =>
-      prevProds.map((p) => {
-        const cartItem = cart.find((item) => item.product.id === p.id);
-        if (cartItem) {
-          return {
-            ...p,
-            inventory: Math.max(0, p.inventory - cartItem.quantity),
-          };
-        }
-        return p;
-      }),
-    );
-
-    const orderNumStr = 1000 + orders.length + 1;
-    const newOrder = {
-      id: `ord-${Date.now()}`,
-      orderNumber: `HT-2026-${orderNumStr}`,
-      userEmail: currentUser.email,
-      userName: currentUser.firstName,
-      items: [...cart],
-      subtotal,
-      shipping,
-      discount,
-      total,
-      billingAddress,
-      paymentMethod,
-      status: "Pending",
-      date: new Date().toISOString(),
-    };
-
-    setOrders((prev) => [newOrder, ...prev]);
-    clearCart();
-    addNotification(
-      "success",
-      `Order ${newOrder.orderNumber} placed successfully!`,
-    );
-
-    return newOrder;
-  };
 
   const updateOrderStatus = (orderId, status, trackingNumber) => {
     setOrders((prev) =>
@@ -1099,7 +1135,14 @@ export const AppProvider = ({ children }) => {
         toggleTheme,
         loadProducts,
         applyCoupon,
-        removeCoupon
+        removeCoupon,
+        addresses,
+        addAddress,
+        deleteAddress,
+        makeAddressDefault,
+        orderNumber,
+        getOrderData,
+        orderData
       }}
     >
       {children}

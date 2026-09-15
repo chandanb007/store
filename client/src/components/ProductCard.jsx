@@ -220,7 +220,7 @@ const validateQty = (e) => {
           Number(variant.discountedPrice) <
           Number(variant.price)
       )
-    : Number(product?.discountPrice || 0) <
+    : Number(product?.discountedPrice || 0) <
       Number(product?.price || 0);
 
   const discountPercentage =
