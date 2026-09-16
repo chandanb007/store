@@ -3,7 +3,7 @@ const { incrementInventory } = require("../helpers/inventoryHelper.js");
 const {
   createOrderStatusHistory,
 } = require("../helpers/OrderStatusHistoryHelper");
-
+const { buildMediaUrl } = require("../helpers/urlHelper.js");
 
 
 const AppError = require("../utils/appError.js");
@@ -105,6 +105,10 @@ const createOrder = async (data, userId) => {
   });
 };
 const getUserOrders = async (userId) => {
+  // const where = {}
+  // if (user.role != 'ADMIN') {
+  //   where.userId = user.userId;
+  // }
   return prisma.order.findMany({
     where: {
       userId: Number(userId),
@@ -139,13 +143,43 @@ const getOrderById = async (orderId) => {
     },
   });
 };
-const getOrderByOrderNumber = async (orderNumber) => {
-  return prisma.order.findUnique({
-    where: {
-      orderNumber: orderNumber,
-    },
+const getOrderByOrderNumber = async (orderNumber,user) => {
+  const where = {
+    orderNumber : orderNumber,
+  }
+  if (user.role !== "ADMIN") {
+    where.userId = user.userId;
+  }
+  const order = await prisma.order.findUnique({
+   where,
     include: {
-      items: true,
+      items: {
+        include: {
+          variant: {
+            include: {
+              productMedia: {
+                include: {
+                  media: {
+                    select: {
+                      id: true,
+                      storageKey: true,
+                      url: true,
+                    },
+                  },
+                },
+              },
+              product: {
+                select: {
+                  id: true,
+                  title: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+        },
+      },
+
       payment: {
         select: {
           paymentMethod: true,
@@ -154,13 +188,46 @@ const getOrderByOrderNumber = async (orderNumber) => {
       },
     },
   });
-};
 
+  if (!order) {
+    throw new AppError(
+        "The order number is invalid or you do not have permission to access this order.",
+        400,
+      );
+  }
+
+  return {
+    ...order,
+
+    items: order.items.map((item) => ({
+      ...item,
+
+      variant: item.variant
+        ? {
+            ...item.variant,
+
+            productMedia: item.variant.productMedia.map((productMedia) => ({
+              ...productMedia,
+
+              media: productMedia.media
+                ? {
+                    ...productMedia.media,
+
+                    url: buildMediaUrl(
+                      productMedia.media.storageKey
+                    ),
+                  }
+                : null,
+            })),
+          }
+        : null,
+    })),
+  };
+};
 
 const getAllOrders = async (query) => {
   const page = Number(query.page || 1);
-  const limit = Number(query.limit || 20);
-
+  const limit = Number(query.limit || 10);
   const where = {};
 
   // Order Status
@@ -224,6 +291,7 @@ const getAllOrders = async (query) => {
   const [totalRecords, orders] = await prisma.$transaction([
     prisma.order.count({
       where,
+      skip: (page - 1) * limit,
     }),
 
     prisma.order.findMany({

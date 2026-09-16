@@ -13,20 +13,19 @@ import {
   Headphones,
   Clock3,
 } from "lucide-react";
-
 const Success = () => {
     const {
         getOrderData,
+        setOrderNumber,
+        currentUser,
     } = useApp();
   const { orderNumber } = useParams();
     const location = useLocation();
     const [orderData,setOrderData] = useState([]);
     const handleOrderData = async (orderNumber) => {
-        debugger;
         const orderData = await getOrderData(orderNumber)
         if (orderData) {
             setOrderData(orderData);
-            console.log(orderData);
         }
     }
      useEffect(() => {
@@ -35,7 +34,11 @@ const Success = () => {
   // If you pass order data through navigate()
   // navigate(`/ order - success / ${ order.id } `, { state: { order } })
   const order = location.state?.order;
-
+    useEffect(() => {
+        return () => {
+            setOrderNumber("")
+        };
+    },[]);
   /*
    * Fallback data for UI testing.
    * Remove this when your API/order data is available.
@@ -156,7 +159,7 @@ const Success = () => {
                   </p>
 
                   <p className="mt-1 text-sm font-bold text-stone-900 dark:text-white">
-                    #{orderData.id}
+                    #{orderData.orderNumber}
                   </p>
                 </div>
               </div>
@@ -192,9 +195,9 @@ const Success = () => {
                   </p>
 
                   <p className="mt-1 text-sm font-semibold text-stone-900 dark:text-white">
-                    {orderData.paymentMethod === "COD"
+                                      {orderData?.payment?.paymentMethod === "COD"
                       ? "Cash on Delivery"
-                      : orderData.paymentMethod}
+                                          : orderData?.payment?.paymentMethod}
                   </p>
                 </div>
               </div>
@@ -381,11 +384,11 @@ const Success = () => {
 
                     {/* Product Image */}
                     <div className="w-20 h-20 rounded-xl bg-stone-100 dark:bg-stone-800 overflow-hidden flex-shrink-0">
-
-                      {item.image ? (
+                            {console.log(item?.variant?.productMedia[0]?.media?.url)}
+                            {item?.variant?.productMedia[0]?.media?.url ? (
                         <img
-                          src={item.image}
-                          alt={item.name}
+                                    src={item?.variant?.productMedia[0]?.media?.url}
+                                    alt={item.productTitle}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -401,17 +404,17 @@ const Success = () => {
                     <div className="flex-1 min-w-0">
 
                       <h3 className="text-sm font-semibold text-stone-900 dark:text-white">
-                        {item.name}
+                                {item.productTitle}
                       </h3>
 
-                      {item.sku && (
+                            {item.variantSku && (
                         <p className="text-[10px] text-stone-400 mt-1">
-                          SKU: {item.sku}
+                                    SKU: {item.variantSku}
                         </p>
                       )}
 
                       <p className="text-xs text-stone-500 mt-2">
-                        Qty: {item.quantity}
+                                Qty: {item.qty}
                       </p>
 
                     </div>
@@ -421,11 +424,11 @@ const Success = () => {
                     <div className="text-right">
 
                       <p className="text-sm font-bold text-stone-900 dark:text-white">
-                        {formatCurrency(item.price * item.quantity)}
+                                {formatCurrency(item.unitPrice * item.qty)}
                       </p>
 
                       <p className="text-[10px] text-stone-400 mt-1">
-                        {formatCurrency(item.price)} each
+                                {formatCurrency(item.unitPrice)} each
                       </p>
 
                     </div>
@@ -464,29 +467,29 @@ const Success = () => {
               <div className="rounded-xl bg-stone-50 dark:bg-stone-950 p-4">
 
                 <p className="text-sm font-bold text-stone-900 dark:text-white">
-                  {orderData?.deliveryAddress?.firstName}{" "}
-                  {orderData?.deliveryAddress?.lastName}
+                   {orderData?.fullName}{" "}
                 </p>
 
                 <p className="text-xs text-stone-500 dark:text-stone-400 mt-2 leading-5">
-                  {orderData?.deliveryAddress?.address1}
+                                  {orderData?.addressLine1}
                   <br />
 
-                  {orderData?.deliveryAddress?.address2 && (
+                                  {orderData?.addressLine2 && (
                     <>
-                      {orderData?.deliveryAddress?.address2}
+                                          {orderData?.addressLine2}
                       <br />
                     </>
                   )}
 
-                                  {orderData?.deliveryAddress?.city},{" "}
-                                  {orderData?.deliveryAddress?.state}{" "}
-                                  {orderData?.deliveryAddress?.postalCode}
+                                  {orderData?.city},{" "}
+                                  {orderData?.state}{" "}
+                                  {orderData?.postalCode}{" "}
+                                  {orderData?.country}
                 </p>
 
-                              {orderData?.deliveryAddress?.mobile && (
+                              {orderData?.phone && (
                   <p className="text-xs text-stone-500 mt-3">
-                                      Mobile: {orderData?.deliveryAddress.mobile}
+                                      Mobile: {orderData.phone}
                   </p>
                 )}
 
@@ -518,7 +521,7 @@ const Success = () => {
                   </p>
 
                   <p className="text-sm font-bold mt-1">
-                    {orderData.estimatedDelivery}
+                     {orderData.estimatedDelivery ?? "3–5 business days"}
                   </p>
                 </div>
 
@@ -538,24 +541,24 @@ const Success = () => {
 
                 <div className="flex justify-between text-stone-500">
                   <span>Subtotal</span>
-                  <span>{formatCurrency(orderData.subtotal)}</span>
+                                  <span>{formatCurrency(orderData.subtotal)}</span>
                 </div>
 
                 <div className="flex justify-between text-stone-500">
                   <span>Shipping</span>
 
-                  <span className="text-emerald-600 font-semibold">
-                    {orderData.shipping === 0
+                  <span className="font-semibold">
+                                      {orderData.shippingCharge === 0
                       ? "FREE"
-                      : formatCurrency(orderData.shipping)}
+                                          : "+"+ formatCurrency(orderData.shippingCharge)}
                   </span>
                 </div>
 
-                {orderData.discount > 0 && (
+                              {orderData.discount > 0 && (
                   <div className="flex justify-between text-emerald-600">
-                    <span>Discount</span>
+                                      <span>Discount ({orderData.couponCode})</span>
                     <span>
-                      -{formatCurrency(orderData.discount)}
+                                          -{formatCurrency(orderData.discount)}
                     </span>
                   </div>
                 )}
@@ -569,7 +572,7 @@ const Success = () => {
                     </span>
 
                     <span className="text-xl font-bold text-stone-900 dark:text-white">
-                      {formatCurrency(orderData.total)}
+                                          {formatCurrency(orderData.grandTotal)}
                     </span>
 
                   </div>
@@ -597,9 +600,9 @@ const Success = () => {
                   </p>
 
                   <p className="text-sm font-semibold text-stone-900 dark:text-white mt-1">
-                    {orderData.paymentMethod === "COD"
+                                      {orderData?.payment?.paymentMethod === "COD"
                       ? "Cash on Delivery"
-                      : orderData.paymentMethod}
+                      : orderData?.payment?.paymentMethod}
                   </p>
 
                 </div>
@@ -631,9 +634,9 @@ const Success = () => {
             ACTIONS
         ====================================================== */}
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-
+                  {console.log(currentUser.role)}
           <Link
-            to="/orders"
+            to={currentUser.role != 'ADMIN' ?  `/orders` : "/admin/orders"}
             className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gold-500 hover:bg-gold-600 text-stone-950 font-bold text-sm transition-all shadow-sm hover:shadow-md"
           >
             View My Orders

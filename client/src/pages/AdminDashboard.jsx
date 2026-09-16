@@ -36,7 +36,7 @@ export const AdminDashboard = () => {
       .reduce((sum, o) => sum + o.total, 0);
 
     const totalOrders = orders.length;
-    const totalCustomers = users.filter((u) => u.role === 'Customer').length;
+    const totalCustomers = 0;
     const totalProducts = products?.data?.length;
 
     // Detect products with low inventory stock (threshold <= 5 items)

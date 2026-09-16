@@ -365,8 +365,6 @@ model CouponUsage {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   order    Order    @relation(fields: [orderId], references: [id])
   usedAt   DateTime @default(now())
-
-  @@unique([couponId, userId])
   @@index([couponId])
   @@index([userId])
 }

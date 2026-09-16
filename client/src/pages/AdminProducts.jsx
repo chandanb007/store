@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import ProductListing from "./admin/product/productListing.jsx";
 import { object } from "motion/react-client";
-import Filters from './common/Filters.jsx';import Pagination from './common/pagination.jsx';
+import Filters from './common/Filters.jsx';
+import Pagination from './common/pagination.jsx';
 
 
 export const AdminProducts = () => {
@@ -242,7 +243,8 @@ export const AdminProducts = () => {
     minPrice: "",
     maxPrice: "",
     category: "",
-    page : "",
+    page: products?.pagination?.page,
+    pageSize: products?.pagination?.limit
   });
   const handleFilterChange = (name, value) => {
     setFilters((prev) => ({

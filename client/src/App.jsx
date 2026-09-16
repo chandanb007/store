@@ -15,11 +15,15 @@ import { AdminTheme } from './pages/AdminTheme.jsx';
 import { AdminCategories } from './pages/admin/category/Categories.jsx';
 import { NotificationToast } from './components/NotificationToast.jsx';
 import Success from './pages/success.jsx'
+import ScrollToTop from './scrollToTop.jsx';
+import {OrderListing} from './pages/admin/order/orderListing.jsx';
+
 
 export default function App() {
   return (
     <AppProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           {/* Shop Storefront */}
           <Route path="/" element={<ShopLayout />}>
@@ -39,12 +43,7 @@ export default function App() {
             <Route path="products" element={<AdminProducts />} />
             <Route path="categories" element={<AdminCategories />} />
             <Route path="theme" element={<AdminTheme />} />
-            <Route path="orders" element={
-              <div className="bg-white dark:bg-stone-900 border border-stone-150 dark:border-stone-850 p-8 rounded-2xl shadow-sm text-center">
-                <h2 className="font-serif text-xl font-bold text-stone-900 dark:text-white mb-2 font-sans">Order Processing Logs</h2>
-                <p className="text-xs text-stone-400 font-sans font-semibold">Order fulfillment queue is live. There are currently no pending manual reviews required.</p>
-              </div>
-            } />
+            <Route path="orders" element={<OrderListing />} />
             <Route path="customers" element={
               <div className="bg-white dark:bg-stone-900 border border-stone-150 dark:border-stone-850 p-8 rounded-2xl shadow-sm text-center">
                 <h2 className="font-serif text-xl font-bold text-stone-900 dark:text-white mb-2 font-sans">Customer Ledger Accounts</h2>

@@ -163,7 +163,7 @@ export const Cart = () => {
    * ----------------------------------------------------
    */
 
-  const shippingCharge = currentUser ? cart[0]?.summary.shipping : subtotal > 5000 ? 0 : 100;
+  const shippingCharge = currentUser ? cart[0]?.summary?.shipping : subtotal > 5000 ? 0 : 100;
 
   /*
    * ----------------------------------------------------
@@ -577,7 +577,7 @@ export const Cart = () => {
                 <span>
                   {shippingCharge === 0
                     ? "FREE"
-                    : `₹${shippingCharge.toLocaleString("en-IN")}`}
+                    : `₹${shippingCharge?.toLocaleString("en-IN")}`}
                 </span>
               </div>
               <div className="pt-4 border-t border-stone-200 dark:border-stone-800 flex justify-between text-stone-900 dark:text-stone-100 text-base font-bold">

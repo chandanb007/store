@@ -9,113 +9,10 @@ import * as publicCartService from "../services/public/cartService.js";
 import * as addressService from "../services/public/addressService.js";
 import * as checkoutService from "../services/public/checkoutService.js";
 import * as orderService from "../services/public/orderService.js";
+import * as adminOrderService from "../services/admin/orderService.js";
 
 const AppContext = createContext(undefined);
 
-const SEED_USERS = [
-  {
-    id: "user-admin",
-    email: "admin@heritage.com",
-    name: "Vikramaditya Dev (Admin)",
-    role: "Admin",
-    addresses: [
-      {
-        fullName: "Vikramaditya Dev",
-        street: "12, Royal Palace Road",
-        city: "Jaipur",
-        state: "Rajasthan",
-        zipCode: "302001",
-        country: "India",
-        phone: "9876543210",
-      },
-    ],
-  },
-  {
-    id: "user-customer",
-    email: "customer@heritage.com",
-    name: "Aditi Rao",
-    role: "Customer",
-    addresses: [
-      {
-        fullName: "Aditi Rao",
-        street: "Apt 4B, Coral Breeze Apartments",
-        city: "Bengaluru",
-        state: "Karnataka",
-        zipCode: "560001",
-        country: "India",
-        phone: "9812345678",
-      },
-    ],
-    wishlist: ["prod-1", "prod-2"],
-  },
-];
-
-const SEED_ORDERS = [
-  {
-    id: "ord-1001",
-    orderNumber: "HT-2026-1001",
-    userEmail: "customer@heritage.com",
-    userName: "Aditi Rao",
-    items: [
-      {
-        product: INITIAL_PRODUCTS[1], // Handcrafted Pastel Meenakari Jhumkas
-        quantity: 1,
-        selectedVariant: "Standard",
-      },
-      {
-        product: INITIAL_PRODUCTS[5], // Royale Brass Floating Urli Bowl
-        quantity: 1,
-        selectedVariant: "Brass",
-      },
-    ],
-    subtotal: 7090,
-    shipping: 150,
-    discount: 500,
-    total: 6740,
-    billingAddress: {
-      fullName: "Aditi Rao",
-      street: "Apt 4B, Coral Breeze Apartments",
-      city: "Bengaluru",
-      state: "Karnataka",
-      zipCode: "560001",
-      country: "India",
-      phone: "9812345678",
-    },
-    paymentMethod: "UPI",
-    status: "Completed",
-    trackingNumber: "TRACK-8899120",
-    date: "2026-06-10T14:32:00-07:00",
-  },
-  {
-    id: "ord-1002",
-    orderNumber: "HT-2026-1002",
-    userEmail: "customer@heritage.com",
-    userName: "Aditi Rao",
-    items: [
-      {
-        product: INITIAL_PRODUCTS[2], // Kashi Crimson Banarasi Silk Saree
-        quantity: 1,
-      },
-    ],
-    subtotal: 24500,
-    shipping: 0,
-    discount: 3675, // FESTIVE15 used
-    total: 20825,
-    billingAddress: {
-      fullName: "Aditi Rao",
-      street: "Apt 4B, Coral Breeze Apartments",
-      city: "Bengaluru",
-      state: "Karnataka",
-      zipCode: "560001",
-      country: "India",
-      phone: "9812345678",
-    },
-    paymentMethod: "Credit Card",
-    status: "Shipped",
-    trackingNumber: "TRACK-9912384",
-    date: "2026-06-15T09:12:00-07:00",
-  },
-];
 
 // Helper functions for dynamic hex shading
 const hexToRgb = (hex) => {
@@ -160,7 +57,6 @@ const adjustShade = (hex, percent) => {
     return hex;
   }
 };
-
 export const AppProvider = ({ children }) => {
   // Load initial states from localStorage or defaults
   const [products, setProducts] = useState([]);
@@ -177,13 +73,10 @@ export const AppProvider = ({ children }) => {
   });
   const [wishlist, setWishlist] = useState(() => {
     const stored = localStorage.getItem("ht_wishlist");
-    return stored ? JSON.parse(stored) : SEED_USERS[1].wishlist || [];
+    return stored;
   });
 
-  const [orders, setOrders] = useState(() => {
-    const stored = localStorage.getItem("ht_orders");
-    return stored ? JSON.parse(stored) : SEED_ORDERS;
-  });
+  const [orders, setOrders] = useState();
    const [addresses, setAddresses] = useState(() => {
     const stored = localStorage.getItem("ht_addresses");
      return stored ? JSON.parse(stored) : "";
@@ -196,13 +89,13 @@ export const AppProvider = ({ children }) => {
 
   const [users, setUsers] = useState(() => {
     const stored = localStorage.getItem("ht_users");
-    return stored ? JSON.parse(stored) : SEED_USERS;
+    return stored ? JSON.parse(stored) : [];
   });
   const [orderData,setOrderData] = useState([]);
 
   const [currentUser, setCurrentUser] = useState(() => {
     const stored = localStorage.getItem("ht_current_user");
-    return stored ? JSON.parse(stored) : SEED_USERS[1]; // Logged in as customer by default for smooth demo
+    return stored ? JSON.parse(stored) : []; // Logged in as customer by default for smooth demo
   });
 
   const [theme, setTheme] = useState(() => {
@@ -242,7 +135,8 @@ export const AppProvider = ({ children }) => {
     }else {
       loadPublicProducts();
       loadPublicCategories();
-    }   
+    }  
+    getOrders();
   }, []);
  const loadPublicProducts = async (filters) => {
     try {
@@ -372,7 +266,7 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem("guest_cart", JSON.stringify(gustCart));
   }, [gustCart]);
   useEffect(() => {
-    localStorage.setItem("ht_wishlist", JSON.stringify(wishlist));
+   
   }, [wishlist]);
 
   useEffect(() => {
@@ -582,292 +476,7 @@ export const AppProvider = ({ children }) => {
     addNotification("success", "Thank you for your valuable feedback!");
   };
 
-  // Cart Actions
-  const getUserCart = async () => {
-    try {
-          const response = await publicCartService.getUserCart();
-      if (response.status == 200) {
-        debugger;
-            setGuestCart([])
-            setCart([response.data.data]);
-          }
-        } catch (error) {
-          console.log(error);
-        }
-  }
-  const addToCart =  async(product, quantity, variant) => {
-    const selectedVariant = variant || "Standard";
-        //Only login user will have a cart object into the database for guest user will only store data into localstorage
-    if (currentUser) {
-        const cartData = {
-          cartItems: [{
-            variantId: selectedVariant.id,
-            qty: quantity
-          }]
-        }
-        try {
-          const response = await publicCartService.addToCart(cartData);
-          if (response.status == 201) {
-            setGuestCart([])
-            setCart([response.data.data]);
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      } else {
-        if (selectedVariant.qty < quantity) {
-          addNotification(
-            "error",
-            `Only ${selectedVariant.qty} items available in stock.`,
-          );
-          return;
-        }
-        setGuestCart((prev) => {
-          const existingIndex = prev.findIndex(
-            (item) =>
-              item.selectedVariant.id === selectedVariant.id
-          );
-
-          if (existingIndex > -1) {
-            const item = prev[existingIndex];
-            const newQty = item.quantity + quantity;
-            if (newQty > selectedVariant.qty) {
-              addNotification(
-                "error",
-                `Maximum available stock reached (${selectedVariant.qty} items).`,
-              );
-              return prev;
-            }
-            const updated = [...prev];
-            updated[existingIndex] = { ...item, quantity: newQty };
-            addNotification(
-              "success",
-              `Updated "${product.title}" quantity to ${newQty} in cart.`,
-            );
-            return updated;
-          } else {
-            addNotification(
-              "success",
-              `Added "${product.title}" (${selectedVariant.sku}) to cart.`,
-            );
-            return [...prev, { product, quantity, selectedVariant }];
-          }
-        });
-      }
-   };
-  const applyCoupon = async (code) => {
-      try {
-        const response = await publicCartService.applyCoupon(code);
-        if (response.status == 200) {
-            setCart([response.data.data]);
-            return true; 
-          } else {
-            addNotification("info", response.data?.message);
-            return false;
-            }
-      } catch (error) {
-        addNotification("info",
-          error.response?.data?.message ||
-          "Something went wrong. Please try again."
-        );
-          return false;
-        }
-  }
-
-  // Placement of Orders
-  const placeOrder = async (data) => {
-    if (!currentUser) {
-      addNotification("error","Please register or login to complete orders.");
-      return null;
-    }
-    if (cart.length === 0) {
-      addNotification("error","Your shopping cart is empty.");
-      return null;
-    }
-    debugger;
-    try {
-      const response = await checkoutService.placeOrder(data);
-      console.log(response);
-      if (response.status == 201) {
-        debugger;
-        setCart([]);
-        console.log("Order Number : ",response.data.data)
-        setOrderNumber(response.data.data);
-        addNotification("info",response?.data?.message);
-      }
-    } catch (error) {
-      addNotification("error",error.response?.data?.message); 
-    }
-
-  };
-  const getOrderData = async (orderNumber) => {
-    try {
-      const response = await orderService.getOrderData(orderNumber);
-      if (response.status == 200) {
-        return response.data.data;
-      } else {
-        addNotification("info",response.data?.message);
-        return false;
-      }
-    } catch (error) {
-      addNotification("info","Coupon is invalid or not found, try again with other code");
-      return false;
-    }
-  }
-  const removeCoupon = async () => {
-    try {
-        const response = await publicCartService.removeCoupon();
-        if (response.status == 200) {
-            setCart([response.data.data]);
-            return true; 
-          } else {
-            addNotification("info", response.data?.message);
-            return false;
-            }
-      } catch (error) {
-          addNotification("info","Coupon is invalid or not found, try again with other code");
-          return false;
-        }
-  }
-  const getUserAddresses = async () => {
-    try {
-       const response = await addressService.getUserAddresses();
-      if (response.status == 200) {
-          setAddresses(response.data.data)
-          } else {
-            addNotification("info", response.data?.message);
-            return false;
-            }
-    } catch (error) {
-      
-    }
-  }
-  const addAddress = async(form) => {
-    try {
-      const response = await addressService.addAddress(form);
-      if (response.status === 201) {
-        addNotification("info",response.data?.message);
-        getUserAddresses();
-      } else {
-        addNotification("info", response.data?.message);
-      }
-    } catch (error) {
-      addNotification("info",
-      error.response?.data?.message ||
-      "Something went wrong. Please try again."
-    );
-    }
-  }
-  const deleteAddress = async (addressId) => {
-     try {
-      const response = await addressService.deleteAddress(addressId);
-      if (response.status === 200) {
-        addNotification("info",response.data?.message);
-        getUserAddresses();
-      } else {
-        addNotification("info", response.data?.message);
-      }
-    } catch (error) {
-      addNotification("info",
-      error.response?.data?.message ||
-      "Something went wrong. Please try again."
-    );
-    }
-  }
-  const makeAddressDefault = async (addressId) => {
-     try {
-      const response = await addressService.updateAddress(addressId,{isDefault : true});
-      if (response.status === 200) {
-        addNotification("info",response.data?.message);
-        getUserAddresses();
-      } else {
-        addNotification("info", response.data?.message);
-      }
-    } catch (error) {
-      addNotification("info",
-      error.response?.data?.message ||
-      "Something went wrong. Please try again."
-    );
-    }
-  }
-  const removeFromCart = (productId, variant) => {
-    const selectedVariant = variant || "Standard";
-    setCart((prev) =>
-      prev.filter(
-        (item) =>
-          !(
-            item.product.id === productId &&
-            item.selectedVariant === selectedVariant
-          ),
-      ),
-    );
-    addNotification("info", `Removed item from cart.`);
-  };
-  const removeFromUserCart = async (itemId) => {
-    try {
-      const response = await publicCartService.removeItem(itemId); 
-      if (response.status == 200) {
-        setCart([response.data.data]);
-        addNotification("info", `Removed item from cart.`);
-      }
-      }catch (error) {
-      console.log(error);
-    }
-  }
-  const updateGustCartQty = (productId,quantity,variant) => {
-    const selectedVariant = variant || "Standard";
-    if (quantity <= 0) {
-      removeFromCart(productId, selectedVariant);
-      return;
-    }
-    setGuestCart((prev) =>
-      prev.map((item) => {
-        if (
-          item.product.id === productId &&
-          item.selectedVariant === selectedVariant
-        ) {
-          if (quantity > selectedVariant.qty) {
-            addNotification(
-              "error",
-              `Only ${selectedVariant.qty} items available in stock.`,
-            );
-            return item;
-          }
-          return { ...item, quantity };
-        }
-        return item;
-      }),
-    );
-  };
-  const updateUserCartQty = async (variantId,qty) => {
-    try {
-      const response = await publicCartService.updateCartItemQty(variantId,qty); 
-      if (response.status == 200) {
-        setCart([response.data.data]);
-      }
-      }catch (error) {
-      console.log(error);
-    }
-  }
-
-  const clearCart = async() => {
-    if (currentUser) {
-      try {
-        const response = await publicCartService.deleteCart(); 
-        if (response.status == 200) {
-          setCart([]);
-          addNotification("info",response.data.message);
-        }
-      } catch (error) {
-
-      }
-      
-    } else {
-      setGuestCart([]); 
-       addNotification("info","Cart cleared successfully");
-    }
-      };
-
+ 
   // Wishlist Actions
   const toggleWishlist = (productId) => {
     if (!currentUser) {
@@ -913,36 +522,7 @@ export const AppProvider = ({ children }) => {
     );
     addNotification("success", `Order status updated to: ${status}`);
   };
-
-  // Coupons
-  const addCoupon = (coupon) => {
-    setCoupons((prev) => [coupon, ...prev]);
-    addNotification("success", `Promotion coupon ${coupon.code} created.`);
-  };
-  const toggleCoupon = (code) => {
-    setCoupons((prev) =>
-      prev.map((c) => (c.code === code ? { ...c, active: !c.active } : c)),
-    );
-    addNotification("info", `Coupon status updated.`);
-  };
-
-  // Auth Operations
-  const login = async (email, password) => {
-    try {
-      const response = await authLogin(email, password);
-      if (response.status == 200) {
-        const foundUser = response.data.data.user;
-        setCurrentUser(foundUser);
-        localStorage.setItem("token", response.data.data.token);
-        //setWishlist(foundUser.wishlist || []);
-        await getUserCart();
-        addNotification("success", `Welcome back, ${foundUser.firstName}!`);
-        return { success: true };
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  
 
   const register = (email, name, passwordEncoded, role) => {
     const alreadyExists = users.some(
@@ -1016,16 +596,330 @@ export const AppProvider = ({ children }) => {
       "Theme & appearance config updated successfully!",
     );
   };
+  //-----------Refined code Starts ----------------------------------//
+  // Cart Actions
+  const getUserCart = async () => {
+    try {
+      const response = await publicCartService.getUserCart();
+      if (response.status == 200) {
+        debugger;
+        setGuestCart([])
+        setCart([response.data.data]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const addToCart = async (product,quantity,variant) => {
+    const selectedVariant = variant || "Standard";
+    //Only login user will have a cart object into the database for guest user will only store data into localstorage
+    if (currentUser) {
+      const cartData = {
+        cartItems: [{
+          variantId: selectedVariant.id,
+          qty: quantity
+        }]
+      }
+      try {
+        const response = await publicCartService.addToCart(cartData);
+        if (response.status == 201) {
+          setGuestCart([])
+          setCart([response.data.data]);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      if (selectedVariant.qty < quantity) {
+        addNotification(
+          "error",
+          `Only ${selectedVariant.qty} items available in stock.`,
+        );
+        return;
+      }
+      setGuestCart((prev) => {
+        const existingIndex = prev.findIndex(
+          (item) =>
+            item.selectedVariant.id === selectedVariant.id
+        );
 
-  const createCategory = async (name, description) => {
+        if (existingIndex > -1) {
+          const item = prev[existingIndex];
+          const newQty = item.quantity + quantity;
+          if (newQty > selectedVariant.qty) {
+            addNotification(
+              "error",
+              `Maximum available stock reached (${selectedVariant.qty} items).`,
+            );
+            return prev;
+          }
+          const updated = [...prev];
+          updated[existingIndex] = { ...item,quantity: newQty };
+          addNotification(
+            "success",
+            `Updated "${product.title}" quantity to ${newQty} in cart.`,
+          );
+          return updated;
+        } else {
+          addNotification(
+            "success",
+            `Added "${product.title}" (${selectedVariant.sku}) to cart.`,
+          );
+          return [...prev,{ product,quantity,selectedVariant }];
+        }
+      });
+    }
+  };
+  const applyCoupon = async (code) => {
+    try {
+      const response = await publicCartService.applyCoupon(code);
+      if (response.status == 200) {
+        setCart([response.data.data]);
+        return true;
+      } else {
+        addNotification("info",response.data?.message);
+        return false;
+      }
+    } catch (error) {
+      addNotification("info",
+        error.response?.data?.message ||
+        "Something went wrong. Please try again."
+      );
+      return false;
+    }
+  }
+
+  // Placement of Orders
+  const placeOrder = async (data) => {
+    if (!currentUser) {
+      addNotification("error","Please register or login to complete orders.");
+      return null;
+    }
+    if (cart.length === 0) {
+      addNotification("error","Your shopping cart is empty.");
+      return null;
+    }
+    debugger;
+    try {
+      const response = await checkoutService.placeOrder(data);
+      console.log(response);
+      if (response.status == 201) {
+        debugger;
+        setCart([]);
+        console.log("Order Number : ",response.data.data)
+        setOrderNumber(response.data.data);
+        addNotification("info",response?.data?.message);
+      }
+    } catch (error) {
+      addNotification("error",error.response?.data?.message);
+    }
+
+  };
+  const getOrderData = async (orderNumber) => {
+    try {
+      const response = await orderService.getOrderData(orderNumber);
+      if (response.status == 200) {
+        return response.data.data;
+      } else {
+        addNotification("info",response.data?.message);
+        return false;
+      }
+    } catch (error) {
+      addNotification("info","Coupon is invalid or not found, try again with other code");
+      return false;
+    }
+  }
+  const removeCoupon = async () => {
+    try {
+      const response = await publicCartService.removeCoupon();
+      if (response.status == 200) {
+        setCart([response.data.data]);
+        return true;
+      } else {
+        addNotification("info",response.data?.message);
+        return false;
+      }
+    } catch (error) {
+      addNotification("info","Coupon is invalid or not found, try again with other code");
+      return false;
+    }
+  }
+  const getUserAddresses = async () => {
+    try {
+      const response = await addressService.getUserAddresses();
+      if (response.status == 200) {
+        setAddresses(response.data.data)
+      } else {
+        addNotification("info",response.data?.message);
+        return false;
+      }
+    } catch (error) {
+
+    }
+  }
+  const addAddress = async (form) => {
+    try {
+      const response = await addressService.addAddress(form);
+      if (response.status === 201) {
+        addNotification("info",response.data?.message);
+        getUserAddresses();
+      } else {
+        addNotification("info",response.data?.message);
+      }
+    } catch (error) {
+      addNotification("info",
+        error.response?.data?.message ||
+        "Something went wrong. Please try again."
+      );
+    }
+  }
+  const deleteAddress = async (addressId) => {
+    try {
+      const response = await addressService.deleteAddress(addressId);
+      if (response.status === 200) {
+        addNotification("info",response.data?.message);
+        getUserAddresses();
+      } else {
+        addNotification("info",response.data?.message);
+      }
+    } catch (error) {
+      addNotification("info",
+        error.response?.data?.message ||
+        "Something went wrong. Please try again."
+      );
+    }
+  }
+  const makeAddressDefault = async (addressId) => {
+    try {
+      const response = await addressService.updateAddress(addressId,{ isDefault: true });
+      if (response.status === 200) {
+        addNotification("info",response.data?.message);
+        getUserAddresses();
+      } else {
+        addNotification("info",response.data?.message);
+      }
+    } catch (error) {
+      addNotification("info",
+        error.response?.data?.message ||
+        "Something went wrong. Please try again."
+      );
+    }
+  }
+  const removeFromCart = (productId,variant) => {
+    const selectedVariant = variant || "Standard";
+    setCart((prev) =>
+      prev.filter(
+        (item) =>
+          !(
+            item.product.id === productId &&
+            item.selectedVariant === selectedVariant
+          ),
+      ),
+    );
+    addNotification("info",`Removed item from cart.`);
+  };
+  const removeFromUserCart = async (itemId) => {
+    try {
+      const response = await publicCartService.removeItem(itemId);
+      if (response.status == 200) {
+        setCart([response.data.data]);
+        addNotification("info",`Removed item from cart.`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const updateGustCartQty = (productId,quantity,variant) => {
+    const selectedVariant = variant || "Standard";
+    if (quantity <= 0) {
+      removeFromCart(productId,selectedVariant);
+      return;
+    }
+    setGuestCart((prev) =>
+      prev.map((item) => {
+        if (
+          item.product.id === productId &&
+          item.selectedVariant === selectedVariant
+        ) {
+          if (quantity > selectedVariant.qty) {
+            addNotification(
+              "error",
+              `Only ${selectedVariant.qty} items available in stock.`,
+            );
+            return item;
+          }
+          return { ...item,quantity };
+        }
+        return item;
+      }),
+    );
+  };
+  const updateUserCartQty = async (variantId,qty) => {
+    try {
+      const response = await publicCartService.updateCartItemQty(variantId,qty);
+      if (response.status == 200) {
+        setCart([response.data.data]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const clearCart = async () => {
+    if (currentUser) {
+      try {
+        const response = await publicCartService.deleteCart();
+        if (response.status == 200) {
+          setCart([]);
+          addNotification("info",response.data.message);
+        }
+      } catch (error) {
+
+      }
+
+    } else {
+      setGuestCart([]);
+      addNotification("info","Cart cleared successfully");
+    }
+  };
+  // Coupons
+  const addCoupon = (coupon) => {
+    setCoupons((prev) => [coupon,...prev]);
+    addNotification("success",`Promotion coupon ${coupon.code} created.`);
+  };
+  const toggleCoupon = (code) => {
+    setCoupons((prev) =>
+      prev.map((c) => (c.code === code ? { ...c,active: !c.active } : c)),
+    );
+    addNotification("info",`Coupon status updated.`);
+  };
+
+  // Auth Operations
+  const login = async (email,password) => {
+    try {
+      const response = await authLogin(email,password);
+      if (response.status == 200) {
+        const foundUser = response.data.data.user;
+        setCurrentUser(foundUser);
+        localStorage.setItem("token",response.data.data.token);
+        //setWishlist(foundUser.wishlist || []);
+        await getUserCart();
+        addNotification("success",`Welcome back, ${foundUser.firstName}!`);
+        return { success: true };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const createCategory = async (name,description) => {
     try {
       if (!name || name.trim() === "") {
-        addNotification("error", "Category name cannot be empty");
+        addNotification("error","Category name cannot be empty");
         return;
       }
       let formData = new FormData();
-      formData.append("name", name.trim());
-      formData.append("description", description.trim());
+      formData.append("name",name.trim());
+      formData.append("description",description.trim());
       const response = await categoryService.createCategory(formData);
       if (response.status == 201) {
         addNotification(
@@ -1044,7 +938,7 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const updateCategory = async (catId, newName, newDescription) => {
+  const updateCategory = async (catId,newName,newDescription) => {
     if (!catId || newName.trim() === "" || newDescription.trim() === "") {
       addNotification(
         "error",
@@ -1056,9 +950,9 @@ export const AppProvider = ({ children }) => {
       name: newName.trim(),
       description: newDescription.trim(),
     };
-    const response = await updateCategoryData(catId, sanitizedData);
+    const response = await updateCategoryData(catId,sanitizedData);
     if (response.status == 200) {
-      addNotification("success", response.data.message);
+      addNotification("success",response.data.message);
       loadCategories();
     }
   };
@@ -1066,25 +960,40 @@ export const AppProvider = ({ children }) => {
   const deleteCategory = async (catId) => {
     const response = await categoryService.deleteTheCategory(catId);
     if (response.status == 200) {
-      addNotification("success", response.data.message);
+      addNotification("success",response.data.message);
       loadCategories();
     }
   };
   const restoreCategory = async (catId) => {
     const response = await categoryService.restoreCategory(catId);
     if (response.status == 200) {
-      addNotification("success", response.data.message);
+      addNotification("success",response.data.message);
       loadCategories();
     }
   };
-  const toggleCategoryDisabled = async (catId, status) => {
-    const response = await categoryService.updateCategoryStatus(catId, status);
+  const toggleCategoryDisabled = async (catId,status) => {
+    const response = await categoryService.updateCategoryStatus(catId,status);
     if (response.status == 200) {
-      addNotification("success", response.data.message);
+      addNotification("success",response.data.message);
     }
     loadCategories();
   };
-
+  const getOrders = async (filters) => {
+    try {
+      let response = null;
+      if (currentUser.role === 'ADMIN') {
+        response = await adminOrderService.getOrders(filters);
+      } else {
+         response = await orderService.getUser();
+      }  
+     if (response.status === 200) {
+        setOrders(response.data.data);
+      }
+    } catch (error) {
+      
+    } 
+  }
+  //-----------Refined code ends ----------------------------------//
   return (
     <AppContext.Provider
       value={{
@@ -1094,6 +1003,7 @@ export const AppProvider = ({ children }) => {
         gustCart,
         wishlist,
         orders,
+        getOrders,
         coupons,
         currentUser,
         users,
@@ -1142,7 +1052,7 @@ export const AppProvider = ({ children }) => {
         makeAddressDefault,
         orderNumber,
         getOrderData,
-        orderData
+        orderData,
       }}
     >
       {children}
